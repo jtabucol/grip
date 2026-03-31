@@ -6,7 +6,6 @@
 <title>Grip by Bastech</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -110,19 +109,11 @@ label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
 .empty{text-align:center;padding:40px 20px}
 .empty-ico{font-size:40px;margin-bottom:10px}
 .empty-txt{font-size:14px;color:var(--gray);line-height:1.7}
-
-/* CHART */
 #dash-chart{width:100%!important}
-.chart-legend{display:flex;gap:12px;justify-content:center;margin-top:8px;flex-wrap:wrap}
-.legend-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:4px}
-
-/* MONTH PICKER */
 .month-chip{padding:7px 4px;border-radius:8px;font-size:12px;font-weight:600;border:1.5px solid var(--light);background:var(--white);color:var(--gray);cursor:pointer;text-align:center;font-family:var(--font);transition:all 0.12s}
 .month-chip.on{background:var(--orange);color:#fff;border-color:var(--orange)}
 body.dark .month-chip{background:var(--bg);border-color:var(--light);color:var(--gray)}
 body.dark .month-chip.on{background:var(--orange);color:#fff;border-color:var(--orange)}
-
-/* PAYABLES */
 .pay-item{padding:14px 16px;border-bottom:1px solid var(--light)}
 .pay-item:last-child{border-bottom:none}
 .pay-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
@@ -144,6 +135,17 @@ body.dark .month-chip.on{background:var(--orange);color:#fff;border-color:var(--
 .pay-sum-card{flex:1;border-radius:var(--r);padding:12px;text-align:center}
 .pay-sum-label{font-size:11px;font-weight:600;margin-bottom:4px}
 .pay-sum-val{font-size:18px;font-weight:700}
+
+/* ── SUBSCRIPTION STYLES ── */
+.sub-upgrade-card{border:1.5px solid var(--orange)!important;background:linear-gradient(135deg,#fff 0%,#FEF0E7 100%)}
+body.dark .sub-upgrade-card{background:linear-gradient(135deg,#23272E 0%,#2d1f14 100%)}
+.sub-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:0.3px}
+.sub-badge-free{background:#FEF0E7;color:var(--orange)}
+.sub-badge-premium{background:#FEF9C3;color:#92400E}
+.sub-badge-active{background:var(--green-bg);color:var(--green)}
+.upgrade-features{list-style:none;margin-bottom:14px}
+.upgrade-features li{font-size:13px;color:var(--gray);padding:4px 0;display:flex;align-items:center;gap:8px}
+.upgrade-features li::before{content:'✓';color:var(--orange);font-weight:700;font-size:13px}
 
 /* DARK MODE */
 body.dark{
@@ -169,15 +171,11 @@ body.dark .bal-mini{background:rgba(28,31,36,0.5)}
 body.dark .auth-logo .logo-name{color:#F5F5F5}
 body.dark .sec-link{color:var(--orange)}
 body.dark .nav-btn.on svg,body.dark .nav-btn.on span{color:var(--orange)}
-
-/* ACCOUNT ACTIONS */
 .acct-actions{display:flex;gap:8px;padding:10px 16px;border-top:1px solid var(--light)}
 .acct-act-btn{flex:1;padding:7px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--light);background:var(--white);font-family:var(--font);color:var(--dark)}
 .acct-act-btn.del{border-color:#fecaca;background:#fff5f5;color:var(--red)}
 body.dark .acct-act-btn{background:#2A2E35;border-color:#3A3E45;color:#F5F5F5}
 body.dark .acct-act-btn.del{background:#3d1a1a;border-color:#7f1d1d;color:#f87171}
-
-/* DARK TOGGLE */
 .dark-toggle{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--light);cursor:pointer}
 .toggle-track{width:44px;height:24px;border-radius:12px;background:var(--light);position:relative;transition:background 0.2s;flex-shrink:0}
 .toggle-track.on{background:var(--orange)}
@@ -239,6 +237,7 @@ body.dark .acct-act-btn.del{background:#3d1a1a;border-color:#7f1d1d;color:#f8717
   </nav>
 </div>
 
+<!-- MODALS (unchanged from original) -->
 <div id="modal-tx" class="overlay hidden" onclick="if(event.target===this)closeAddTx()">
   <div class="modal">
     <div class="modal-bar"></div>
@@ -256,54 +255,36 @@ body.dark .acct-act-btn.del{background:#3d1a1a;border-color:#7f1d1d;color:#f8717
     <button class="btn btn-orange" style="margin-top:8px" onclick="doSaveTx()">Save transaction</button>
   </div>
 </div>
-
 <div id="modal-acct" class="overlay hidden" onclick="if(event.target===this)closeAddAcct()">
   <div class="modal">
     <div class="modal-bar"></div>
     <div class="modal-title">Add account</div>
     <div class="fg"><label>Account name</label><input id="acct-name" type="text" placeholder="e.g. BDO Savings"></div>
-    <div class="fg"><label>Type</label><select id="acct-type"><option value="bank">🏦 Bank</option><option value="cash">💵 Cash</option><option value="credit_card">💳 Credit Card</option><option value="savings">🏧 Savings</option><option value="e_wallet">📲 E-Wallet</option>
-        <option value="investment">📈 Investment</option><option value="other">📂 Other</option></select></div>
+    <div class="fg"><label>Type</label><select id="acct-type"><option value="bank">🏦 Bank</option><option value="cash">💵 Cash</option><option value="credit_card">💳 Credit Card</option><option value="savings">🏧 Savings</option><option value="e_wallet">📲 E-Wallet</option><option value="investment">📈 Investment</option><option value="other">📂 Other</option></select></div>
     <div class="fg"><label>Current balance</label><input id="acct-bal" type="number" placeholder="0.00" min="0" step="0.01"></div>
     <div style="font-size:12px;color:var(--gray);margin:-8px 0 12px;line-height:1.6">For credit cards, enter what you currently owe.</div>
     <div id="acct-msg"></div>
     <button class="btn btn-orange" style="margin-top:8px" onclick="doSaveAcct()">Add account</button>
   </div>
 </div>
-
-
-<!-- EDIT ACCOUNT MODAL -->
 <div id="modal-edit-acct" class="overlay hidden" onclick="if(event.target===this)closeEditAcct()">
   <div class="modal">
     <div class="modal-bar"></div>
     <div class="modal-title">Edit account</div>
     <input type="hidden" id="edit-acct-id">
     <div class="fg"><label>Account name</label><input id="edit-acct-name" type="text" placeholder="e.g. BDO Savings"></div>
-    <div class="fg"><label>Type</label>
-      <select id="edit-acct-type">
-        <option value="bank">🏦 Bank</option>
-        <option value="cash">💵 Cash</option>
-        <option value="credit_card">💳 Credit Card</option>
-        <option value="savings">🏧 Savings</option>
-        <option value="e_wallet">📲 E-Wallet</option>
-        <option value="investment">📈 Investment</option>
-        <option value="other">📂 Other</option>
-      </select>
-    </div>
+    <div class="fg"><label>Type</label><select id="edit-acct-type"><option value="bank">🏦 Bank</option><option value="cash">💵 Cash</option><option value="credit_card">💳 Credit Card</option><option value="savings">🏧 Savings</option><option value="e_wallet">📲 E-Wallet</option><option value="investment">📈 Investment</option><option value="other">📂 Other</option></select></div>
     <div class="fg"><label>Balance</label><input id="edit-acct-bal" type="number" placeholder="0.00" step="0.01"></div>
     <div id="edit-acct-msg"></div>
     <button class="btn btn-orange" style="margin-top:8px" onclick="doUpdateAcct()">Save changes</button>
     <button class="btn btn-ghost" style="margin-top:8px" onclick="closeEditAcct()">Cancel</button>
   </div>
 </div>
-
-<!-- CURRENCY MODAL -->
 <div id="modal-currency" class="overlay hidden" onclick="if(event.target===this)closeCurrency()">
   <div class="modal">
     <div class="modal-bar"></div>
     <div class="modal-title">Currency</div>
-    <div class="fg">
-      <label>Select your currency</label>
+    <div class="fg"><label>Select your currency</label>
       <select id="cur-sel">
         <option value="USD|$">🇺🇸 USD — US Dollar ($)</option>
         <option value="PHP|₱">🇵🇭 PHP — Philippine Peso (₱)</option>
@@ -327,8 +308,6 @@ body.dark .acct-act-btn.del{background:#3d1a1a;border-color:#7f1d1d;color:#f8717
     <button class="btn btn-ghost" style="margin-top:8px" onclick="closeCurrency()">Cancel</button>
   </div>
 </div>
-
-<!-- EDIT TRANSACTION MODAL -->
 <div id="modal-edit-tx" class="overlay hidden" onclick="if(event.target===this)closeEditTx()">
   <div class="modal">
     <div class="modal-bar"></div>
@@ -348,8 +327,6 @@ body.dark .acct-act-btn.del{background:#3d1a1a;border-color:#7f1d1d;color:#f8717
     <button class="btn btn-ghost" style="margin-top:8px" onclick="closeEditTx()">Cancel</button>
   </div>
 </div>
-
-<!-- SET BUDGET MODAL -->
 <div id="modal-budget" class="overlay hidden" onclick="if(event.target===this)closeBudget()">
   <div class="modal">
     <div class="modal-bar"></div>
@@ -363,24 +340,17 @@ body.dark .acct-act-btn.del{background:#3d1a1a;border-color:#7f1d1d;color:#f8717
     <button class="btn btn-ghost" style="margin-top:8px" onclick="closeBudget()">Cancel</button>
   </div>
 </div>
-
-<!-- PAY ACCOUNT MODAL -->
 <div id="modal-pay-acct" class="overlay hidden" onclick="if(event.target===this)hide('modal-pay-acct')">
   <div class="modal">
     <div class="modal-bar"></div>
     <div class="modal-title" id="pay-acct-title">Mark as paid</div>
-    <div class="fg">
-      <label>Charged from account</label>
-      <select id="pay-acct-sel"><option value="">No specific account</option></select>
-    </div>
+    <div class="fg"><label>Charged from account</label><select id="pay-acct-sel"><option value="">No specific account</option></select></div>
     <div style="font-size:12px;color:var(--gray);margin:-8px 0 14px;line-height:1.6">This helps track which account was used for reconciliation.</div>
     <div id="pay-acct-msg"></div>
     <button class="btn btn-orange" style="margin-top:8px" id="pay-acct-confirm" onclick="confirmPayStatus()">Confirm payment</button>
     <button class="btn btn-ghost" style="margin-top:8px" onclick="hide('modal-pay-acct')">Cancel</button>
   </div>
 </div>
-
-<!-- ADD/EDIT PAYABLE MODAL -->
 <div id="modal-payable" class="overlay hidden" onclick="if(event.target===this)closeAddPayable()">
   <div class="modal">
     <div class="modal-bar"></div>
@@ -415,6 +385,15 @@ body.dark .acct-act-btn.del{background:#3d1a1a;border-color:#7f1d1d;color:#f8717
 <script>
 const sb=window.supabase.createClient('https://lougyjzwiobmunptpgvg.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxvdWd5anp3aW9ibXVucHRwZ3ZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4OTc5NTksImV4cCI6MjA5MDQ3Mzk1OX0.No0QLO1EAO32SrB5pFzZDNEi_WScIQuCBm37cPySMUQ');
 let USER=null,HOUSEHOLD=null,ACCOUNTS=[],CATS=[],TXS=[],PAYABLES=[],PAY_PAYMENTS={},BUDGETS=[],TX_TYPE='expense',TX_FILTER='all',ACTIVE='dashboard',CUR='$',CUR_CODE='USD',CHART=null;
+
+// ── SUBSCRIPTION STATE ──
+// Replace PLACEHOLDER below with your Lemon Squeezy checkout URL once your account is approved
+// Format: https://bastech.lemonsqueezy.com/checkout/buy/YOUR_VARIANT_ID
+const LS_CHECKOUT_URL = 'PLACEHOLDER';
+let SUB_STATUS = 'free';   // 'free' | 'active' | 'cancelled' | 'expired' | 'on_trial'
+let SUB_PLAN   = 'free';   // 'free' | 'premium'
+let SUB_RENEWS = null;     // renewal date string
+
 const MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const CICO={Salary:'💼',Freelance:'💻',Business:'🏢','Other Income':'💰','Housing & Rent':'🏠',Groceries:'🛒',Utilities:'💡',Transportation:'🚗',Healthcare:'🏥',Education:'📚',Entertainment:'🎬','Dining Out':'🍽️',Shopping:'🛍️',Savings:'🏦','Other Expense':'📦'};
 const AICO={bank:'🏦',cash:'💵',credit_card:'💳',savings:'🏧',e_wallet:'📲',investment:'📈',other:'📂'};
@@ -461,6 +440,34 @@ async function doAuth(){
   }catch(e){msg('auth-msg',e.message||'Something went wrong.');}
   finally{$('auth-btn').textContent=AMODE==='in'?'Sign in':'Create account';$('auth-btn').disabled=false;}
 }
+
+// ── SUBSCRIPTION LOADER ──
+async function loadSubscription(){
+  if(!USER) return;
+  try{
+    const{data}=await sb.from('profiles')
+      .select('subscription_status,subscription_plan,subscription_renews_at')
+      .eq('id',USER.id).maybeSingle();
+    if(data){
+      SUB_STATUS = data.subscription_status || 'free';
+      SUB_PLAN   = data.subscription_plan   || 'free';
+      SUB_RENEWS = data.subscription_renews_at || null;
+    }
+  }catch(e){ console.log('subscription load error',e); }
+}
+
+// ── CHECKOUT ──
+function goToCheckout(){
+  if(!LS_CHECKOUT_URL || LS_CHECKOUT_URL === 'PLACEHOLDER'){
+    alert('Premium checkout is coming very soon! Check back shortly.');
+    return;
+  }
+  const url = LS_CHECKOUT_URL
+    + '?checkout[custom][user_id]=' + encodeURIComponent(USER.id)
+    + '&checkout[email]=' + encodeURIComponent(USER.email||'');
+  window.open(url, '_blank');
+}
+
 async function loadApp(user){
   loadCurrencyFromStorage();
   USER=user;
@@ -468,7 +475,7 @@ async function loadApp(user){
   if(!mem){hide('screen-auth');show('screen-onboard');return;}
   const{data:hh}=await sb.from('households').select('*').eq('id',mem.household_id).maybeSingle();
   HOUSEHOLD=hh;
-  await Promise.all([loadCats(),loadAccounts(),loadTxs(),loadPayables(),loadBudgets()]);
+  await Promise.all([loadCats(),loadAccounts(),loadTxs(),loadPayables(),loadBudgets(),loadSubscription()]);
   $('top-title').textContent=HOUSEHOLD?.name||'Grip';
   $('top-av').textContent=ini(user.user_metadata?.full_name||user.email);
   hide('screen-auth');show('screen-app');goTo('dashboard');
@@ -482,7 +489,7 @@ async function doCreateHousehold(){
     if(error)throw error;
     const{data:hh}=await sb.from('households').select('*').eq('id',data.household_id).maybeSingle();
     HOUSEHOLD=hh||{id:data.household_id,name};
-    await Promise.all([loadCats(),loadAccounts(),loadTxs(),loadPayables(),loadBudgets()]);
+    await Promise.all([loadCats(),loadAccounts(),loadTxs(),loadPayables(),loadBudgets(),loadSubscription()]);
     $('top-title').textContent=HOUSEHOLD.name;
     $('top-av').textContent=ini(USER.user_metadata?.full_name||USER.email);
     hide('screen-onboard');show('screen-app');goTo('dashboard');
@@ -522,53 +529,32 @@ function renderDash(){
   const inc=mTxs.filter(t=>t.type==='income').reduce((s,t)=>s+Number(t.amount),0);
   const exp=mTxs.filter(t=>t.type==='expense').reduce((s,t)=>s+Number(t.amount),0);
   const bal=ACCOUNTS.reduce((s,a)=>s+Number(a.balance),0);
-
   $('page-dashboard').innerHTML=`
     <div class="bal-card">
       <div class="bal-label">TOTAL BALANCE</div>
       <div class="bal-amt">${CUR}${fmt(bal)}</div>
       <div class="bal-row">
-        <div class="bal-mini">
-          <div class="bal-mini-l">INCOME</div>
-          <div class="bal-mini-v" style="color:#4ade80">${CUR}${fmt(inc)}</div>
-        </div>
-        <div class="bal-mini">
-          <div class="bal-mini-l">EXPENSES</div>
-          <div class="bal-mini-v" style="color:#fca5a5">${CUR}${fmt(exp)}</div>
-        </div>
+        <div class="bal-mini"><div class="bal-mini-l">INCOME</div><div class="bal-mini-v" style="color:#4ade80">${CUR}${fmt(inc)}</div></div>
+        <div class="bal-mini"><div class="bal-mini-l">EXPENSES</div><div class="bal-mini-v" style="color:#fca5a5">${CUR}${fmt(exp)}</div></div>
       </div>
     </div>
-
-    <div class="sec-head" style="margin-top:4px">
-      <div class="sec-title">6-month overview</div>
-    </div>
-    <div class="card" style="padding:16px 12px 12px">
-      <canvas id="dash-chart"></canvas>
-    </div>
-
-    <div class="sec-head" style="margin-top:4px">
-      <div class="sec-title">This month's spending</div>
-    </div>
-    <div class="card" style="padding:16px 12px 12px">
-      <canvas id="pie-chart"></canvas>
-    </div>
-
+    <div class="sec-head" style="margin-top:4px"><div class="sec-title">6-month overview</div></div>
+    <div class="card" style="padding:16px 12px 12px"><canvas id="dash-chart"></canvas></div>
+    <div class="sec-head" style="margin-top:4px"><div class="sec-title">This month's spending</div></div>
+    <div class="card" style="padding:16px 12px 12px"><canvas id="pie-chart"></canvas></div>
     <div class="sec-head" style="margin-top:4px">
       <div class="sec-title">Recent transactions</div>
       <button class="sec-link" onclick="goTo('transactions')">See all</button>
     </div>
     ${TXS.length===0
       ?`<div class="empty"><div class="empty-ico">💳</div><div class="empty-txt">No transactions yet.<br>Tap + to add your first one.</div></div>`
-      :`<div class="card">${TXS.slice(0,5).map(txRow).join('')}</div>`}
-  `;
+      :`<div class="card">${TXS.slice(0,5).map(txRow).join('')}</div>`}`;
   setTimeout(()=>{ renderChart(); renderPieChart(); }, 80);
 }
-
-
 function txRow(t){
   const ii=t.type==='income';const cn=t.categories?.name||'Other';
   const isPayable=(t.description||'').startsWith('[Payable]');
-  return`<div class="tx-item" onclick="openEditTx('${t.id}','${t.type}',${t.amount},'${t.category_id||''}','${(t.description||'').replace(/'/g,"\'")}','${t.date}')" style="cursor:pointer">
+  return`<div class="tx-item" onclick="openEditTx('${t.id}','${t.type}',${t.amount},'${t.category_id||''}','${(t.description||'').replace(/'/g,"\\'")}','${t.date}')" style="cursor:pointer">
     <div class="tx-ico" style="background:${ii?'#e8fff5':'#fff5f5'}">${ci(cn)}</div>
     <div class="tx-info">
       <div class="tx-name">${t.description||cn}${isPayable?'&nbsp;<span style="font-size:10px;background:#FEF0E7;color:var(--orange);padding:1px 6px;border-radius:4px;font-weight:600">AUTO</span>':''}</div>
@@ -609,10 +595,7 @@ function acctRow(a){
   return`<div>
     <div class="acct-card">
       <div class="acct-ico" style="background:${ABG[a.type]||'#F1EFE8'}">${AICO[a.type]||'📂'}</div>
-      <div style="flex:1">
-        <div style="font-size:14px;font-weight:500">${a.name}</div>
-        <div style="font-size:12px;color:var(--gray);margin-top:1px">${ALAB[a.type]||'Other'}</div>
-      </div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:500">${a.name}</div><div style="font-size:12px;color:var(--gray);margin-top:1px">${ALAB[a.type]||'Other'}</div></div>
       <div style="text-align:right">
         <div style="font-size:16px;font-weight:700;color:${col}">${b<0?'-':''}${CUR}${fmt(Math.abs(b))}</div>
         <div style="font-size:11px;color:var(--gray);margin-top:1px">${cc?'balance due':'available'}</div>
@@ -635,15 +618,11 @@ function renderBudget(){
   const allCatIds=new Set([...Object.keys(sp),...BUDGETS.map(b=>b.category_id)]);
   const rows=[];
   allCatIds.forEach(cid=>{
-    const cat=CATS.find(c=>c.id===cid);
-    if(!cat||cat.type!=='expense')return;
-    const spent=sp[cid]||0;
-    const bud=BUDGETS.find(b=>b.category_id===cid);
-    const budAmt=bud?Number(bud.amount):0;
+    const cat=CATS.find(c=>c.id===cid);if(!cat||cat.type!=='expense')return;
+    const spent=sp[cid]||0;const bud=BUDGETS.find(b=>b.category_id===cid);const budAmt=bud?Number(bud.amount):0;
     const pct=budAmt?Math.min((spent/budAmt)*100,100):0;
     const col=budAmt?(pct>90?'var(--red)':pct>70?'#f59e0b':'var(--green)'):'#9CA3AF';
-    const over=budAmt&&spent>budAmt;
-    rows.push({cat,spent,budAmt,pct,col,over,cid});
+    const over=budAmt&&spent>budAmt;rows.push({cat,spent,budAmt,pct,col,over,cid});
   });
   rows.sort((a,b)=>b.spent-a.spent);
   $('page-budget').innerHTML=`
@@ -655,10 +634,7 @@ function renderBudget(){
         <div class="bal-mini"><div class="bal-mini-l">REMAINING</div><div class="bal-mini-v" style="color:${totBudget&&totSpent>totBudget?'#fca5a5':'#4ade80'}">${CUR}${fmt(Math.max(totBudget-totSpent,0))}</div></div>
       </div>
     </div>
-    <div class="sec-head">
-      <div class="sec-title">${MO[now.getMonth()]} ${now.getFullYear()}</div>
-      <button class="sec-link" onclick="openSetBudget()">+ Set budget</button>
-    </div>
+    <div class="sec-head"><div class="sec-title">${MO[now.getMonth()]} ${now.getFullYear()}</div><button class="sec-link" onclick="openSetBudget()">+ Set budget</button></div>
     ${rows.length===0
       ?`<div class="empty"><div class="empty-ico">📊</div><div class="empty-txt">No expenses yet.<br>Tap "+ Set budget" to add spending limits.</div></div>`
       :`<div class="card">${rows.map(r=>`
@@ -671,61 +647,87 @@ function renderBudget(){
             </div>
           </div>
           <div class="prog"><div class="prog-fill" style="width:${r.pct.toFixed(1)}%;background:${r.col}"></div></div>
-        </div>`).join('')}</div>`}
-  `;
+        </div>`).join('')}</div>`}`;
 }
-
-function openSetBudget(){
-  const expCats=CATS.filter(c=>c.type==='expense');
-  if(expCats.length>0)openSetBudgetForCat(expCats[0].id);
-}
+function openSetBudget(){const expCats=CATS.filter(c=>c.type==='expense');if(expCats.length>0)openSetBudgetForCat(expCats[0].id);}
 function openSetBudgetForCat(catId){
   const cat=CATS.find(c=>c.id===catId);if(!cat)return;
-  $('bud-cat-id').value=catId;
-  $('bud-cat-label').textContent=ci(cat.name)+' '+cat.name;
-  const existing=BUDGETS.find(b=>b.category_id===catId);
-  $('bud-amt').value=existing?existing.amount:'';
-  clr('bud-msg');
+  $('bud-cat-id').value=catId;$('bud-cat-label').textContent=ci(cat.name)+' '+cat.name;
+  const existing=BUDGETS.find(b=>b.category_id===catId);$('bud-amt').value=existing?existing.amount:'';clr('bud-msg');
   let sel=document.getElementById('bud-cat-sel');
   if(!sel){sel=document.createElement('select');sel.id='bud-cat-sel';sel.style.cssText='width:100%;padding:12px 14px;border:1.5px solid var(--light);border-radius:var(--r);font-size:15px;font-family:var(--font);outline:none;color:var(--dark);background:var(--white);margin-bottom:14px;appearance:none';$('bud-cat-label').parentElement.after(sel);}
-  sel.innerHTML='';
-  CATS.filter(c=>c.type==='expense').forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=ci(c.name)+'  '+c.name;if(c.id===catId)o.selected=true;sel.appendChild(o);});
-  sel.onchange=()=>{
-    const v=sel.value;
-    $('bud-cat-id').value=v;
-    const c=CATS.find(x=>x.id===v);
-    $('bud-cat-label').textContent=c?ci(c.name)+' '+c.name:'';
-    const ex=BUDGETS.find(b=>b.category_id===v);
-    $('bud-amt').value=ex?ex.amount:'';
-    updateBudgetDeleteBtn(v);
-  };
-  updateBudgetDeleteBtn(catId);
-  show('modal-budget');
+  sel.innerHTML='';CATS.filter(c=>c.type==='expense').forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=ci(c.name)+'  '+c.name;if(c.id===catId)o.selected=true;sel.appendChild(o);});
+  sel.onchange=()=>{const v=sel.value;$('bud-cat-id').value=v;const c=CATS.find(x=>x.id===v);$('bud-cat-label').textContent=c?ci(c.name)+' '+c.name:'';const ex=BUDGETS.find(b=>b.category_id===v);$('bud-amt').value=ex?ex.amount:'';updateBudgetDeleteBtn(v);};
+  updateBudgetDeleteBtn(catId);show('modal-budget');
 }
 function closeBudget(){hide('modal-budget');}
 async function doSaveBudget(){
   const catId=$('bud-cat-id').value,amt=parseFloat($('bud-amt').value);
-  if(!catId||!amt){msg('bud-msg','Please enter an amount.');return;}
-  clr('bud-msg');
+  if(!catId||!amt){msg('bud-msg','Please enter an amount.');return;}clr('bud-msg');
   try{
     const now=new Date();
     const{error}=await sb.rpc('upsert_budget',{p_household_id:HOUSEHOLD.id,p_category_id:catId,p_amount:amt,p_month:now.getMonth()+1,p_year:now.getFullYear()});
-    if(error)throw error;
-    await loadBudgets();closeBudget();renderBudget();
+    if(error)throw error;await loadBudgets();closeBudget();renderBudget();
   }catch(e){msg('bud-msg',e.message||'Could not save.');}
 }
 
-
-// PROFILE
+// ── PROFILE (with subscription) ──
 function renderProfile(){
   const n=USER?.user_metadata?.full_name||USER?.email||'User';
+  const isPremium = SUB_PLAN==='premium' && ['active','on_trial'].includes(SUB_STATUS);
+  const renewText = SUB_RENEWS ? 'Renews ' + new Date(SUB_RENEWS).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
+
+  const subSection = isPremium
+    ? `<div class="card">
+        <div class="menu-item">
+          <div class="menu-left">
+            <div class="menu-ico">⭐</div>
+            <div>
+              <div style="font-size:14px;font-weight:700">Premium Member</div>
+              ${renewText?`<div style="font-size:12px;color:var(--gray)">${renewText}</div>`:''}
+            </div>
+          </div>
+          <span class="sub-badge sub-badge-active">● ACTIVE</span>
+        </div>
+      </div>`
+    : `<div class="card sub-upgrade-card" style="margin-bottom:12px">
+        <div style="padding:18px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+            <div style="width:40px;height:40px;background:var(--orange);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">⚡</div>
+            <div>
+              <div style="font-size:16px;font-weight:800;letter-spacing:-0.02em">Upgrade to Premium</div>
+              <div style="font-size:12px;color:var(--gray)">Founding member — lock in forever</div>
+            </div>
+          </div>
+          <ul class="upgrade-features">
+            <li>Up to 5 household members</li>
+            <li>Priority support</li>
+            <li>All future premium features</li>
+            <li>Founding member rate, locked in</li>
+          </ul>
+          <button class="btn btn-orange" onclick="goToCheckout()" style="font-size:14px;padding:11px">Upgrade to Premium →</button>
+        </div>
+      </div>`;
+
   $('page-profile').innerHTML=`
-    <div class="prof-head"><div class="prof-av">${ini(n)}</div><div style="font-size:20px;font-weight:700;color:#fff">${n}</div><div style="font-size:13px;color:rgba(255,255,255,.4);margin-top:2px">${USER?.email||''}</div></div>
+    <div class="prof-head">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px">
+        <div class="prof-av">${ini(n)}</div>
+        <div>
+          <div style="font-size:20px;font-weight:700;color:#fff">${n}</div>
+          <div style="font-size:13px;color:rgba(255,255,255,.4);margin-top:2px">${USER?.email||''}</div>
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <span class="sub-badge ${isPremium?'sub-badge-active':'sub-badge-free'}">${isPremium?'⭐ Premium':'Free plan'}</span>
+      </div>
+    </div>
     <div style="padding:16px;padding-bottom:80px">
+      ${subSection}
       <div class="card">
         <div class="menu-item"><div class="menu-left"><div class="menu-ico">🏠</div><div style="font-size:14px;font-weight:500">Household</div></div><div style="font-size:13px;color:var(--gray)">${HOUSEHOLD?.name||'–'}</div></div>
         <div class="menu-item" onclick="openCurrency()" style="cursor:pointer"><div class="menu-left"><div class="menu-ico">💱</div><div style="font-size:14px;font-weight:500">Currency</div></div><div style="font-size:13px;color:var(--orange);font-weight:600">${CUR_CODE} ${CUR} ›</div></div>
-        <div class="menu-item"><div class="menu-left"><div class="menu-ico">📱</div><div style="font-size:14px;font-weight:500">Version</div></div><div style="font-size:13px;color:var(--gray)">0.1.0</div></div>
+        <div class="menu-item"><div class="menu-left"><div class="menu-ico">📱</div><div style="font-size:14px;font-weight:500">Version</div></div><div style="font-size:13px;color:var(--gray)">0.2.0</div></div>
       </div>
       <div class="card">
         <div class="dark-toggle" onclick="toggleDark()">
@@ -733,16 +735,14 @@ function renderProfile(){
             <div class="menu-ico">${DARK?'🌙':'☀️'}</div>
             <div style="font-size:14px;font-weight:500">${DARK?'Dark mode':'Light mode'}</div>
           </div>
-          <div class="toggle-track ${DARK?'on':''}">
-            <div class="toggle-thumb" id="dark-thumb"></div>
-          </div>
+          <div class="toggle-track ${DARK?'on':''}"><div class="toggle-thumb" id="dark-thumb"></div></div>
         </div>
       </div>
       <button class="btn btn-red" onclick="doSignOut()" style="margin-top:8px">Sign out</button>
-      <div style="text-align:center;font-size:12px;color:#9CA3AF;margin-top:24px">Grip by Bastech · Built with ♡</div>
+      <div style="text-align:center;font-size:12px;color:#9CA3AF;margin-top:24px">Grip by Bastech · grip.bastech.app</div>
     </div>`;
 }
-async function doSignOut(){await sb.auth.signOut();USER=null;HOUSEHOLD=null;ACCOUNTS=[];CATS=[];TXS=[];hide('screen-app');show('screen-auth');clr('auth-msg');}
+async function doSignOut(){await sb.auth.signOut();USER=null;HOUSEHOLD=null;ACCOUNTS=[];CATS=[];TXS=[];SUB_STATUS='free';SUB_PLAN='free';hide('screen-app');show('screen-auth');clr('auth-msg');}
 
 // ADD TRANSACTION
 function openAddTx(){
@@ -750,31 +750,24 @@ function openAddTx(){
   CATS.filter(c=>c.type===TX_TYPE).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=ci(c.name)+'  '+c.name;cs.appendChild(o);});
   const as=$('tx-acc');as.innerHTML='<option value="">No account</option>';
   ACCOUNTS.forEach(a=>{const o=document.createElement('option');o.value=a.id;o.textContent=a.name;as.appendChild(o);});
-  $('tx-date').value=td();$('tx-amt').value='';$('tx-desc').value='';clr('tx-msg');
-  setTxType('expense');show('modal-tx');
+  $('tx-date').value=td();$('tx-amt').value='';$('tx-desc').value='';clr('tx-msg');setTxType('expense');show('modal-tx');
 }
 function closeAddTx(){hide('modal-tx');}
 function setTxType(t){
   TX_TYPE=t;
-  $('btn-inc').className='type-btn'+(t==='income'?' inc-on':'');
-  $('btn-exp').className='type-btn'+(t==='expense'?' exp-on':'');
+  $('btn-inc').className='type-btn'+(t==='income'?' inc-on':'');$('btn-exp').className='type-btn'+(t==='expense'?' exp-on':'');
   const cs=$('tx-cat');cs.innerHTML='<option value="">Select category…</option>';
   CATS.filter(c=>c.type===t).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=ci(c.name)+'  '+c.name;cs.appendChild(o);});
 }
 async function doSaveTx(){
   const amt=parseFloat($('tx-amt').value),cat=$('tx-cat').value,acc=$('tx-acc').value,desc=$('tx-desc').value.trim(),dt=$('tx-date').value;
-  if(!amt||!cat){msg('tx-msg','Please enter amount and category.');return;}
-  clr('tx-msg');
+  if(!amt||!cat){msg('tx-msg','Please enter amount and category.');return;}clr('tx-msg');
   try{
     const{error}=await sb.from('transactions').insert({household_id:HOUSEHOLD.id,category_id:cat,type:TX_TYPE,amount:amt,description:desc||null,date:dt,created_by:USER.id,account_id:acc||null});
     if(error)throw error;
     if(acc){const a=ACCOUNTS.find(x=>x.id===acc);if(a){const d=TX_TYPE==='income'?amt:-amt;await sb.from('accounts').update({balance:Number(a.balance)+d}).eq('id',acc);}}
-    await Promise.all([loadAccounts(),loadTxs()]);
-    closeAddTx();
-    if(ACTIVE==='dashboard')renderDash();
-    if(ACTIVE==='transactions')renderTxs();
-    if(ACTIVE==='accounts')renderAccounts();
-    if(ACTIVE==='budget')renderBudget();
+    await Promise.all([loadAccounts(),loadTxs()]);closeAddTx();
+    if(ACTIVE==='dashboard')renderDash();if(ACTIVE==='transactions')renderTxs();if(ACTIVE==='accounts')renderAccounts();if(ACTIVE==='budget')renderBudget();
   }catch(e){msg('tx-msg',e.message||'Could not save.');}
 }
 
@@ -786,89 +779,60 @@ async function doSaveAcct(){
   if(!name){msg('acct-msg','Please enter an account name.');return;}clr('acct-msg');
   try{
     const{error}=await sb.rpc('create_account_for_household',{p_household_id:HOUSEHOLD.id,p_name:name,p_type:type,p_balance:bal,p_currency:'USD'});
-    if(error)throw error;
-    await loadAccounts();closeAddAcct();renderAccounts();
+    if(error)throw error;await loadAccounts();closeAddAcct();renderAccounts();
   }catch(e){msg('acct-msg',e.message||'Could not save account.');}
 }
 
 // ── PAYABLES ──
 const PAY_ICONS={'Utilities':'💡','Housing':'🏠','Subscription':'📺','Insurance':'🛡','Loan':'🏦','Internet':'🌐','Other':'📂'};
 let PAY_MONTH=new Date().getMonth(), PAY_YEAR=new Date().getFullYear();
-
 async function loadPayables(){
   if(!HOUSEHOLD)return;
   const{data}=await sb.from('payables').select('*').eq('household_id',HOUSEHOLD.id).eq('is_active',true).order('due_day');
   PAYABLES=data||[];
-  // Load payment statuses for current month range
   if(PAYABLES.length>0){
     const ids=PAYABLES.map(p=>p.id);
     const{data:pmts}=await sb.from('payable_payments').select('*').in('payable_id',ids);
-    PAY_PAYMENTS={};
-    (pmts||[]).forEach(p=>{PAY_PAYMENTS[p.payable_id+'_'+p.month+'_'+p.year]=p;});
+    PAY_PAYMENTS={};(pmts||[]).forEach(p=>{PAY_PAYMENTS[p.payable_id+'_'+p.month+'_'+p.year]=p;});
   }
 }
-
-function getPayStatus(payableId,month,year){
-  return PAY_PAYMENTS[payableId+'_'+month+'_'+year]?.status||'pending';
-}
-
+function getPayStatus(payableId,month,year){return PAY_PAYMENTS[payableId+'_'+month+'_'+year]?.status||'pending';}
 function renderPayables(){
-  const now = new Date();
-  const MOS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-
-  // Filter FIRST before anything uses activePayables
-  const activePayables = PAYABLES.filter(p=>{
-    if(!p.active_months || !Array.isArray(p.active_months) || p.active_months.length===0) return true;
+  const MOS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const activePayables=PAYABLES.filter(p=>{
+    if(!p.active_months||!Array.isArray(p.active_months)||p.active_months.length===0)return true;
     return p.active_months.includes(PAY_MONTH+1);
   });
-  const inactiveCount = PAYABLES.length - activePayables.length;
-
-  const total   = activePayables.reduce((s,p)=>s+Number(p.amount), 0);
-  const paid    = activePayables.filter(p=>getPayStatus(p.id,PAY_MONTH+1,PAY_YEAR)==='paid').reduce((s,p)=>s+Number(p.amount), 0);
-  const skipped = activePayables.filter(p=>getPayStatus(p.id,PAY_MONTH+1,PAY_YEAR)==='skipped').reduce((s,p)=>s+Number(p.amount), 0);
-  const pending = total - paid - skipped;
-
+  const inactiveCount=PAYABLES.length-activePayables.length;
+  const total=activePayables.reduce((s,p)=>s+Number(p.amount),0);
+  const paid=activePayables.filter(p=>getPayStatus(p.id,PAY_MONTH+1,PAY_YEAR)==='paid').reduce((s,p)=>s+Number(p.amount),0);
+  const skipped=activePayables.filter(p=>getPayStatus(p.id,PAY_MONTH+1,PAY_YEAR)==='skipped').reduce((s,p)=>s+Number(p.amount),0);
+  const pending=total-paid-skipped;
   let listHTML;
   if(activePayables.length===0){
-    listHTML = `<div class="empty"><div class="empty-ico">📋</div><div class="empty-txt">${PAYABLES.length===0?'No payables yet.<br>Tap + Add to set up your monthly bills.':'No payables scheduled for this month.'}</div></div>`;
-  } else {
-    const rows = activePayables.map(p=>{ try{ return payableRow(p); }catch(e){ console.error('payableRow error',e); return ''; } }).filter(Boolean).join('');
-    listHTML = `<div class="card">${rows}</div>`;
+    listHTML=`<div class="empty"><div class="empty-ico">📋</div><div class="empty-txt">${PAYABLES.length===0?'No payables yet.<br>Tap + Add to set up your monthly bills.':'No payables scheduled for this month.'}</div></div>`;
+  }else{
+    const rows=activePayables.map(p=>{try{return payableRow(p);}catch(e){console.error('payableRow error',e);return '';}}).filter(Boolean).join('');
+    listHTML=`<div class="card">${rows}</div>`;
   }
-
-  $('page-payables').innerHTML = `
+  $('page-payables').innerHTML=`
     <div class="month-nav">
       <button class="month-nav-btn" onclick="changePayMonth(-1)">&#8249;</button>
       <div class="month-label">${MOS[PAY_MONTH]} ${PAY_YEAR}</div>
       <button class="month-nav-btn" onclick="changePayMonth(1)">&#8250;</button>
     </div>
     <div class="pay-summary">
-      <div class="pay-sum-card" style="background:var(--green-bg)">
-        <div class="pay-sum-label" style="color:var(--green)">PAID</div>
-        <div class="pay-sum-val" style="color:var(--green)">${CUR}${fmt(paid)}</div>
-      </div>
-      <div class="pay-sum-card" style="background:#FEF3C7">
-        <div class="pay-sum-label" style="color:#D97706">PENDING</div>
-        <div class="pay-sum-val" style="color:#D97706">${CUR}${fmt(pending)}</div>
-      </div>
-      <div class="pay-sum-card" style="background:#F1EFE8">
-        <div class="pay-sum-label" style="color:var(--gray)">SKIPPED</div>
-        <div class="pay-sum-val" style="color:var(--gray)">${CUR}${fmt(skipped)}</div>
-      </div>
+      <div class="pay-sum-card" style="background:var(--green-bg)"><div class="pay-sum-label" style="color:var(--green)">PAID</div><div class="pay-sum-val" style="color:var(--green)">${CUR}${fmt(paid)}</div></div>
+      <div class="pay-sum-card" style="background:#FEF3C7"><div class="pay-sum-label" style="color:#D97706">PENDING</div><div class="pay-sum-val" style="color:#D97706">${CUR}${fmt(pending)}</div></div>
+      <div class="pay-sum-card" style="background:#F1EFE8"><div class="pay-sum-label" style="color:var(--gray)">SKIPPED</div><div class="pay-sum-val" style="color:var(--gray)">${CUR}${fmt(skipped)}</div></div>
     </div>
-    <div class="sec-head">
-      <div class="sec-title">Monthly bills</div>
-      <button class="sec-link" onclick="openAddPayable()">+ Add</button>
-    </div>
+    <div class="sec-head"><div class="sec-title">Monthly bills</div><button class="sec-link" onclick="openAddPayable()">+ Add</button></div>
     ${listHTML}
-    ${inactiveCount>0 ? `<div style="text-align:center;font-size:12px;color:var(--gray);margin-top:8px">${inactiveCount} payable${inactiveCount>1?'s':''} not scheduled this month</div>` : ''}
-  `;
+    ${inactiveCount>0?`<div style="text-align:center;font-size:12px;color:var(--gray);margin-top:8px">${inactiveCount} payable${inactiveCount>1?'s':''} not scheduled this month</div>`:''}`;
 }
-
-
 function payableRow(p){
-  const isSkipped = getPayStatus(p.id,PAY_MONTH+1,PAY_YEAR)==='skipped';
   const status=getPayStatus(p.id,PAY_MONTH+1,PAY_YEAR);
+  const isSkipped=status==='skipped';
   const today=new Date().getDate();
   const isCurrentMonth=PAY_MONTH===new Date().getMonth()&&PAY_YEAR===new Date().getFullYear();
   const isOverdue=isCurrentMonth&&status==='pending'&&p.due_day&&today>p.due_day;
@@ -883,9 +847,7 @@ function payableRow(p){
       <div style="flex:1">
         <div class="pay-name">${p.name}</div>
         <div class="pay-meta">${p.category} · ${dueText}</div>
-        ${p.active_months&&p.active_months.length<12
-          ?`<div style="font-size:10px;color:var(--orange);font-weight:600;margin-top:3px">${p.active_months.map(m=>MO[m-1]).join(', ')} only</div>`
-          :''}
+        ${p.active_months&&p.active_months.length<12?`<div style="font-size:10px;color:var(--orange);font-weight:600;margin-top:3px">${p.active_months.map(m=>MO[m-1]).join(', ')} only</div>`:''}
       </div>
       <div style="display:flex;align-items:center;gap:8px">
         <div class="pay-amt">${CUR}${fmt(p.amount)}</div>
@@ -898,442 +860,201 @@ function payableRow(p){
         ${acctName?`<div style="font-size:11px;color:var(--gray);margin-top:4px">via ${acctName}</div>`:''}
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
-        ${status!=='paid'?`<button class="toggle-btn" onclick="openPayAccountModal('${p.id}',${PAY_MONTH+1},${PAY_YEAR},'${status}','${p.name.replace(/'/g,"\'")}')">Mark as paid</button>`:''}
-        ${status==='paid'?`<button class="toggle-btn" onclick="openPayAccountModal('${p.id}',${PAY_MONTH+1},${PAY_YEAR},'paid','${p.name.replace(/'/g,"\'")}')">Undo paid</button>`:''}
+        ${status!=='paid'?`<button class="toggle-btn" onclick="openPayAccountModal('${p.id}',${PAY_MONTH+1},${PAY_YEAR},'${status}','${p.name.replace(/'/g,"\\'")}')">Mark as paid</button>`:''}
+        ${status==='paid'?`<button class="toggle-btn" onclick="openPayAccountModal('${p.id}',${PAY_MONTH+1},${PAY_YEAR},'paid','${p.name.replace(/'/g,"\\'")}')">Undo paid</button>`:''}
         ${status!=='skipped'?`<button class="toggle-btn" style="border-color:#d1d5db;color:var(--gray)" onclick="skipPayable('${p.id}',${PAY_MONTH+1},${PAY_YEAR},'${status}')">Skip month</button>`:`<button class="toggle-btn" style="border-color:#d1d5db;color:var(--gray)" onclick="skipPayable('${p.id}',${PAY_MONTH+1},${PAY_YEAR},'skipped')">Undo skip</button>`}
       </div>
     </div>
   </div>`;
 }
-
 function ordinal(n){const s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);}
-
-async function togglePayStatus(payableId,month,year,current){
-  const newStatus=current==='paid'?'pending':'paid';
-  try{
-    await sb.rpc('set_payable_status',{p_payable_id:payableId,p_month:month,p_year:year,p_status:newStatus,p_household_id:HOUSEHOLD.id});
-    PAY_PAYMENTS[payableId+'_'+month+'_'+year]={status:newStatus};
-    // Reload transactions so the auto-created expense shows up
-    await Promise.all([loadTxs(),loadAccounts()]);
-    renderPayables();
-  }catch(e){alert('Could not update status: '+e.message);}
-}
-
 async function changePayMonth(dir){
   PAY_MONTH+=dir;
   if(PAY_MONTH>11){PAY_MONTH=0;PAY_YEAR++;}
   if(PAY_MONTH<0){PAY_MONTH=11;PAY_YEAR--;}
-  await loadPayables();
-  renderPayables();
+  await loadPayables();renderPayables();
 }
-
-let SELECTED_MONTHS=new Set([1,2,3,4,5,6,7,8,9,10,11,12]); // all = every month
-
+let SELECTED_MONTHS=new Set([1,2,3,4,5,6,7,8,9,10,11,12]);
 function buildMonthPicker(activeMonths){
-  // null or all 12 = every month selected
-  SELECTED_MONTHS = activeMonths && activeMonths.length < 12
-    ? new Set(activeMonths)
-    : new Set([1,2,3,4,5,6,7,8,9,10,11,12]);
-  const picker = $('month-picker');
-  picker.innerHTML = '';
+  SELECTED_MONTHS=activeMonths&&activeMonths.length<12?new Set(activeMonths):new Set([1,2,3,4,5,6,7,8,9,10,11,12]);
+  const picker=$('month-picker');picker.innerHTML='';
   MO.forEach((m,i)=>{
-    const num = i+1;
-    const btn = document.createElement('button');
-    btn.type='button';
-    btn.className='month-chip'+(SELECTED_MONTHS.has(num)?' on':'');
-    btn.textContent=m;
-    btn.onclick=()=>{
-      if(SELECTED_MONTHS.has(num)) SELECTED_MONTHS.delete(num);
-      else SELECTED_MONTHS.add(num);
-      btn.className='month-chip'+(SELECTED_MONTHS.has(num)?' on':'');
-    };
+    const num=i+1;const btn=document.createElement('button');btn.type='button';
+    btn.className='month-chip'+(SELECTED_MONTHS.has(num)?' on':'');btn.textContent=m;
+    btn.onclick=()=>{if(SELECTED_MONTHS.has(num))SELECTED_MONTHS.delete(num);else SELECTED_MONTHS.add(num);btn.className='month-chip'+(SELECTED_MONTHS.has(num)?' on':'');};
     picker.appendChild(btn);
   });
 }
-
 function openAddPayable(){
-  $('pay-edit-id').value='';
-  $('payable-modal-title').textContent='Add payable';
-  $('pay-name').value='';$('pay-amount').value='';$('pay-day').value='';
-  $('pay-cat').value='Utilities';
-  $('payable-save-btn').textContent='Add payable';
-  $('payable-delete-btn').style.display='none';
-  clr('payable-msg');
-  buildMonthPicker(null);
-  show('modal-payable');
+  $('pay-edit-id').value='';$('payable-modal-title').textContent='Add payable';
+  $('pay-name').value='';$('pay-amount').value='';$('pay-day').value='';$('pay-cat').value='Utilities';
+  $('payable-save-btn').textContent='Add payable';$('payable-delete-btn').style.display='none';
+  clr('payable-msg');buildMonthPicker(null);show('modal-payable');
 }
-
-function openEditPayableById(id){
-  const p = PAYABLES.find(x=>x.id===id);
-  if(!p) return;
-  openEditPayable(p);
-}
+function openEditPayableById(id){const p=PAYABLES.find(x=>x.id===id);if(!p)return;openEditPayable(p);}
 function openEditPayable(p){
-  $('pay-edit-id').value=p.id;
-  $('payable-modal-title').textContent='Edit payable';
-  $('pay-name').value=p.name;
-  $('pay-amount').value=p.amount;
-  $('pay-day').value=p.due_day||'';
-  $('pay-cat').value=p.category||'Other';
-  $('payable-save-btn').textContent='Save changes';
-  $('payable-delete-btn').style.display='block';
-  clr('payable-msg');
-  buildMonthPicker(p.active_months);
-  show('modal-payable');
+  $('pay-edit-id').value=p.id;$('payable-modal-title').textContent='Edit payable';
+  $('pay-name').value=p.name;$('pay-amount').value=p.amount;$('pay-day').value=p.due_day||'';$('pay-cat').value=p.category||'Other';
+  $('payable-save-btn').textContent='Save changes';$('payable-delete-btn').style.display='block';
+  clr('payable-msg');buildMonthPicker(p.active_months);show('modal-payable');
 }
-
 function closeAddPayable(){hide('modal-payable');}
-
 async function doSavePayable(){
-  const name=$('pay-name').value.trim();
-  const amount=parseFloat($('pay-amount').value);
-  const day=parseInt($('pay-day').value)||null;
-  const cat=$('pay-cat').value;
-  const editId=$('pay-edit-id').value;
+  const name=$('pay-name').value.trim(),amount=parseFloat($('pay-amount').value),day=parseInt($('pay-day').value)||null,cat=$('pay-cat').value,editId=$('pay-edit-id').value;
   if(!name||!amount){msg('payable-msg','Please enter a name and amount.');return;}
-  // Build active_months array — null if all 12 selected
-  const months=[...SELECTED_MONTHS].sort((a,b)=>a-b);
-  const activeMonths=months.length===12?null:months;
-  clr('payable-msg');
+  const months=[...SELECTED_MONTHS].sort((a,b)=>a-b);const activeMonths=months.length===12?null:months;clr('payable-msg');
   try{
-    if(editId){
-      const{error}=await sb.rpc('edit_payable',{
-        p_payable_id:editId,p_name:name,p_amount:amount,
-        p_due_day:day,p_category:cat,p_active_months:activeMonths
-      });
-      if(error)throw error;
-    } else {
-      const{error}=await sb.rpc('upsert_payable',{
-        p_household_id:HOUSEHOLD.id,p_name:name,p_amount:amount,
-        p_due_day:day,p_category:cat,p_active_months:activeMonths
-      });
-      if(error)throw error;
-    }
-    await loadPayables();
-    closeAddPayable();
-    renderPayables();
+    if(editId){const{error}=await sb.rpc('edit_payable',{p_payable_id:editId,p_name:name,p_amount:amount,p_due_day:day,p_category:cat,p_active_months:activeMonths});if(error)throw error;}
+    else{const{error}=await sb.rpc('upsert_payable',{p_household_id:HOUSEHOLD.id,p_name:name,p_amount:amount,p_due_day:day,p_category:cat,p_active_months:activeMonths});if(error)throw error;}
+    await loadPayables();closeAddPayable();renderPayables();
   }catch(e){msg('payable-msg',e.message||'Could not save.');}
 }
-
 async function doDeletePayable(){
   const id=$('pay-edit-id').value;
   if(!id||!confirm('Delete this payable? It will no longer appear in any month.'))return;
-  try{
-    const{error}=await sb.rpc('delete_payable',{p_payable_id:id});
-    if(error)throw error;
-    await loadPayables();
-    closeAddPayable();
-    renderPayables();
-  }catch(e){alert('Could not delete: '+e.message);}
+  try{const{error}=await sb.rpc('delete_payable',{p_payable_id:id});if(error)throw error;await loadPayables();closeAddPayable();renderPayables();}
+  catch(e){alert('Could not delete: '+e.message);}
 }
 
-// ── CHART ──
+// ── CHARTS ──
 function renderChart(){
-  const canvas = document.getElementById('dash-chart');
-  if(!canvas) return;
-  const dark = document.body.classList.contains('dark');
-  const gridColor = dark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.05)';
-  const textColor = dark ? '#9CA3AF' : '#6B7280';
-
-  const months=[], incData=[], expData=[];
-  const now = new Date();
+  const canvas=document.getElementById('dash-chart');if(!canvas)return;
+  const dark=document.body.classList.contains('dark');
+  const gridColor=dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.05)';
+  const textColor=dark?'#9CA3AF':'#6B7280';
+  const months=[],incData=[],expData=[];
+  const now=new Date();
   for(let i=5;i>=0;i--){
-    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
-    const m = d.getMonth(), y = d.getFullYear();
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);const m=d.getMonth();const y=d.getFullYear();
     months.push(MO[m]);
-    const inc = TXS.filter(t=>{const td=new Date(t.date+'T00:00:00');return t.type==='income'&&td.getMonth()===m&&td.getFullYear()===y;}).reduce((s,t)=>s+Number(t.amount),0);
-    const exp = TXS.filter(t=>{const td=new Date(t.date+'T00:00:00');return t.type==='expense'&&td.getMonth()===m&&td.getFullYear()===y;}).reduce((s,t)=>s+Number(t.amount),0);
-    incData.push(parseFloat(inc.toFixed(2)));
-    expData.push(parseFloat(exp.toFixed(2)));
+    const inc=TXS.filter(t=>{const td=new Date(t.date+'T00:00:00');return t.type==='income'&&td.getMonth()===m&&td.getFullYear()===y;}).reduce((s,t)=>s+Number(t.amount),0);
+    const exp=TXS.filter(t=>{const td=new Date(t.date+'T00:00:00');return t.type==='expense'&&td.getMonth()===m&&td.getFullYear()===y;}).reduce((s,t)=>s+Number(t.amount),0);
+    incData.push(parseFloat(inc.toFixed(2)));expData.push(parseFloat(exp.toFixed(2)));
   }
-
-  if(CHART){ CHART.destroy(); CHART=null; }
-  CHART = new Chart(canvas, {
-    type:'bar',
-    data:{
-      labels: months,
-      datasets:[
-        {label:'Income',   data:incData, backgroundColor:'rgba(74,222,128,0.75)',  borderRadius:5, borderSkipped:false},
-        {label:'Expenses', data:expData, backgroundColor:'rgba(252,165,165,0.75)', borderRadius:5, borderSkipped:false}
-      ]
-    },
-    options:{
-      responsive:true, maintainAspectRatio:true,
-      plugins:{
-        legend:{display:true, position:'bottom', labels:{color:textColor, font:{size:11}, boxWidth:10, padding:14}},
-        tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${CUR}${fmt(ctx.raw)}`}}
-      },
-      scales:{
-        x:{grid:{color:gridColor}, ticks:{color:textColor, font:{size:11}}},
-        y:{grid:{color:gridColor}, ticks:{color:textColor, font:{size:11}, callback:v=>`${CUR}${fmt(v)}`}, beginAtZero:true}
-      }
-    }
-  });
+  if(CHART){CHART.destroy();CHART=null;}
+  CHART=new Chart(canvas,{type:'bar',data:{labels:months,datasets:[
+    {label:'Income',data:incData,backgroundColor:'rgba(74,222,128,0.75)',borderRadius:5,borderSkipped:false},
+    {label:'Expenses',data:expData,backgroundColor:'rgba(252,165,165,0.75)',borderRadius:5,borderSkipped:false}
+  ]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:true,position:'bottom',labels:{color:textColor,font:{size:11},boxWidth:10,padding:14}},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${CUR}${fmt(ctx.raw)}`}}},scales:{x:{grid:{color:gridColor},ticks:{color:textColor,font:{size:11}}},y:{grid:{color:gridColor},ticks:{color:textColor,font:{size:11},callback:v=>`${CUR}${fmt(v)}`},beginAtZero:true}}}});
 }
-
 function renderPieChart(){
-  const canvas = document.getElementById('pie-chart');
-  if(!canvas) return;
-  const dark = document.body.classList.contains('dark');
-  const textColor = dark ? '#9CA3AF' : '#6B7280';
-
-  const now = new Date();
-  const sp = {};
-  TXS.filter(t=>{
-    const d=new Date(t.date+'T00:00:00');
-    return t.type==='expense' && d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
-  }).forEach(t=>{ sp[t.category_id]=(sp[t.category_id]||0)+Number(t.amount); });
-
-  const entries = Object.entries(sp).sort((a,b)=>b[1]-a[1]);
-
-  if(entries.length===0){
-    // Show placeholder text
-    const ctx = canvas.getContext('2d');
-    canvas.height = 60;
-    ctx.fillStyle = textColor;
-    ctx.font = '13px -apple-system,sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('No expenses this month yet', canvas.width/2, 36);
-    return;
-  }
-
-  const labels=[], data=[], colors=[];
+  const canvas=document.getElementById('pie-chart');if(!canvas)return;
+  const dark=document.body.classList.contains('dark');const textColor=dark?'#9CA3AF':'#6B7280';
+  const now=new Date();const sp={};
+  TXS.filter(t=>{const d=new Date(t.date+'T00:00:00');return t.type==='expense'&&d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();}).forEach(t=>{sp[t.category_id]=(sp[t.category_id]||0)+Number(t.amount);});
+  const entries=Object.entries(sp).sort((a,b)=>b[1]-a[1]);
+  if(entries.length===0){const ctx=canvas.getContext('2d');canvas.height=60;ctx.fillStyle=textColor;ctx.font='13px -apple-system,sans-serif';ctx.textAlign='center';ctx.fillText('No expenses this month yet',canvas.width/2,36);return;}
+  const labels=[],data=[],colors=[];
   const PIE_COLORS=['#F26722','#378ADD','#16a34a','#dc2626','#9333ea','#f59e0b','#06b6d4','#ec4899','#84cc16','#f97316','#8b5cf6','#14b8a6','#ef4444','#3b82f6','#22c55e'];
-  entries.forEach(([catId,amt],i)=>{
-    const cat = CATS.find(c=>c.id===catId);
-    labels.push(cat?cat.name:'Other');
-    data.push(parseFloat(amt.toFixed(2)));
-    colors.push(PIE_COLORS[i % PIE_COLORS.length]);
-  });
-
-  if(window.PIE_CHART){ window.PIE_CHART.destroy(); window.PIE_CHART=null; }
-  window.PIE_CHART = new Chart(canvas, {
-    type:'doughnut',
-    data:{ labels, datasets:[{ data, backgroundColor:colors, borderWidth:2, borderColor: dark?'#23272E':'#ffffff', hoverOffset:6 }] },
-    options:{
-      responsive:true, maintainAspectRatio:true, cutout:'60%',
-      plugins:{
-        legend:{ display:true, position:'bottom', labels:{color:textColor, font:{size:11}, boxWidth:10, padding:10, generateLabels(chart){
-          return chart.data.labels.map((lbl,i)=>({
-            text: `${lbl}  ${CUR}${fmt(chart.data.datasets[0].data[i])}`,
-            fillStyle: chart.data.datasets[0].backgroundColor[i],
-            hidden: false, index: i
-          }));
-        }}},
-        tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${CUR}${fmt(ctx.raw)} (${((ctx.raw/data.reduce((a,b)=>a+b,0))*100).toFixed(1)}%)`}}
-      }
-    }
-  });
+  entries.forEach(([catId,amt],i)=>{const cat=CATS.find(c=>c.id===catId);labels.push(cat?cat.name:'Other');data.push(parseFloat(amt.toFixed(2)));colors.push(PIE_COLORS[i%PIE_COLORS.length]);});
+  if(window.PIE_CHART){window.PIE_CHART.destroy();window.PIE_CHART=null;}
+  window.PIE_CHART=new Chart(canvas,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:2,borderColor:dark?'#23272E':'#ffffff',hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:true,cutout:'60%',plugins:{legend:{display:true,position:'bottom',labels:{color:textColor,font:{size:11},boxWidth:10,padding:10,generateLabels(chart){return chart.data.labels.map((lbl,i)=>({text:`${lbl}  ${CUR}${fmt(chart.data.datasets[0].data[i])}`,fillStyle:chart.data.datasets[0].backgroundColor[i],hidden:false,index:i}));}}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${CUR}${fmt(ctx.raw)} (${((ctx.raw/data.reduce((a,b)=>a+b,0))*100).toFixed(1)}%)`}}}}});
 }
-
 
 // ── CURRENCY ──
-function loadCurrencyFromStorage(){
-  const saved = localStorage.getItem('grip_currency');
-  if(saved){const[code,sym]=saved.split('|');CUR_CODE=code;CUR=sym;}
-}
-function openCurrency(){
-  const sel=$('cur-sel');
-  // Select current
-  for(let o of sel.options){ if(o.value.startsWith(CUR_CODE+'|')){ o.selected=true; break; } }
-  clr('cur-msg'); show('modal-currency');
-}
-function closeCurrency(){ hide('modal-currency'); }
+function loadCurrencyFromStorage(){const saved=localStorage.getItem('grip_currency');if(saved){const[code,sym]=saved.split('|');CUR_CODE=code;CUR=sym;}}
+function openCurrency(){const sel=$('cur-sel');for(let o of sel.options){if(o.value.startsWith(CUR_CODE+'|')){o.selected=true;break;}}clr('cur-msg');show('modal-currency');}
+function closeCurrency(){hide('modal-currency');}
 async function doSaveCurrency(){
-  const val=$('cur-sel').value;
-  const[code,sym]=val.split('|');
-  CUR_CODE=code; CUR=sym;
-  localStorage.setItem('grip_currency', val);
-  try{ await sb.rpc('update_profile_currency',{p_currency:code}); }catch(e){}
-  closeCurrency();
-  renderProfile();
-  // Re-render active page so amounts update
-  if(ACTIVE==='dashboard')renderDash();
-  if(ACTIVE==='transactions')renderTxs();
-  if(ACTIVE==='accounts')renderAccounts();
-  if(ACTIVE==='budget')renderBudget();
+  const val=$('cur-sel').value;const[code,sym]=val.split('|');CUR_CODE=code;CUR=sym;localStorage.setItem('grip_currency',val);
+  try{await sb.rpc('update_profile_currency',{p_currency:code});}catch(e){}
+  closeCurrency();renderProfile();
+  if(ACTIVE==='dashboard')renderDash();if(ACTIVE==='transactions')renderTxs();if(ACTIVE==='accounts')renderAccounts();if(ACTIVE==='budget')renderBudget();
 }
 
 // ── EDIT / DELETE TRANSACTIONS ──
 let EDIT_TX_TYPE='expense';
 function openEditTx(id,type,amount,catId,desc,date){
-  $('edit-tx-id').value=id;
-  $('edit-tx-amt').value=amount;
-  $('edit-tx-desc').value=desc;
-  $('edit-tx-date').value=date;
-  setEditTxType(type);
-  const sel=$('edit-tx-cat');
-  sel.innerHTML='<option value="">Select category…</option>';
+  $('edit-tx-id').value=id;$('edit-tx-amt').value=amount;$('edit-tx-desc').value=desc;$('edit-tx-date').value=date;setEditTxType(type);
+  const sel=$('edit-tx-cat');sel.innerHTML='<option value="">Select category…</option>';
   CATS.filter(c=>c.type===type).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=ci(c.name)+'  '+c.name;if(c.id===catId)o.selected=true;sel.appendChild(o);});
   clr('edit-tx-msg');show('modal-edit-tx');
 }
 function setEditTxType(t){
-  EDIT_TX_TYPE=t;
-  $('edit-btn-inc').className='type-btn'+(t==='income'?' inc-on':'');
-  $('edit-btn-exp').className='type-btn'+(t==='expense'?' exp-on':'');
-  const sel=$('edit-tx-cat');
-  sel.innerHTML='<option value="">Select category…</option>';
+  EDIT_TX_TYPE=t;$('edit-btn-inc').className='type-btn'+(t==='income'?' inc-on':'');$('edit-btn-exp').className='type-btn'+(t==='expense'?' exp-on':'');
+  const sel=$('edit-tx-cat');sel.innerHTML='<option value="">Select category…</option>';
   CATS.filter(c=>c.type===t).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=ci(c.name)+'  '+c.name;sel.appendChild(o);});
 }
 function closeEditTx(){hide('modal-edit-tx');}
 async function doUpdateTx(){
   const id=$('edit-tx-id').value,amt=parseFloat($('edit-tx-amt').value),cat=$('edit-tx-cat').value,desc=$('edit-tx-desc').value.trim(),date=$('edit-tx-date').value;
-  if(!amt||!cat){msg('edit-tx-msg','Please enter amount and category.');return;}
-  clr('edit-tx-msg');
+  if(!amt||!cat){msg('edit-tx-msg','Please enter amount and category.');return;}clr('edit-tx-msg');
   try{
     const{error}=await sb.rpc('update_transaction',{p_tx_id:id,p_type:EDIT_TX_TYPE,p_amount:amt,p_category_id:cat,p_description:desc||null,p_date:date});
-    if(error)throw error;
-    await Promise.all([loadTxs(),loadAccounts()]);
-    closeEditTx();
-    if(ACTIVE==='dashboard')renderDash();
-    if(ACTIVE==='transactions')renderTxs();
-    if(ACTIVE==='accounts')renderAccounts();
-    if(ACTIVE==='budget'){await loadBudgets();renderBudget();}
+    if(error)throw error;await Promise.all([loadTxs(),loadAccounts()]);closeEditTx();
+    if(ACTIVE==='dashboard')renderDash();if(ACTIVE==='transactions')renderTxs();if(ACTIVE==='accounts')renderAccounts();if(ACTIVE==='budget'){await loadBudgets();renderBudget();}
   }catch(e){msg('edit-tx-msg',e.message||'Could not update.');}
 }
 async function doDeleteTx(){
   if(!confirm('Delete this transaction? This cannot be undone.'))return;
-  const id=$('edit-tx-id').value;
-  closeEditTx(); // close modal first so user sees the update happening
+  const id=$('edit-tx-id').value;closeEditTx();
   try{
-    const{error}=await sb.rpc('delete_transaction',{p_tx_id:id});
-    if(error)throw error;
+    const{error}=await sb.rpc('delete_transaction',{p_tx_id:id});if(error)throw error;
     await Promise.all([loadTxs(),loadAccounts()]);
-    if(ACTIVE==='dashboard')renderDash();
-    if(ACTIVE==='transactions')renderTxs();
-    if(ACTIVE==='accounts')renderAccounts();
-    if(ACTIVE==='budget'){await loadBudgets();renderBudget();}
+    if(ACTIVE==='dashboard')renderDash();if(ACTIVE==='transactions')renderTxs();if(ACTIVE==='accounts')renderAccounts();if(ACTIVE==='budget'){await loadBudgets();renderBudget();}
   }catch(e){alert('Could not delete: '+e.message);}
 }
 
 // ── BUDGET DELETE ──
 async function doDeleteBudget(){
-  const catId=$('bud-cat-id').value;
-  if(!catId){return;}
-  if(!confirm('Remove budget limit for this category?'))return;
-  try{
-    const now=new Date();
-    const{error}=await sb.rpc('delete_budget',{p_household_id:HOUSEHOLD.id,p_category_id:catId,p_month:now.getMonth()+1,p_year:now.getFullYear()});
-    if(error)throw error;
-    await loadBudgets(); closeBudget(); renderBudget();
-  }catch(e){msg('bud-msg',e.message||'Could not remove.');}
+  const catId=$('bud-cat-id').value;if(!catId)return;if(!confirm('Remove budget limit for this category?'))return;
+  try{const now=new Date();const{error}=await sb.rpc('delete_budget',{p_household_id:HOUSEHOLD.id,p_category_id:catId,p_month:now.getMonth()+1,p_year:now.getFullYear()});if(error)throw error;await loadBudgets();closeBudget();renderBudget();}
+  catch(e){msg('bud-msg',e.message||'Could not remove.');}
 }
-
-// Show/hide delete btn in budget modal based on whether budget exists
-// Toggle delete btn when category changes — called after openSetBudgetForCat
-function updateBudgetDeleteBtn(catId){
-  const existing = BUDGETS.find(b=>b.category_id===catId);
-  const btn = document.getElementById('bud-delete-btn');
-  if(btn) btn.style.display = existing ? 'block' : 'none';
-}
+function updateBudgetDeleteBtn(catId){const existing=BUDGETS.find(b=>b.category_id===catId);const btn=document.getElementById('bud-delete-btn');if(btn)btn.style.display=existing?'block':'none';}
 
 // ── PAYABLE ACCOUNT TRACKING ──
-let PAY_PENDING = null; // {payableId, month, year, current}
-function openPayAccountModal(payableId, month, year, current, payableName){
-  PAY_PENDING = {payableId, month, year, current};
-  $('pay-acct-title').textContent = current==='paid' ? 'Mark as pending' : `Pay: ${payableName}`;
-  const sel=$('pay-acct-sel');
-  sel.innerHTML='<option value="">No specific account</option>';
-  ACCOUNTS.forEach(a=>{
-    const o=document.createElement('option');
-    o.value=a.id; o.textContent=`${AICO[a.type]||'📂'} ${a.name} — ${CUR}${fmt(a.balance)}`;
-    sel.appendChild(o);
-  });
-  // Pre-select if payment already has account
-  const key=payableId+'_'+month+'_'+year;
-  const existing=PAY_PAYMENTS[key];
-  if(existing?.account_id) sel.value=existing.account_id;
+let PAY_PENDING=null;
+function openPayAccountModal(payableId,month,year,current,payableName){
+  PAY_PENDING={payableId,month,year,current};
+  $('pay-acct-title').textContent=current==='paid'?'Mark as pending':`Pay: ${payableName}`;
+  const sel=$('pay-acct-sel');sel.innerHTML='<option value="">No specific account</option>';
+  ACCOUNTS.forEach(a=>{const o=document.createElement('option');o.value=a.id;o.textContent=`${AICO[a.type]||'📂'} ${a.name} — ${CUR}${fmt(a.balance)}`;sel.appendChild(o);});
+  const key=payableId+'_'+month+'_'+year;const existing=PAY_PAYMENTS[key];
+  if(existing?.account_id)sel.value=existing.account_id;
   clr('pay-acct-msg');
-  // If undoing paid (going back to pending), skip account selector
-  if(current==='paid'){ confirmPayStatus(); return; }
-  // If already skipped, just mark paid normally (show account selector)
+  if(current==='paid'){confirmPayStatus();return;}
   show('modal-pay-acct');
 }
-async function skipPayable(payableId, month, year, currentStatus){
-  // Toggle between skipped and pending
-  const newStatus = currentStatus==='skipped' ? 'pending' : 'skipped';
+async function skipPayable(payableId,month,year,currentStatus){
+  const newStatus=currentStatus==='skipped'?'pending':'skipped';
   try{
-    await sb.rpc('set_payable_status',{
-      p_payable_id:payableId, p_month:month, p_year:year,
-      p_status:newStatus, p_household_id:HOUSEHOLD.id, p_account_id:null
-    });
-    PAY_PAYMENTS[payableId+'_'+month+'_'+year]={status:newStatus, account_id:null};
-    await Promise.all([loadTxs(), loadAccounts()]);
-    renderPayables();
-  }catch(e){ alert('Could not update: '+e.message); }
+    await sb.rpc('set_payable_status',{p_payable_id:payableId,p_month:month,p_year:year,p_status:newStatus,p_household_id:HOUSEHOLD.id,p_account_id:null});
+    PAY_PAYMENTS[payableId+'_'+month+'_'+year]={status:newStatus,account_id:null};
+    await Promise.all([loadTxs(),loadAccounts()]);renderPayables();
+  }catch(e){alert('Could not update: '+e.message);}
 }
-
 async function confirmPayStatus(){
   if(!PAY_PENDING)return;
-  const{payableId,month,year,current}=PAY_PENDING;
-  const newStatus=current==='paid'?'pending':'paid';
-  const acctId=document.getElementById('pay-acct-sel')?.value||'';
-  hide('modal-pay-acct');
+  const{payableId,month,year,current}=PAY_PENDING;const newStatus=current==='paid'?'pending':'paid';
+  const acctId=document.getElementById('pay-acct-sel')?.value||'';hide('modal-pay-acct');
   try{
-    await sb.rpc('set_payable_status',{
-      p_payable_id:payableId,p_month:month,p_year:year,
-      p_status:newStatus,p_household_id:HOUSEHOLD.id,
-      p_account_id:acctId||null
-    });
-    const key=payableId+'_'+month+'_'+year;
-    PAY_PAYMENTS[key]={status:newStatus,account_id:acctId||null};
-    await Promise.all([loadTxs(),loadAccounts()]);
-    renderPayables();
+    await sb.rpc('set_payable_status',{p_payable_id:payableId,p_month:month,p_year:year,p_status:newStatus,p_household_id:HOUSEHOLD.id,p_account_id:acctId||null});
+    PAY_PAYMENTS[payableId+'_'+month+'_'+year]={status:newStatus,account_id:acctId||null};
+    await Promise.all([loadTxs(),loadAccounts()]);renderPayables();
   }catch(e){alert('Could not update: '+e.message);}
   PAY_PENDING=null;
 }
 
 // ── DARK MODE ──
-let DARK = localStorage.getItem('grip_dark')==='1';
-function applyDark(){
-  document.body.classList.toggle('dark', DARK);
-  const el = document.getElementById('dark-thumb');
-  if(el) el.parentElement.classList.toggle('on', DARK);
-}
-function toggleDark(){
-  DARK=!DARK;
-  localStorage.setItem('grip_dark', DARK?'1':'0');
-  applyDark();
-  renderProfile();
-  if(ACTIVE==='dashboard') setTimeout(()=>{ renderChart(); renderPieChart(); }, 100);
-}
+let DARK=localStorage.getItem('grip_dark')==='1';
+function applyDark(){document.body.classList.toggle('dark',DARK);const el=document.getElementById('dark-thumb');if(el)el.parentElement.classList.toggle('on',DARK);}
+function toggleDark(){DARK=!DARK;localStorage.setItem('grip_dark',DARK?'1':'0');applyDark();renderProfile();if(ACTIVE==='dashboard')setTimeout(()=>{renderChart();renderPieChart();},100);}
 applyDark();
 
 // ── EDIT / DELETE ACCOUNTS ──
-function openEditAcct(id, name, type, balance){
-  document.getElementById('edit-acct-id').value = id;
-  document.getElementById('edit-acct-name').value = name;
-  document.getElementById('edit-acct-type').value = type;
-  document.getElementById('edit-acct-bal').value = balance;
-  clr('edit-acct-msg');
-  show('modal-edit-acct');
-}
-function closeEditAcct(){ hide('modal-edit-acct'); }
-
+function openEditAcct(id,name,type,balance){document.getElementById('edit-acct-id').value=id;document.getElementById('edit-acct-name').value=name;document.getElementById('edit-acct-type').value=type;document.getElementById('edit-acct-bal').value=balance;clr('edit-acct-msg');show('modal-edit-acct');}
+function closeEditAcct(){hide('modal-edit-acct');}
 async function doUpdateAcct(){
-  const id = document.getElementById('edit-acct-id').value;
-  const name = document.getElementById('edit-acct-name').value.trim();
-  const type = document.getElementById('edit-acct-type').value;
-  const balance = parseFloat(document.getElementById('edit-acct-bal').value||0);
-  if(!name){ msg('edit-acct-msg','Please enter an account name.'); return; }
-  clr('edit-acct-msg');
-  try{
-    const{error}=await sb.rpc('update_account',{p_account_id:id,p_name:name,p_type:type,p_balance:balance});
-    if(error) throw error;
-    await loadAccounts();
-    closeEditAcct();
-    renderAccounts();
-  }catch(e){ msg('edit-acct-msg', e.message||'Could not update account.'); }
+  const id=document.getElementById('edit-acct-id').value,name=document.getElementById('edit-acct-name').value.trim(),type=document.getElementById('edit-acct-type').value,balance=parseFloat(document.getElementById('edit-acct-bal').value||0);
+  if(!name){msg('edit-acct-msg','Please enter an account name.');return;}clr('edit-acct-msg');
+  try{const{error}=await sb.rpc('update_account',{p_account_id:id,p_name:name,p_type:type,p_balance:balance});if(error)throw error;await loadAccounts();closeEditAcct();renderAccounts();}
+  catch(e){msg('edit-acct-msg',e.message||'Could not update account.');}
 }
-
-async function doDeleteAcct(id, name){
-  if(!confirm(`Delete "${name}"? This cannot be undone.`)) return;
-  try{
-    const{error}=await sb.rpc('delete_account',{p_account_id:id});
-    if(error) throw error;
-    await loadAccounts();
-    renderAccounts();
-  }catch(e){ alert('Could not delete: '+e.message); }
+async function doDeleteAcct(id,name){
+  if(!confirm(`Delete "${name}"? This cannot be undone.`))return;
+  try{const{error}=await sb.rpc('delete_account',{p_account_id:id});if(error)throw error;await loadAccounts();renderAccounts();}
+  catch(e){alert('Could not delete: '+e.message);}
 }
 </script>
 </body>
