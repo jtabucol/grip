@@ -381,15 +381,7 @@ body.dark .free-limit-bar{background:#2d1f0e;border-color:#7c4a1a}
     <div class="fg"><label>Amount</label><input id="pay-amount" type="number" placeholder="0.00" min="0" step="0.01"></div>
     <div class="fg"><label>Due day of the month</label><input id="pay-day" type="number" placeholder="e.g. 15" min="1" max="31"></div>
     <div class="fg"><label>Category</label>
-      <select id="pay-cat">
-        <option value="Utilities">💡 Utilities</option>
-        <option value="Housing">🏠 Housing / Rent</option>
-        <option value="Subscription">📺 Subscription</option>
-        <option value="Insurance">🛡 Insurance</option>
-        <option value="Loan">🏦 Loan / Credit</option>
-        <option value="Internet">🌐 Internet / Phone</option>
-        <option value="Other">📂 Other</option>
-      </select>
+      <select id="pay-cat"></select>
     </div>
     <div class="fg">
       <label>Active months <span style="font-weight:400;color:var(--gray)">(leave all checked = every month)</span></label>
@@ -457,7 +449,7 @@ let SUB_PLAN   = 'free';   // 'free' | 'premium'
 let SUB_RENEWS = null;     // renewal date string
 
 const MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const CICO={Salary:'💼',Freelance:'💻',Business:'🏢','Other Income':'💰','Housing & Rent':'🏠',Groceries:'🛒',Utilities:'💡',Transportation:'🚗',Healthcare:'🏥',Education:'📚',Entertainment:'🎬','Dining Out':'🍽️',Shopping:'🛍️',Savings:'🏦','Other Expense':'📦'};
+const CICO={Salary:'💼',Freelance:'💻',Business:'🏢','Other Income':'💰','Housing & Rent':'🏠',Groceries:'🛒',Utilities:'💡',Transportation:'🚗',Healthcare:'🏥',Education:'📚',Entertainment:'🎬','Dining Out':'🍽️','Order In':'🥡',Shopping:'🛍️',Savings:'🏦',Subscription:'📺','Other Expense':'📦'};
 const AICO={bank:'🏦',cash:'💵',credit_card:'💳',savings:'🏧',e_wallet:'📲',investment:'📈',other:'📂'};
 const ALAB={bank:'Bank',cash:'Cash',credit_card:'Credit Card',savings:'Savings',e_wallet:'E-Wallet',investment:'Investment',other:'Other'};
 const ABG={bank:'#EBF4FF',cash:'#FEF0E7',credit_card:'#FFF0F5',savings:'#E8FFF5',e_wallet:'#F0E8FF',investment:'#F0F9E8',other:'#F1EFE8'};
@@ -934,7 +926,7 @@ function payableRow(p){
   const dueText=p.due_day?`Due every ${p.due_day}${ordinal(p.due_day)}`:'No due date set';
   return`<div class="pay-item" style="${isSkipped?'opacity:0.55':''}">
     <div class="pay-top">
-      <div class="pay-ico">${PAY_ICONS[p.category]||'📂'}</div>
+      <div class="pay-ico">${ci(p.category)}</div>
       <div style="flex:1">
         <div class="pay-name">${p.name}</div>
         <div class="pay-meta">${p.category} · ${dueText}</div>
@@ -976,16 +968,25 @@ function buildMonthPicker(activeMonths){
     picker.appendChild(btn);
   });
 }
+function buildPayCatSelect(selected){
+  const sel=$('pay-cat');sel.innerHTML='';
+  CATS.filter(c=>c.type==='expense').forEach(c=>{
+    const o=document.createElement('option');o.value=c.name;o.textContent=ci(c.name)+'  '+c.name;
+    if(c.name===selected)o.selected=true;
+    sel.appendChild(o);
+  });
+}
 function openAddPayable(){
   $('pay-edit-id').value='';$('payable-modal-title').textContent='Add payable';
-  $('pay-name').value='';$('pay-amount').value='';$('pay-day').value='';$('pay-cat').value='Utilities';
+  $('pay-name').value='';$('pay-amount').value='';$('pay-day').value='';
+  buildPayCatSelect('Utilities');
   $('payable-save-btn').textContent='Add payable';$('payable-delete-btn').style.display='none';
   clr('payable-msg');buildMonthPicker(null);show('modal-payable');
 }
 function openEditPayableById(id){const p=PAYABLES.find(x=>x.id===id);if(!p)return;openEditPayable(p);}
 function openEditPayable(p){
   $('pay-edit-id').value=p.id;$('payable-modal-title').textContent='Edit payable';
-  $('pay-name').value=p.name;$('pay-amount').value=p.amount;$('pay-day').value=p.due_day||'';$('pay-cat').value=p.category||'Other';
+  $('pay-name').value=p.name;$('pay-amount').value=p.amount;$('pay-day').value=p.due_day||'';buildPayCatSelect(p.category||'Utilities');
   $('payable-save-btn').textContent='Save changes';$('payable-delete-btn').style.display='block';
   clr('payable-msg');buildMonthPicker(p.active_months);show('modal-payable');
 }
