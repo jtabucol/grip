@@ -181,6 +181,26 @@ body.dark .acct-act-btn.del{background:#3d1a1a;border-color:#7f1d1d;color:#f8717
 .toggle-track.on{background:var(--orange)}
 .toggle-thumb{width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
 .toggle-track.on .toggle-thumb{left:22px}
+/* ── PREMIUM FEATURES ── */
+.budget-badge{position:absolute;top:-4px;right:-6px;background:var(--red);color:#fff;border-radius:50%;width:15px;height:15px;font-size:9px;font-weight:700;display:none;align-items:center;justify-content:center;z-index:2}
+.nav-ico-wrap{position:relative;display:inline-flex}
+.alert-banner{background:#FFF7ED;border:1px solid #fed7aa;border-radius:10px;padding:12px 14px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:10px}
+.alert-banner-title{font-size:13px;font-weight:600;color:#C2410C}
+.alert-banner-sub{font-size:12px;color:#78350F;margin-top:2px}
+.free-limit-bar{background:#FEF0E7;border:1px solid #f2c9ac;border-radius:10px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.locked-feature{text-align:center;padding:40px 24px}
+.locked-feature .lock-ico{font-size:48px;margin-bottom:16px}
+.locked-feature h3{font-size:20px;font-weight:700;margin-bottom:8px}
+.locked-feature p{font-size:14px;color:var(--gray);margin-bottom:24px;line-height:1.6}
+.rep-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.rep-stat{padding:14px;text-align:center}
+.rep-stat-label{font-size:11px;font-weight:600;color:var(--gray);letter-spacing:.05em}
+.rep-stat-val{font-size:18px;font-weight:700;margin-top:4px}
+.hh-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--light);cursor:pointer}
+.hh-active-badge{font-size:11px;background:var(--green-bg);color:var(--green);padding:2px 8px;border-radius:10px;font-weight:600}
+.rec-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--light);cursor:pointer}
+body.dark .alert-banner{background:#2d1f0e;border-color:#7c4a1a}
+body.dark .free-limit-bar{background:#2d1f0e;border-color:#7c4a1a}
 </style>
 </head>
 <body>
@@ -226,13 +246,14 @@ body.dark .acct-act-btn.del{background:#3d1a1a;border-color:#7f1d1d;color:#f8717
   <div id="page-payables" class="page hidden"></div>
   <div id="page-budget" class="page hidden"></div>
   <div id="page-profile" class="page hidden"></div>
+  <div id="page-reports" class="page hidden"></div>
   <button class="fab" id="fab" onclick="ACTIVE==='payables'?openAddPayable():openAddTx()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg></button>
   <nav class="bottom-bar">
     <button class="nav-btn on" id="nav-dashboard" onclick="goTo('dashboard')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M9 22V12h6v10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Home</span></button>
     <button class="nav-btn" id="nav-transactions" onclick="goTo('transactions')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Activity</span></button>
     <button class="nav-btn" id="nav-accounts" onclick="goTo('accounts')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 10v11M12 10v11M16 10v11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Accounts</span></button>
     <button class="nav-btn" id="nav-payables" onclick="goTo('payables')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Payables</span></button>
-    <button class="nav-btn" id="nav-budget" onclick="goTo('budget')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 20V10M12 20V4M6 20v-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Budget</span></button>
+    <button class="nav-btn" id="nav-budget" onclick="goTo('budget')"><div class="nav-ico-wrap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 20V10M12 20V4M6 20v-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="budget-badge" id="budget-alert-badge">0</span></div><span>Budget</span></button>
     <button class="nav-btn" id="nav-profile" onclick="goTo('profile')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2"/></svg><span>Profile</span></button>
   </nav>
 </div>
@@ -381,10 +402,51 @@ body.dark .acct-act-btn.del{background:#3d1a1a;border-color:#7f1d1d;color:#f8717
   </div>
 </div>
 
+<div id="modal-recurring" class="overlay hidden" onclick="if(event.target===this)closeAddRecurring()">
+  <div class="modal">
+    <div class="modal-bar"></div>
+    <div class="modal-title" id="rec-modal-title">Add recurring</div>
+    <input type="hidden" id="rec-edit-id">
+    <div class="type-row">
+      <button class="type-btn" id="btn-rec-inc" onclick="setRecType('income')">↑ Income</button>
+      <button class="type-btn exp-on" id="btn-rec-exp" onclick="setRecType('expense')">↓ Expense</button>
+    </div>
+    <div class="fg"><input class="big-input" id="rec-amt" type="number" placeholder="0.00" min="0" step="0.01"></div>
+    <div class="fg"><label>Category</label><select id="rec-cat"></select></div>
+    <div class="fg"><label>Account (optional)</label><select id="rec-acc"><option value="">No account</option></select></div>
+    <div class="fg"><label>Description (optional)</label><input id="rec-desc" type="text" placeholder="e.g. Netflix, Rent"></div>
+    <div class="fg"><label>Frequency</label>
+      <select id="rec-freq" onchange="toggleDayOfMonth()">
+        <option value="weekly">Weekly</option>
+        <option value="monthly" selected>Monthly</option>
+        <option value="yearly">Yearly</option>
+      </select>
+    </div>
+    <div class="fg" id="rec-dom-group"><label>Day of month</label><input id="rec-dom" type="number" placeholder="e.g. 15" min="1" max="31"></div>
+    <div class="fg"><label>Next occurrence date</label><input id="rec-date" type="date"></div>
+    <div id="rec-msg"></div>
+    <button class="btn btn-orange" style="margin-top:8px" id="rec-save-btn" onclick="doSaveRecurring()">Add recurring</button>
+    <button class="btn btn-red" style="margin-top:8px;display:none" id="rec-delete-btn" onclick="doDeleteRecurring()">Delete</button>
+    <button class="btn btn-ghost" style="margin-top:8px" onclick="closeAddRecurring()">Cancel</button>
+  </div>
+</div>
+
+<div id="modal-new-hh" class="overlay hidden" onclick="if(event.target===this)closeNewHousehold()">
+  <div class="modal">
+    <div class="modal-bar"></div>
+    <div class="modal-title">New household</div>
+    <div class="fg"><label>Household name</label><input id="new-hh-name" type="text" placeholder="e.g. My Business, Personal"></div>
+    <div style="font-size:12px;color:var(--gray);margin:-8px 0 12px;line-height:1.6">Premium allows up to 3 households. All finances are tracked separately per household.</div>
+    <div id="new-hh-msg"></div>
+    <button class="btn btn-orange" style="margin-top:8px" id="new-hh-btn" onclick="doCreateNewHousehold()">Create household</button>
+    <button class="btn btn-ghost" style="margin-top:8px" onclick="closeNewHousehold()">Cancel</button>
+  </div>
+</div>
+
 </div>
 <script>
 const sb=window.supabase.createClient('https://lougyjzwiobmunptpgvg.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxvdWd5anp3aW9ibXVucHRwZ3ZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4OTc5NTksImV4cCI6MjA5MDQ3Mzk1OX0.No0QLO1EAO32SrB5pFzZDNEi_WScIQuCBm37cPySMUQ');
-let USER=null,HOUSEHOLD=null,ACCOUNTS=[],CATS=[],TXS=[],PAYABLES=[],PAY_PAYMENTS={},BUDGETS=[],TX_TYPE='expense',TX_FILTER='all',ACTIVE='dashboard',CUR='$',CUR_CODE='USD',CHART=null;
+let USER=null,HOUSEHOLD=null,HOUSEHOLDS=[],ACCOUNTS=[],CATS=[],TXS=[],PAYABLES=[],PAY_PAYMENTS={},BUDGETS=[],RECURRINGS=[],BUDGET_ALERTS=[],TX_TYPE='expense',TX_FILTER='all',ACTIVE='dashboard',CUR='$',CUR_CODE='USD',CHART=null;
 
 // ── SUBSCRIPTION STATE ──
 
@@ -410,6 +472,7 @@ function fd(d){const x=new Date(d+'T00:00:00');return MO[x.getMonth()]+' '+x.get
 function ci(n){return CICO[n]||'💳'}
 function msg(id,txt,ok){const e=$(id);e.className=ok?'ok':'err';e.textContent=txt}
 function clr(id){const e=$(id);e.className='';e.textContent=''}
+function isPremium(){return SUB_PLAN==='premium'&&['active','on_trial'].includes(SUB_STATUS);}
 
 // AUTH
 let AMODE='in';
@@ -475,7 +538,8 @@ async function loadApp(user){
   if(!mem){hide('screen-auth');show('screen-onboard');return;}
   const{data:hh}=await sb.from('households').select('*').eq('id',mem.household_id).maybeSingle();
   HOUSEHOLD=hh;
-  await Promise.all([loadCats(),loadAccounts(),loadTxs(),loadPayables(),loadBudgets(),loadSubscription()]);
+  await Promise.all([loadCats(),loadAccounts(),loadTxs(),loadPayables(),loadBudgets(),loadSubscription(),loadAllHouseholds()]);
+  await loadRecurrings();await applyDueRecurrings();
   $('top-title').textContent=HOUSEHOLD?.name||'Grip';
   $('top-av').textContent=ini(user.user_metadata?.full_name||user.email);
   hide('screen-auth');show('screen-app');goTo('dashboard');
@@ -489,7 +553,8 @@ async function doCreateHousehold(){
     if(error)throw error;
     const{data:hh}=await sb.from('households').select('*').eq('id',data.household_id).maybeSingle();
     HOUSEHOLD=hh||{id:data.household_id,name};
-    await Promise.all([loadCats(),loadAccounts(),loadTxs(),loadPayables(),loadBudgets(),loadSubscription()]);
+    await Promise.all([loadCats(),loadAccounts(),loadTxs(),loadPayables(),loadBudgets(),loadSubscription(),loadAllHouseholds()]);
+    await loadRecurrings();await applyDueRecurrings();
     $('top-title').textContent=HOUSEHOLD.name;
     $('top-av').textContent=ini(USER.user_metadata?.full_name||USER.email);
     hide('screen-onboard');show('screen-app');goTo('dashboard');
@@ -502,15 +567,21 @@ async function loadBudgets(){
   const now=new Date();
   const{data}=await sb.from('budgets').select('*,categories(name)').eq('household_id',HOUSEHOLD.id).eq('month',now.getMonth()+1).eq('year',now.getFullYear());
   BUDGETS=data||[];
+  computeBudgetAlerts();
 }
 async function loadAccounts(){if(!HOUSEHOLD)return;const{data}=await sb.from('accounts').select('*').eq('household_id',HOUSEHOLD.id).eq('is_active',true);ACCOUNTS=data||[];}
-async function loadTxs(){if(!HOUSEHOLD)return;const{data}=await sb.from('transactions').select('*,categories(name)').eq('household_id',HOUSEHOLD.id).order('date',{ascending:false}).limit(100);TXS=data||[];}
+async function loadTxs(){
+  if(!HOUSEHOLD)return;
+  let q=sb.from('transactions').select('*,categories(name)').eq('household_id',HOUSEHOLD.id).order('date',{ascending:false});
+  if(!isPremium()){const d=new Date();d.setMonth(d.getMonth()-3);q=q.gte('date',d.toISOString().split('T')[0]);}
+  const{data}=await q;TXS=data||[];
+}
 
 // NAV
 function goTo(p){
-  ['dashboard','transactions','accounts','payables','budget','profile'].forEach(x=>{
-    $(('page-'+x)).classList.toggle('hidden',x!==p);
-    $(('nav-'+x)).classList.toggle('on',x===p);
+  ['dashboard','transactions','accounts','payables','budget','profile','reports'].forEach(x=>{
+    const pg=$(('page-'+x));if(pg)pg.classList.toggle('hidden',x!==p);
+    const nb=$(('nav-'+x));if(nb)nb.classList.toggle('on',x===p);
   });
   ACTIVE=p;
   ['dashboard','transactions','accounts','payables'].includes(p)?show('fab'):hide('fab');
@@ -520,6 +591,7 @@ function goTo(p){
   if(p==='payables')renderPayables();
   if(p==='budget')renderBudget();
   if(p==='profile')renderProfile();
+  if(p==='reports')renderReports();
 }
 
 // DASHBOARD
@@ -542,6 +614,8 @@ function renderDash(){
     <div class="card" style="padding:16px 12px 12px"><canvas id="dash-chart"></canvas></div>
     <div class="sec-head" style="margin-top:4px"><div class="sec-title">This month's spending</div></div>
     <div class="card" style="padding:16px 12px 12px"><canvas id="pie-chart"></canvas></div>
+    ${isPremium()&&BUDGET_ALERTS.length>0?`<div class="alert-banner" onclick="goTo('budget')"><span style="font-size:20px">⚠️</span><div><div class="alert-banner-title">Budget Alert</div><div class="alert-banner-sub">${BUDGET_ALERTS.map(a=>`${a.cat?.name||'Category'} ${a.over?'over budget':'at '+a.pct+'%'}`).join(' · ')}</div></div></div>`:''}
+    ${isPremium()?`<div class="sec-head" style="margin-top:4px"><div class="sec-title">Reports</div><button class="sec-link" onclick="goTo('reports')">View →</button></div><div class="card" style="padding:14px 16px;margin-bottom:4px;cursor:pointer;display:flex;align-items:center;gap:12px" onclick="goTo('reports')"><span style="font-size:22px">📊</span><div><div style="font-size:14px;font-weight:600">12-month overview</div><div style="font-size:12px;color:var(--gray);margin-top:2px">Income, expenses & savings trends</div></div><div style="margin-left:auto;color:var(--orange);font-size:18px">›</div></div>`:''}
     <div class="sec-head" style="margin-top:4px">
       <div class="sec-title">Recent transactions</div>
       <button class="sec-link" onclick="goTo('transactions')">See all</button>
@@ -567,12 +641,14 @@ function txRow(t){
 // TRANSACTIONS
 function renderTxs(){
   const fl=TX_FILTER==='all'?TXS:TXS.filter(t=>t.type===TX_FILTER);
+  const freeBanner=!isPremium()?`<div class="free-limit-bar"><span style="font-size:20px">🔒</span><div><div style="font-size:13px;font-weight:600;color:var(--orange)">Showing last 3 months only</div><div style="font-size:12px;color:#92400E;margin-top:2px"><span style="cursor:pointer;text-decoration:underline;font-weight:600" onclick="goToCheckout()">Upgrade to Premium</span> for full history</div></div></div>`:'';
   $('page-transactions').innerHTML=`
     <div class="filters">
       <button class="ftag ${TX_FILTER==='all'?'on':''}" onclick="setF('all')">All</button>
       <button class="ftag ${TX_FILTER==='income'?'on':''}" onclick="setF('income')">↑ Income</button>
       <button class="ftag ${TX_FILTER==='expense'?'on':''}" onclick="setF('expense')">↓ Expenses</button>
     </div>
+    ${freeBanner}
     ${fl.length===0?`<div class="empty"><div class="empty-ico">📭</div><div class="empty-txt">No transactions here yet.</div></div>`:`<div class="card">${fl.map(txRow).join('')}</div>`}`;
 }
 function setF(f){TX_FILTER=f;renderTxs();}
@@ -678,16 +754,18 @@ function renderProfile(){
   const renewText = SUB_RENEWS ? 'Renews ' + new Date(SUB_RENEWS).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
 
   const subSection = isPremium
-    ? `<div class="card">
+    ? `<div class="card" style="margin-bottom:12px">
         <div class="menu-item">
-          <div class="menu-left">
-            <div class="menu-ico">⭐</div>
-            <div>
-              <div style="font-size:14px;font-weight:700">Premium Member</div>
-              ${renewText?`<div style="font-size:12px;color:var(--gray)">${renewText}</div>`:''}
-            </div>
-          </div>
+          <div class="menu-left"><div class="menu-ico">⭐</div><div><div style="font-size:14px;font-weight:700">Premium Member</div>${renewText?`<div style="font-size:12px;color:var(--gray)">${renewText}</div>`:''}</div></div>
           <span class="sub-badge sub-badge-active">● ACTIVE</span>
+        </div>
+        <div class="menu-item" onclick="goTo('reports')" style="cursor:pointer">
+          <div class="menu-left"><div class="menu-ico">📊</div><div style="font-size:14px;font-weight:500">View Reports</div></div>
+          <div style="font-size:16px;color:var(--orange)">›</div>
+        </div>
+        <div class="menu-item" onclick="openAddRecurring()" style="cursor:pointer">
+          <div class="menu-left"><div class="menu-ico">🔁</div><div style="font-size:14px;font-weight:500">Recurring Transactions</div></div>
+          <div style="font-size:13px;color:var(--gray)">${RECURRINGS.length} active ›</div>
         </div>
       </div>`
     : `<div class="card sub-upgrade-card" style="margin-bottom:12px">
@@ -700,10 +778,11 @@ function renderProfile(){
             </div>
           </div>
           <ul class="upgrade-features">
-            <li>Up to 5 household members</li>
-            <li>Priority support</li>
-            <li>All future premium features</li>
-            <li>Founding member rate, locked in</li>
+            <li>Unlimited transaction history</li>
+            <li>Multiple households (up to 3)</li>
+            <li>Advanced reports &amp; insights</li>
+            <li>Recurring transactions</li>
+            <li>Budget alerts</li>
           </ul>
           <button class="btn btn-orange" onclick="goToCheckout()" style="font-size:14px;padding:11px">Upgrade to Premium →</button>
         </div>
@@ -724,10 +803,22 @@ function renderProfile(){
     </div>
     <div style="padding:16px;padding-bottom:80px">
       ${subSection}
+      ${isPremium()&&HOUSEHOLDS.length>0?`<div class="card" style="margin-bottom:12px">
+        <div style="padding:12px 16px;font-size:12px;font-weight:700;color:var(--gray);letter-spacing:.06em;border-bottom:1px solid var(--light)">HOUSEHOLDS</div>
+        ${HOUSEHOLDS.map(hh=>`<div class="hh-item" onclick="switchHousehold('${hh.id}')">
+          <div class="menu-ico">🏠</div>
+          <div style="flex:1;font-size:14px;font-weight:500">${hh.name}</div>
+          ${hh.id===HOUSEHOLD.id?`<span class="hh-active-badge">Active</span>`:`<div style="font-size:16px;color:var(--orange)">›</div>`}
+        </div>`).join('')}
+        ${HOUSEHOLDS.length<3?`<div class="hh-item" onclick="openNewHousehold()" style="color:var(--orange)">
+          <div class="menu-ico">➕</div>
+          <div style="flex:1;font-size:14px;font-weight:600;color:var(--orange)">Add new household</div>
+        </div>`:''}
+      </div>`:''}
       <div class="card">
         <div class="menu-item"><div class="menu-left"><div class="menu-ico">🏠</div><div style="font-size:14px;font-weight:500">Household</div></div><div style="font-size:13px;color:var(--gray)">${HOUSEHOLD?.name||'–'}</div></div>
         <div class="menu-item" onclick="openCurrency()" style="cursor:pointer"><div class="menu-left"><div class="menu-ico">💱</div><div style="font-size:14px;font-weight:500">Currency</div></div><div style="font-size:13px;color:var(--orange);font-weight:600">${CUR_CODE} ${CUR} ›</div></div>
-        <div class="menu-item"><div class="menu-left"><div class="menu-ico">📱</div><div style="font-size:14px;font-weight:500">Version</div></div><div style="font-size:13px;color:var(--gray)">0.2.0</div></div>
+        <div class="menu-item"><div class="menu-left"><div class="menu-ico">📱</div><div style="font-size:14px;font-weight:500">Version</div></div><div style="font-size:13px;color:var(--gray)">0.3.0</div></div>
       </div>
       <div class="card">
         <div class="dark-toggle" onclick="toggleDark()">
@@ -742,7 +833,7 @@ function renderProfile(){
       <div style="text-align:center;font-size:12px;color:#9CA3AF;margin-top:24px">Grip by Bastech · grip.bastech.app</div>
     </div>`;
 }
-async function doSignOut(){await sb.auth.signOut();USER=null;HOUSEHOLD=null;ACCOUNTS=[];CATS=[];TXS=[];SUB_STATUS='free';SUB_PLAN='free';hide('screen-app');show('screen-auth');clr('auth-msg');}
+async function doSignOut(){await sb.auth.signOut();USER=null;HOUSEHOLD=null;HOUSEHOLDS=[];ACCOUNTS=[];CATS=[];TXS=[];RECURRINGS=[];BUDGET_ALERTS=[];SUB_STATUS='free';SUB_PLAN='free';hide('screen-app');show('screen-auth');clr('auth-msg');}
 
 // ADD TRANSACTION
 function openAddTx(){
@@ -1041,6 +1132,193 @@ let DARK=localStorage.getItem('grip_dark')==='1';
 function applyDark(){document.body.classList.toggle('dark',DARK);const el=document.getElementById('dark-thumb');if(el)el.parentElement.classList.toggle('on',DARK);}
 function toggleDark(){DARK=!DARK;localStorage.setItem('grip_dark',DARK?'1':'0');applyDark();renderProfile();if(ACTIVE==='dashboard')setTimeout(()=>{renderChart();renderPieChart();},100);}
 applyDark();
+
+// ── PREMIUM FEATURE FUNCTIONS ──
+
+// Budget alerts
+function computeBudgetAlerts(){
+  if(!isPremium()){BUDGET_ALERTS=[];updateBudgetBadge();return;}
+  const now=new Date();
+  const sp={};
+  TXS.filter(t=>{const d=new Date(t.date+'T00:00:00');return t.type==='expense'&&d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();})
+    .forEach(t=>{sp[t.category_id]=(sp[t.category_id]||0)+Number(t.amount);});
+  BUDGET_ALERTS=BUDGETS.filter(b=>{const spent=sp[b.category_id]||0;return Number(b.amount)>0&&(spent/Number(b.amount))>=0.8;})
+    .map(b=>{const spent=sp[b.category_id]||0;const pct=Math.round((spent/Number(b.amount))*100);const cat=CATS.find(c=>c.id===b.category_id);return{cat,spent,budget:Number(b.amount),pct,over:spent>Number(b.amount)};});
+  updateBudgetBadge();
+}
+function updateBudgetBadge(){
+  const badge=document.getElementById('budget-alert-badge');
+  if(badge){badge.textContent=BUDGET_ALERTS.length;badge.style.display=BUDGET_ALERTS.length>0?'flex':'none';}
+}
+
+// Multiple households
+async function loadAllHouseholds(){
+  if(!USER)return;
+  const{data}=await sb.from('household_members').select('household_id,households(id,name)').eq('user_id',USER.id);
+  HOUSEHOLDS=(data||[]).map(m=>m.households).filter(Boolean);
+}
+async function switchHousehold(hhId){
+  if(HOUSEHOLD?.id===hhId)return;
+  const hh=HOUSEHOLDS.find(h=>h.id===hhId);if(!hh)return;
+  HOUSEHOLD=hh;$('top-title').textContent=HOUSEHOLD.name;
+  await Promise.all([loadAccounts(),loadTxs(),loadPayables(),loadBudgets(),loadRecurrings()]);
+  await applyDueRecurrings();goTo(ACTIVE);
+}
+function openNewHousehold(){$('new-hh-name').value='';clr('new-hh-msg');show('modal-new-hh');}
+function closeNewHousehold(){hide('modal-new-hh');}
+async function doCreateNewHousehold(){
+  const name=$('new-hh-name').value.trim();
+  if(!name){msg('new-hh-msg','Please enter a household name.');return;}
+  $('new-hh-btn').textContent='Creating…';$('new-hh-btn').disabled=true;
+  try{
+    const{data,error}=await sb.rpc('create_household_for_user',{household_name:name});
+    if(error)throw error;
+    await loadAllHouseholds();
+    const newHH=HOUSEHOLDS.find(h=>h.id===data.household_id);
+    if(newHH){HOUSEHOLD=newHH;$('top-title').textContent=HOUSEHOLD.name;}
+    await Promise.all([loadAccounts(),loadTxs(),loadPayables(),loadBudgets(),loadRecurrings()]);
+    closeNewHousehold();renderProfile();
+  }catch(e){msg('new-hh-msg',e.message||'Could not create.');}
+  finally{$('new-hh-btn').textContent='Create household';$('new-hh-btn').disabled=false;}
+}
+
+// Recurring transactions
+async function loadRecurrings(){
+  if(!HOUSEHOLD||!isPremium())return;
+  const{data}=await sb.from('recurring_transactions').select('*,categories(name)').eq('household_id',HOUSEHOLD.id).eq('is_active',true).order('next_date');
+  RECURRINGS=data||[];
+}
+async function applyDueRecurrings(){
+  if(!isPremium()||RECURRINGS.length===0)return;
+  const today=td();const due=RECURRINGS.filter(r=>r.next_date<=today);if(due.length===0)return;
+  for(const r of due){
+    await sb.from('transactions').insert({household_id:HOUSEHOLD.id,category_id:r.category_id,account_id:r.account_id||null,type:r.type,amount:r.amount,description:(r.description?r.description+' ':'')+'[Recurring]',date:r.next_date,created_by:USER.id});
+    const next=getNextDate(r.next_date,r.frequency,r.day_of_month);
+    await sb.from('recurring_transactions').update({next_date:next}).eq('id',r.id);
+    if(r.account_id){const a=ACCOUNTS.find(x=>x.id===r.account_id);if(a){const d=r.type==='income'?Number(r.amount):-Number(r.amount);await sb.from('accounts').update({balance:Number(a.balance)+d}).eq('id',r.account_id);}}
+  }
+  await Promise.all([loadTxs(),loadAccounts(),loadRecurrings()]);
+}
+function getNextDate(dateStr,freq,dom){
+  const d=new Date(dateStr+'T00:00:00');
+  if(freq==='weekly')d.setDate(d.getDate()+7);
+  else if(freq==='monthly'){d.setMonth(d.getMonth()+1);if(dom)d.setDate(Math.min(dom,new Date(d.getFullYear(),d.getMonth()+1,0).getDate()));}
+  else if(freq==='yearly')d.setFullYear(d.getFullYear()+1);
+  return d.toISOString().split('T')[0];
+}
+let REC_TYPE='expense';
+function openAddRecurring(){
+  if(!isPremium()){goToCheckout();return;}
+  $('rec-edit-id').value='';$('rec-modal-title').textContent='Add recurring';$('rec-save-btn').textContent='Add recurring';$('rec-delete-btn').style.display='none';
+  $('rec-amt').value='';$('rec-desc').value='';$('rec-date').value=td();$('rec-freq').value='monthly';$('rec-dom').value='';
+  const cs=$('rec-cat');cs.innerHTML='<option value="">Select category…</option>';
+  CATS.filter(c=>c.type==='expense').forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=ci(c.name)+'  '+c.name;cs.appendChild(o);});
+  const as=$('rec-acc');as.innerHTML='<option value="">No account</option>';
+  ACCOUNTS.forEach(a=>{const o=document.createElement('option');o.value=a.id;o.textContent=a.name;as.appendChild(o);});
+  setRecType('expense');toggleDayOfMonth();clr('rec-msg');show('modal-recurring');
+}
+function openEditRecurring(id){
+  const r=RECURRINGS.find(x=>x.id===id);if(!r)return;
+  $('rec-edit-id').value=r.id;$('rec-modal-title').textContent='Edit recurring';$('rec-save-btn').textContent='Save changes';$('rec-delete-btn').style.display='block';
+  $('rec-amt').value=r.amount;$('rec-desc').value=r.description||'';$('rec-date').value=r.next_date;$('rec-freq').value=r.frequency;$('rec-dom').value=r.day_of_month||'';
+  const cs=$('rec-cat');cs.innerHTML='<option value="">Select category…</option>';
+  CATS.filter(c=>c.type===r.type).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=ci(c.name)+'  '+c.name;if(c.id===r.category_id)o.selected=true;cs.appendChild(o);});
+  const as=$('rec-acc');as.innerHTML='<option value="">No account</option>';
+  ACCOUNTS.forEach(a=>{const o=document.createElement('option');o.value=a.id;o.textContent=a.name;if(a.id===r.account_id)o.selected=true;as.appendChild(o);});
+  setRecType(r.type);toggleDayOfMonth();clr('rec-msg');show('modal-recurring');
+}
+function closeAddRecurring(){hide('modal-recurring');}
+function setRecType(t){
+  REC_TYPE=t;
+  $('btn-rec-inc').className='type-btn'+(t==='income'?' inc-on':'');
+  $('btn-rec-exp').className='type-btn'+(t==='expense'?' exp-on':'');
+  const cs=$('rec-cat');cs.innerHTML='<option value="">Select category…</option>';
+  CATS.filter(c=>c.type===t).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=ci(c.name)+'  '+c.name;cs.appendChild(o);});
+}
+function toggleDayOfMonth(){document.getElementById('rec-dom-group').style.display=$('rec-freq').value==='monthly'?'':'none';}
+async function doSaveRecurring(){
+  const amt=parseFloat($('rec-amt').value),cat=$('rec-cat').value,acc=$('rec-acc').value,desc=$('rec-desc').value.trim(),freq=$('rec-freq').value,dom=parseInt($('rec-dom').value)||null,date=$('rec-date').value,editId=$('rec-edit-id').value;
+  if(!amt||!cat||!date){msg('rec-msg','Please fill in all required fields.');return;}clr('rec-msg');
+  try{
+    if(editId){
+      const{error}=await sb.from('recurring_transactions').update({type:REC_TYPE,amount:amt,category_id:cat,account_id:acc||null,description:desc||null,frequency:freq,day_of_month:dom,next_date:date}).eq('id',editId);
+      if(error)throw error;
+    }else{
+      const{error}=await sb.from('recurring_transactions').insert({household_id:HOUSEHOLD.id,type:REC_TYPE,amount:amt,category_id:cat,account_id:acc||null,description:desc||null,frequency:freq,day_of_month:dom,next_date:date,is_active:true,created_by:USER.id});
+      if(error)throw error;
+    }
+    await loadRecurrings();closeAddRecurring();if(ACTIVE==='reports')renderReports();if(ACTIVE==='profile')renderProfile();
+  }catch(e){msg('rec-msg',e.message||'Could not save.');}
+}
+async function doDeleteRecurring(){
+  const id=$('rec-edit-id').value;if(!id||!confirm('Delete this recurring transaction?'))return;
+  try{const{error}=await sb.from('recurring_transactions').update({is_active:false}).eq('id',id);if(error)throw error;await loadRecurrings();closeAddRecurring();if(ACTIVE==='reports')renderReports();if(ACTIVE==='profile')renderProfile();}
+  catch(e){alert('Could not delete: '+e.message);}
+}
+
+// Advanced reports
+function renderReports(){
+  if(!isPremium()){
+    $('page-reports').innerHTML=`<div class="locked-feature"><div class="lock-ico">📊</div><h3>Advanced Reports</h3><p>Get deep insights into your 12-month income & expense trends, top spending categories, net savings, and more.</p><button class="btn btn-orange" onclick="goToCheckout()">Upgrade to Premium →</button></div>`;
+    return;
+  }
+  const now=new Date();
+  const months=[],incData=[],expData=[],savData=[];
+  for(let i=11;i>=0;i--){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);const m=d.getMonth();const y=d.getFullYear();
+    months.push(MO[m]+"'"+String(y).slice(2));
+    const inc=TXS.filter(t=>{const td=new Date(t.date+'T00:00:00');return t.type==='income'&&td.getMonth()===m&&td.getFullYear()===y;}).reduce((s,t)=>s+Number(t.amount),0);
+    const exp=TXS.filter(t=>{const td=new Date(t.date+'T00:00:00');return t.type==='expense'&&td.getMonth()===m&&td.getFullYear()===y;}).reduce((s,t)=>s+Number(t.amount),0);
+    incData.push(parseFloat(inc.toFixed(2)));expData.push(parseFloat(exp.toFixed(2)));savData.push(parseFloat((inc-exp).toFixed(2)));
+  }
+  const totInc=incData.reduce((a,b)=>a+b,0);const totExp=expData.reduce((a,b)=>a+b,0);
+  const avgInc=totInc/12;const avgExp=totExp/12;
+  const catTotals={};
+  TXS.filter(t=>t.type==='expense').forEach(t=>{catTotals[t.category_id]=(catTotals[t.category_id]||0)+Number(t.amount);});
+  const topCats=Object.entries(catTotals).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  $('page-reports').innerHTML=`
+    <div style="padding:16px;padding-bottom:80px">
+      <div style="font-size:16px;font-weight:700;margin-bottom:12px">12-Month Summary</div>
+      <div class="rep-stat-grid">
+        <div class="card rep-stat"><div class="rep-stat-label">AVG INCOME/MO</div><div class="rep-stat-val" style="color:var(--green)">${CUR}${fmt(avgInc)}</div></div>
+        <div class="card rep-stat"><div class="rep-stat-label">AVG EXPENSE/MO</div><div class="rep-stat-val" style="color:var(--red)">${CUR}${fmt(avgExp)}</div></div>
+        <div class="card rep-stat"><div class="rep-stat-label">TOTAL INCOME</div><div class="rep-stat-val" style="color:var(--green)">${CUR}${fmt(totInc)}</div></div>
+        <div class="card rep-stat"><div class="rep-stat-label">TOTAL EXPENSES</div><div class="rep-stat-val" style="color:var(--red)">${CUR}${fmt(totExp)}</div></div>
+      </div>
+      <div class="card" style="padding:16px 12px 12px;margin-bottom:12px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px">Income vs Expenses</div>
+        <canvas id="rep-bar-chart"></canvas>
+      </div>
+      <div class="card" style="padding:16px 12px 12px;margin-bottom:16px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px">Net Savings</div>
+        <canvas id="rep-line-chart"></canvas>
+      </div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:10px">Top Spending Categories</div>
+      <div class="card" style="margin-bottom:16px">
+        ${topCats.length===0?'<div style="padding:20px;text-align:center;color:var(--gray);font-size:14px">No expense data yet</div>':
+          topCats.map(([catId,amt])=>{const cat=CATS.find(c=>c.id===catId);const pct=totExp>0?(amt/totExp*100).toFixed(1):0;return`<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--light)">
+            <span style="font-size:22px">${ci(cat?.name||'Other')}</span>
+            <div style="flex:1"><div style="font-size:13px;font-weight:500">${cat?.name||'Other'}</div><div style="height:4px;background:var(--light);border-radius:2px;margin-top:6px"><div style="height:4px;background:var(--orange);border-radius:2px;width:${pct}%"></div></div></div>
+            <div style="text-align:right"><div style="font-size:13px;font-weight:700">${CUR}${fmt(amt)}</div><div style="font-size:11px;color:var(--gray)">${pct}%</div></div>
+          </div>`;}).join('')}
+      </div>
+      ${RECURRINGS.length>0?`<div style="font-size:15px;font-weight:700;margin-bottom:10px">Recurring Transactions</div>
+      <div class="card" style="margin-bottom:12px">
+        ${RECURRINGS.map(r=>`<div class="rec-item" onclick="openEditRecurring('${r.id}')">
+          <div class="tx-ico" style="background:${r.type==='income'?'#e8fff5':'#fff5f5'}">${ci(r.categories?.name||'Other')}</div>
+          <div style="flex:1"><div style="font-size:14px;font-weight:500">${r.description||r.categories?.name||'Recurring'}</div><div style="font-size:12px;color:var(--gray);margin-top:2px;text-transform:capitalize">${r.frequency} · Next: ${fd(r.next_date)}</div></div>
+          <div class="${r.type==='income'?'inc':'exp'}" style="font-weight:700">${r.type==='income'?'+':'-'}${CUR}${fmt(r.amount)}</div>
+        </div>`).join('')}
+      </div>`:``}
+      <button class="btn btn-ghost" onclick="openAddRecurring()">+ Add recurring transaction</button>
+    </div>`;
+  setTimeout(()=>{
+    const dark=document.body.classList.contains('dark');
+    const gc=dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.05)';const tc=dark?'#9CA3AF':'#6B7280';
+    const bc=document.getElementById('rep-bar-chart');if(bc){if(window.REP_BAR){window.REP_BAR.destroy();}window.REP_BAR=new Chart(bc,{type:'bar',data:{labels:months,datasets:[{label:'Income',data:incData,backgroundColor:'rgba(74,222,128,0.75)',borderRadius:4,borderSkipped:false},{label:'Expenses',data:expData,backgroundColor:'rgba(252,165,165,0.75)',borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:true,position:'bottom',labels:{color:tc,font:{size:11},boxWidth:10,padding:10}},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${CUR}${fmt(ctx.raw)}`}}},scales:{x:{grid:{color:gc},ticks:{color:tc,font:{size:9},maxRotation:45}},y:{grid:{color:gc},ticks:{color:tc,font:{size:10},callback:v=>`${CUR}${fmt(v)}`},beginAtZero:true}}}});}
+    const lc=document.getElementById('rep-line-chart');if(lc){if(window.REP_LINE){window.REP_LINE.destroy();}window.REP_LINE=new Chart(lc,{type:'line',data:{labels:months,datasets:[{label:'Net',data:savData,borderColor:'#378ADD',backgroundColor:'rgba(55,138,221,0.1)',fill:true,tension:0.4,pointRadius:3,pointBackgroundColor:'#378ADD'}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${CUR}${fmt(ctx.raw)}`}}},scales:{x:{grid:{color:gc},ticks:{color:tc,font:{size:9},maxRotation:45}},y:{grid:{color:gc},ticks:{color:tc,font:{size:10},callback:v=>`${CUR}${fmt(v)}`}}}}});}
+  },80);
+}
 
 // ── EDIT / DELETE ACCOUNTS ──
 function openEditAcct(id,name,type,balance){document.getElementById('edit-acct-id').value=id;document.getElementById('edit-acct-name').value=name;document.getElementById('edit-acct-type').value=type;document.getElementById('edit-acct-bal').value=balance;clr('edit-acct-msg');show('modal-edit-acct');}
