@@ -1,61 +1,66 @@
-const CACHE_NAME = 'grip-v2';
+const CACHE_NAME = 'grip-v3';
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
   '/icon-192.png',
   '/icon-512.png',
-  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js',
-  'https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap'
+  '/manifest.json'
 ];
 
-// Install — cache all static assets
+// Install — only cache icons and manifest, NOT index.html
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(STATIC_ASSETS.map(url => {
-        return new Request(url, { mode: 'no-cors' });
-      }));
-    }).then(() => self.skipWaiting())
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(STATIC_ASSETS))
+      .then(() => self.skipWaiting())
   );
 });
 
-// Activate — clean up old caches
+// Activate — delete old caches, take control immediately
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    ).then(() => self.clients.claim())
+    caches.keys()
+      .then(keys => Promise.all(
+        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+      ))
+      .then(() => self.clients.claim())
   );
 });
 
-// Fetch — network first, fall back to cache
+// Fetch strategy:
+// - index.html → ALWAYS network first, never serve stale
+// - Supabase API calls → always network, no cache
+// - Static assets (icons, fonts) → cache first
 self.addEventListener('fetch', event => {
-  // Don't intercept Supabase API calls — always needs live network
-  if (event.request.url.includes('supabase.co')) {
+  const url = new URL(event.request.url);
+
+  // Never intercept Supabase calls
+  if (url.hostname.includes('supabase.co')) return;
+
+  // For the app shell (HTML navigation) — always go to network first
+  if (event.request.mode === 'navigate' ||
+      url.pathname === '/' ||
+      url.pathname === '/index.html') {
+    event.respondWith(
+      fetch(event.request)
+        .catch(() => caches.match('/index.html'))
+    );
     return;
   }
 
-  event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        // Cache successful GET responses
-        if (event.request.method === 'GET' && response.status === 200) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-        }
-        return response;
-      })
-      .catch(() => {
-        // Offline fallback — serve from cache
-        return caches.match(event.request).then(cached => {
-          if (cached) return cached;
-          // If navigating to any page, return the app shell
-          if (event.request.mode === 'navigate') {
-            return caches.match('/index.html');
-          }
-        });
-      })
-  );
+  // For static assets — cache first
+  if (STATIC_ASSETS.some(a => url.pathname === a)) {
+    event.respondWith(
+      caches.match(event.request)
+        .then(cached => cached || fetch(event.request)
+          .then(res => {
+            const clone = res.clone();
+            caches.open(CACHE_NAME).then(c => c.put(event.request, clone));
+            return res;
+          })
+        )
+    );
+    return;
+  }
+
+  // Everything else — network only
+  event.respondWith(fetch(event.request));
 });
