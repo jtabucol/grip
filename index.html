@@ -2,9 +2,18 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Grip — by Bastech</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Grip by Bastech</title>
+<meta name="description" content="Your personal finance tracker. Track income, expenses, budgets and bills — all in one place.">
+<meta name="theme-color" content="#F26722">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Grip">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon-192.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -17,7 +26,7 @@
   --red:#dc2626;--red-bg:#fee2e2;
   --r:12px;
   --font:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-  --bal-card:var(--slate);--bal-card-text:#fff;--bal-accent:rgba(242,103,34,0.15);
+  --bal-card:#F26722;--bal-card-text:#fff;--bal-accent:rgba(255,255,255,0.15);
 }
 body{font-family:var(--font);background:var(--bg);color:var(--dark);font-size:15px;-webkit-font-smoothing:antialiased}
 #app{max-width:430px;margin:0 auto;min-height:100vh;background:var(--white)}
@@ -36,8 +45,7 @@ label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
 .logo-box{width:40px;height:40px;background:var(--orange);border-radius:10px;display:flex;align-items:center;justify-content:center}
 .logo-box svg{display:block}
 .logo-name{font-size:22px;font-weight:700;letter-spacing:-0.02em;color:var(--dark)}
-.logo-sub{font-size:10px;color:var(--gray);letter-spacing:.1em;display:flex;align-items:center;gap:5px}
-.bt-mark{display:inline-flex;align-items:center;flex-shrink:0}
+.logo-sub{font-size:10px;color:var(--gray);letter-spacing:.1em}
 .auth-h{font-size:26px;font-weight:700;letter-spacing:-0.02em;margin-bottom:6px}
 .auth-s{font-size:14px;color:var(--gray);margin-bottom:1.5rem}
 .tabs{display:flex;border-bottom:1.5px solid var(--light);margin-bottom:1.5rem}
@@ -110,11 +118,19 @@ label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
 .empty{text-align:center;padding:40px 20px}
 .empty-ico{font-size:40px;margin-bottom:10px}
 .empty-txt{font-size:14px;color:var(--gray);line-height:1.7}
+
+/* CHART */
 #dash-chart{width:100%!important}
+.chart-legend{display:flex;gap:12px;justify-content:center;margin-top:8px;flex-wrap:wrap}
+.legend-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:4px}
+
+/* MONTH PICKER */
 .month-chip{padding:7px 4px;border-radius:8px;font-size:12px;font-weight:600;border:1.5px solid var(--light);background:var(--white);color:var(--gray);cursor:pointer;text-align:center;font-family:var(--font);transition:all 0.12s}
 .month-chip.on{background:var(--orange);color:#fff;border-color:var(--orange)}
 body.dark .month-chip{background:var(--bg);border-color:var(--light);color:var(--gray)}
 body.dark .month-chip.on{background:var(--orange);color:#fff;border-color:var(--orange)}
+
+/* PAYABLES */
 .pay-item{padding:14px 16px;border-bottom:1px solid var(--light)}
 .pay-item:last-child{border-bottom:none}
 .pay-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
@@ -136,17 +152,6 @@ body.dark .month-chip.on{background:var(--orange);color:#fff;border-color:var(--
 .pay-sum-card{flex:1;border-radius:var(--r);padding:12px;text-align:center}
 .pay-sum-label{font-size:11px;font-weight:600;margin-bottom:4px}
 .pay-sum-val{font-size:18px;font-weight:700}
-
-/* ── SUBSCRIPTION STYLES ── */
-.sub-upgrade-card{border:1.5px solid var(--orange)!important;background:linear-gradient(135deg,#fff 0%,#FEF0E7 100%)}
-body.dark .sub-upgrade-card{background:linear-gradient(135deg,#23272E 0%,#2d1f14 100%)}
-.sub-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:0.3px}
-.sub-badge-free{background:#FEF0E7;color:var(--orange)}
-.sub-badge-premium{background:#FEF9C3;color:#92400E}
-.sub-badge-active{background:var(--green-bg);color:var(--green)}
-.upgrade-features{list-style:none;margin-bottom:14px}
-.upgrade-features li{font-size:13px;color:var(--gray);padding:4px 0;display:flex;align-items:center;gap:8px}
-.upgrade-features li::before{content:'✓';color:var(--orange);font-weight:700;font-size:13px}
 
 /* DARK MODE */
 body.dark{
@@ -172,36 +177,20 @@ body.dark .bal-mini{background:rgba(28,31,36,0.5)}
 body.dark .auth-logo .logo-name{color:#F5F5F5}
 body.dark .sec-link{color:var(--orange)}
 body.dark .nav-btn.on svg,body.dark .nav-btn.on span{color:var(--orange)}
+
+/* ACCOUNT ACTIONS */
 .acct-actions{display:flex;gap:8px;padding:10px 16px;border-top:1px solid var(--light)}
 .acct-act-btn{flex:1;padding:7px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--light);background:var(--white);font-family:var(--font);color:var(--dark)}
 .acct-act-btn.del{border-color:#fecaca;background:#fff5f5;color:var(--red)}
 body.dark .acct-act-btn{background:#2A2E35;border-color:#3A3E45;color:#F5F5F5}
 body.dark .acct-act-btn.del{background:#3d1a1a;border-color:#7f1d1d;color:#f87171}
+
+/* DARK TOGGLE */
 .dark-toggle{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--light);cursor:pointer}
 .toggle-track{width:44px;height:24px;border-radius:12px;background:var(--light);position:relative;transition:background 0.2s;flex-shrink:0}
 .toggle-track.on{background:var(--orange)}
 .toggle-thumb{width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2)}
 .toggle-track.on .toggle-thumb{left:22px}
-/* ── PREMIUM FEATURES ── */
-.budget-badge{position:absolute;top:-4px;right:-6px;background:var(--red);color:#fff;border-radius:50%;width:15px;height:15px;font-size:9px;font-weight:700;display:none;align-items:center;justify-content:center;z-index:2}
-.nav-ico-wrap{position:relative;display:inline-flex}
-.alert-banner{background:#FFF7ED;border:1px solid #fed7aa;border-radius:10px;padding:12px 14px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:10px}
-.alert-banner-title{font-size:13px;font-weight:600;color:#C2410C}
-.alert-banner-sub{font-size:12px;color:#78350F;margin-top:2px}
-.free-limit-bar{background:#FEF0E7;border:1px solid #f2c9ac;border-radius:10px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px}
-.locked-feature{text-align:center;padding:40px 24px}
-.locked-feature .lock-ico{font-size:48px;margin-bottom:16px}
-.locked-feature h3{font-size:20px;font-weight:700;margin-bottom:8px}
-.locked-feature p{font-size:14px;color:var(--gray);margin-bottom:24px;line-height:1.6}
-.rep-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
-.rep-stat{padding:14px;text-align:center}
-.rep-stat-label{font-size:11px;font-weight:600;color:var(--gray);letter-spacing:.05em}
-.rep-stat-val{font-size:18px;font-weight:700;margin-top:4px}
-.hh-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--light);cursor:pointer}
-.hh-active-badge{font-size:11px;background:var(--green-bg);color:var(--green);padding:2px 8px;border-radius:10px;font-weight:600}
-.rec-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--light);cursor:pointer}
-body.dark .alert-banner{background:#2d1f0e;border-color:#7c4a1a}
-body.dark .free-limit-bar{background:#2d1f0e;border-color:#7c4a1a}
 </style>
 </head>
 <body>
@@ -210,20 +199,7 @@ body.dark .free-limit-bar{background:#2d1f0e;border-color:#7c4a1a}
 <div id="screen-auth">
   <div class="auth-logo">
     <div class="logo-box"><svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 3v8M11 11L6 7M11 11l5-4M4 15h14M6 18h10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-    <div>
-      <div class="logo-name">Grip</div>
-      <div class="logo-sub">
-        <span class="bt-mark">
-          <svg width="14" height="14" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="100" height="100" rx="22" fill="#1C1F24"/>
-            <rect x="34" y="29" width="32" height="10" rx="5" fill="white"/>
-            <rect x="25" y="45" width="50" height="10" rx="5" fill="white"/>
-            <rect x="16" y="61" width="68" height="10" rx="5" fill="white"/>
-          </svg>
-        </span>
-        BY BASTECH
-      </div>
-    </div>
+    <div><div class="logo-name">Grip</div><div class="logo-sub">BY BASTECH</div></div>
   </div>
   <div id="auth-h" class="auth-h">Welcome back</div>
   <div id="auth-s" class="auth-s">Sign in to your Grip account</div>
@@ -260,19 +236,17 @@ body.dark .free-limit-bar{background:#2d1f0e;border-color:#7c4a1a}
   <div id="page-payables" class="page hidden"></div>
   <div id="page-budget" class="page hidden"></div>
   <div id="page-profile" class="page hidden"></div>
-  <div id="page-reports" class="page hidden"></div>
   <button class="fab" id="fab" onclick="ACTIVE==='payables'?openAddPayable():openAddTx()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg></button>
   <nav class="bottom-bar">
     <button class="nav-btn on" id="nav-dashboard" onclick="goTo('dashboard')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M9 22V12h6v10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Home</span></button>
     <button class="nav-btn" id="nav-transactions" onclick="goTo('transactions')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Activity</span></button>
     <button class="nav-btn" id="nav-accounts" onclick="goTo('accounts')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 10v11M12 10v11M16 10v11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Accounts</span></button>
     <button class="nav-btn" id="nav-payables" onclick="goTo('payables')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Payables</span></button>
-    <button class="nav-btn" id="nav-budget" onclick="goTo('budget')"><div class="nav-ico-wrap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 20V10M12 20V4M6 20v-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="budget-badge" id="budget-alert-badge">0</span></div><span>Budget</span></button>
+    <button class="nav-btn" id="nav-budget" onclick="goTo('budget')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 20V10M12 20V4M6 20v-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Budget</span></button>
     <button class="nav-btn" id="nav-profile" onclick="goTo('profile')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2"/></svg><span>Profile</span></button>
   </nav>
 </div>
 
-<!-- MODALS (unchanged from original) -->
 <div id="modal-tx" class="overlay hidden" onclick="if(event.target===this)closeAddTx()">
   <div class="modal">
     <div class="modal-bar"></div>
@@ -290,36 +264,54 @@ body.dark .free-limit-bar{background:#2d1f0e;border-color:#7c4a1a}
     <button class="btn btn-orange" style="margin-top:8px" onclick="doSaveTx()">Save transaction</button>
   </div>
 </div>
+
 <div id="modal-acct" class="overlay hidden" onclick="if(event.target===this)closeAddAcct()">
   <div class="modal">
     <div class="modal-bar"></div>
     <div class="modal-title">Add account</div>
     <div class="fg"><label>Account name</label><input id="acct-name" type="text" placeholder="e.g. BDO Savings"></div>
-    <div class="fg"><label>Type</label><select id="acct-type"><option value="bank">🏦 Bank</option><option value="cash">💵 Cash</option><option value="credit_card">💳 Credit Card</option><option value="savings">🏧 Savings</option><option value="e_wallet">📲 E-Wallet</option><option value="investment">📈 Investment</option><option value="other">📂 Other</option></select></div>
+    <div class="fg"><label>Type</label><select id="acct-type"><option value="bank">🏦 Bank</option><option value="cash">💵 Cash</option><option value="credit_card">💳 Credit Card</option><option value="savings">🏧 Savings</option><option value="e_wallet">📲 E-Wallet</option>
+        <option value="investment">📈 Investment</option><option value="other">📂 Other</option></select></div>
     <div class="fg"><label>Current balance</label><input id="acct-bal" type="number" placeholder="0.00" min="0" step="0.01"></div>
     <div style="font-size:12px;color:var(--gray);margin:-8px 0 12px;line-height:1.6">For credit cards, enter what you currently owe.</div>
     <div id="acct-msg"></div>
     <button class="btn btn-orange" style="margin-top:8px" onclick="doSaveAcct()">Add account</button>
   </div>
 </div>
+
+
+<!-- EDIT ACCOUNT MODAL -->
 <div id="modal-edit-acct" class="overlay hidden" onclick="if(event.target===this)closeEditAcct()">
   <div class="modal">
     <div class="modal-bar"></div>
     <div class="modal-title">Edit account</div>
     <input type="hidden" id="edit-acct-id">
     <div class="fg"><label>Account name</label><input id="edit-acct-name" type="text" placeholder="e.g. BDO Savings"></div>
-    <div class="fg"><label>Type</label><select id="edit-acct-type"><option value="bank">🏦 Bank</option><option value="cash">💵 Cash</option><option value="credit_card">💳 Credit Card</option><option value="savings">🏧 Savings</option><option value="e_wallet">📲 E-Wallet</option><option value="investment">📈 Investment</option><option value="other">📂 Other</option></select></div>
+    <div class="fg"><label>Type</label>
+      <select id="edit-acct-type">
+        <option value="bank">🏦 Bank</option>
+        <option value="cash">💵 Cash</option>
+        <option value="credit_card">💳 Credit Card</option>
+        <option value="savings">🏧 Savings</option>
+        <option value="e_wallet">📲 E-Wallet</option>
+        <option value="investment">📈 Investment</option>
+        <option value="other">📂 Other</option>
+      </select>
+    </div>
     <div class="fg"><label>Balance</label><input id="edit-acct-bal" type="number" placeholder="0.00" step="0.01"></div>
     <div id="edit-acct-msg"></div>
     <button class="btn btn-orange" style="margin-top:8px" onclick="doUpdateAcct()">Save changes</button>
     <button class="btn btn-ghost" style="margin-top:8px" onclick="closeEditAcct()">Cancel</button>
   </div>
 </div>
+
+<!-- CURRENCY MODAL -->
 <div id="modal-currency" class="overlay hidden" onclick="if(event.target===this)closeCurrency()">
   <div class="modal">
     <div class="modal-bar"></div>
     <div class="modal-title">Currency</div>
-    <div class="fg"><label>Select your currency</label>
+    <div class="fg">
+      <label>Select your currency</label>
       <select id="cur-sel">
         <option value="USD|$">🇺🇸 USD — US Dollar ($)</option>
         <option value="PHP|₱">🇵🇭 PHP — Philippine Peso (₱)</option>
@@ -343,6 +335,8 @@ body.dark .free-limit-bar{background:#2d1f0e;border-color:#7c4a1a}
     <button class="btn btn-ghost" style="margin-top:8px" onclick="closeCurrency()">Cancel</button>
   </div>
 </div>
+
+<!-- EDIT TRANSACTION MODAL -->
 <div id="modal-edit-tx" class="overlay hidden" onclick="if(event.target===this)closeEditTx()">
   <div class="modal">
     <div class="modal-bar"></div>
@@ -362,6 +356,8 @@ body.dark .free-limit-bar{background:#2d1f0e;border-color:#7c4a1a}
     <button class="btn btn-ghost" style="margin-top:8px" onclick="closeEditTx()">Cancel</button>
   </div>
 </div>
+
+<!-- SET BUDGET MODAL -->
 <div id="modal-budget" class="overlay hidden" onclick="if(event.target===this)closeBudget()">
   <div class="modal">
     <div class="modal-bar"></div>
@@ -375,17 +371,24 @@ body.dark .free-limit-bar{background:#2d1f0e;border-color:#7c4a1a}
     <button class="btn btn-ghost" style="margin-top:8px" onclick="closeBudget()">Cancel</button>
   </div>
 </div>
+
+<!-- PAY ACCOUNT MODAL -->
 <div id="modal-pay-acct" class="overlay hidden" onclick="if(event.target===this)hide('modal-pay-acct')">
   <div class="modal">
     <div class="modal-bar"></div>
     <div class="modal-title" id="pay-acct-title">Mark as paid</div>
-    <div class="fg"><label>Charged from account</label><select id="pay-acct-sel"><option value="">No specific account</option></select></div>
+    <div class="fg">
+      <label>Charged from account</label>
+      <select id="pay-acct-sel"><option value="">No specific account</option></select>
+    </div>
     <div style="font-size:12px;color:var(--gray);margin:-8px 0 14px;line-height:1.6">This helps track which account was used for reconciliation.</div>
     <div id="pay-acct-msg"></div>
     <button class="btn btn-orange" style="margin-top:8px" id="pay-acct-confirm" onclick="confirmPayStatus()">Confirm payment</button>
     <button class="btn btn-ghost" style="margin-top:8px" onclick="hide('modal-pay-acct')">Cancel</button>
   </div>
 </div>
+
+<!-- ADD/EDIT PAYABLE MODAL -->
 <div id="modal-payable" class="overlay hidden" onclick="if(event.target===this)closeAddPayable()">
   <div class="modal">
     <div class="modal-bar"></div>
@@ -395,7 +398,15 @@ body.dark .free-limit-bar{background:#2d1f0e;border-color:#7c4a1a}
     <div class="fg"><label>Amount</label><input id="pay-amount" type="number" placeholder="0.00" min="0" step="0.01"></div>
     <div class="fg"><label>Due day of the month</label><input id="pay-day" type="number" placeholder="e.g. 15" min="1" max="31"></div>
     <div class="fg"><label>Category</label>
-      <select id="pay-cat"></select>
+      <select id="pay-cat">
+        <option value="Utilities">💡 Utilities</option>
+        <option value="Housing">🏠 Housing / Rent</option>
+        <option value="Subscription">📺 Subscription</option>
+        <option value="Insurance">🛡 Insurance</option>
+        <option value="Loan">🏦 Loan / Credit</option>
+        <option value="Internet">🌐 Internet / Phone</option>
+        <option value="Other">📂 Other</option>
+      </select>
     </div>
     <div class="fg">
       <label>Active months <span style="font-weight:400;color:var(--gray)">(leave all checked = every month)</span></label>
@@ -408,62 +419,12 @@ body.dark .free-limit-bar{background:#2d1f0e;border-color:#7c4a1a}
   </div>
 </div>
 
-<div id="modal-recurring" class="overlay hidden" onclick="if(event.target===this)closeAddRecurring()">
-  <div class="modal">
-    <div class="modal-bar"></div>
-    <div class="modal-title" id="rec-modal-title">Add recurring</div>
-    <input type="hidden" id="rec-edit-id">
-    <div class="type-row">
-      <button class="type-btn" id="btn-rec-inc" onclick="setRecType('income')">↑ Income</button>
-      <button class="type-btn exp-on" id="btn-rec-exp" onclick="setRecType('expense')">↓ Expense</button>
-    </div>
-    <div class="fg"><input class="big-input" id="rec-amt" type="number" placeholder="0.00" min="0" step="0.01"></div>
-    <div class="fg"><label>Category</label><select id="rec-cat"></select></div>
-    <div class="fg"><label>Account (optional)</label><select id="rec-acc"><option value="">No account</option></select></div>
-    <div class="fg"><label>Description (optional)</label><input id="rec-desc" type="text" placeholder="e.g. Netflix, Rent"></div>
-    <div class="fg"><label>Frequency</label>
-      <select id="rec-freq" onchange="toggleDayOfMonth()">
-        <option value="weekly">Weekly</option>
-        <option value="monthly" selected>Monthly</option>
-        <option value="yearly">Yearly</option>
-      </select>
-    </div>
-    <div class="fg" id="rec-dom-group"><label>Day of month</label><input id="rec-dom" type="number" placeholder="e.g. 15" min="1" max="31"></div>
-    <div class="fg"><label>Next occurrence date</label><input id="rec-date" type="date"></div>
-    <div id="rec-msg"></div>
-    <button class="btn btn-orange" style="margin-top:8px" id="rec-save-btn" onclick="doSaveRecurring()">Add recurring</button>
-    <button class="btn btn-red" style="margin-top:8px;display:none" id="rec-delete-btn" onclick="doDeleteRecurring()">Delete</button>
-    <button class="btn btn-ghost" style="margin-top:8px" onclick="closeAddRecurring()">Cancel</button>
-  </div>
-</div>
-
-<div id="modal-new-hh" class="overlay hidden" onclick="if(event.target===this)closeNewHousehold()">
-  <div class="modal">
-    <div class="modal-bar"></div>
-    <div class="modal-title">New household</div>
-    <div class="fg"><label>Household name</label><input id="new-hh-name" type="text" placeholder="e.g. My Business, Personal"></div>
-    <div style="font-size:12px;color:var(--gray);margin:-8px 0 12px;line-height:1.6">Premium allows up to 3 households. All finances are tracked separately per household.</div>
-    <div id="new-hh-msg"></div>
-    <button class="btn btn-orange" style="margin-top:8px" id="new-hh-btn" onclick="doCreateNewHousehold()">Create household</button>
-    <button class="btn btn-ghost" style="margin-top:8px" onclick="closeNewHousehold()">Cancel</button>
-  </div>
-</div>
-
 </div>
 <script>
 const sb=window.supabase.createClient('https://lougyjzwiobmunptpgvg.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxvdWd5anp3aW9ibXVucHRwZ3ZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4OTc5NTksImV4cCI6MjA5MDQ3Mzk1OX0.No0QLO1EAO32SrB5pFzZDNEi_WScIQuCBm37cPySMUQ');
-let USER=null,HOUSEHOLD=null,HOUSEHOLDS=[],ACCOUNTS=[],CATS=[],TXS=[],PAYABLES=[],PAY_PAYMENTS={},BUDGETS=[],RECURRINGS=[],BUDGET_ALERTS=[],TX_TYPE='expense',TX_FILTER='all',ACTIVE='dashboard',CUR='$',CUR_CODE='USD',CHART=null;
-
-// ── SUBSCRIPTION STATE ──
-
-// Format: https://bastech.lemonsqueezy.com/checkout/buy/YOUR_VARIANT_ID
-const LS_CHECKOUT_URL = 'https://bastech.lemonsqueezy.com/checkout/buy/c2f3fab9-3923-43a6-b73e-dda2aee78f6c';
-let SUB_STATUS = 'free';   // 'free' | 'active' | 'cancelled' | 'expired' | 'on_trial'
-let SUB_PLAN   = 'free';   // 'free' | 'premium'
-let SUB_RENEWS = null;     // renewal date string
-
+let USER=null,HOUSEHOLD=null,ACCOUNTS=[],CATS=[],TXS=[],PAYABLES=[],PAY_PAYMENTS={},BUDGETS=[],TX_TYPE='expense',TX_FILTER='all',ACTIVE='dashboard',CUR='$',CUR_CODE='USD',CHART=null;
 const MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const CICO={Salary:'💼',Freelance:'💻',Business:'🏢','Other Income':'💰','Housing & Rent':'🏠',Groceries:'🛒',Utilities:'💡',Transportation:'🚗',Healthcare:'🏥',Education:'📚',Entertainment:'🎬','Dining Out':'🍽️','Order In':'🥡',Shopping:'🛍️',Savings:'🏦',Subscription:'📺','Loan & Credit':'💳','Other Expense':'📦'};
+const CICO={Salary:'💼',Freelance:'💻',Business:'🏢','Other Income':'💰','Housing & Rent':'🏠',Groceries:'🛒',Utilities:'💡',Transportation:'🚗',Healthcare:'🏥',Education:'📚',Entertainment:'🎬','Dining Out':'🍽️',Shopping:'🛍️',Savings:'🏦','Other Expense':'📦'};
 const AICO={bank:'🏦',cash:'💵',credit_card:'💳',savings:'🏧',e_wallet:'📲',investment:'📈',other:'📂'};
 const ALAB={bank:'Bank',cash:'Cash',credit_card:'Credit Card',savings:'Savings',e_wallet:'E-Wallet',investment:'Investment',other:'Other'};
 const ABG={bank:'#EBF4FF',cash:'#FEF0E7',credit_card:'#FFF0F5',savings:'#E8FFF5',e_wallet:'#F0E8FF',investment:'#F0F9E8',other:'#F1EFE8'};
@@ -478,7 +439,6 @@ function fd(d){const x=new Date(d+'T00:00:00');return MO[x.getMonth()]+' '+x.get
 function ci(n){return CICO[n]||'💳'}
 function msg(id,txt,ok){const e=$(id);e.className=ok?'ok':'err';e.textContent=txt}
 function clr(id){const e=$(id);e.className='';e.textContent=''}
-function isPremium(){return SUB_PLAN==='premium'&&['active','on_trial'].includes(SUB_STATUS);}
 
 // AUTH
 let AMODE='in';
@@ -509,34 +469,6 @@ async function doAuth(){
   }catch(e){msg('auth-msg',e.message||'Something went wrong.');}
   finally{$('auth-btn').textContent=AMODE==='in'?'Sign in':'Create account';$('auth-btn').disabled=false;}
 }
-
-// ── SUBSCRIPTION LOADER ──
-async function loadSubscription(){
-  if(!USER) return;
-  try{
-    const{data}=await sb.from('profiles')
-      .select('subscription_status,subscription_plan,subscription_renews_at')
-      .eq('id',USER.id).maybeSingle();
-    if(data){
-      SUB_STATUS = data.subscription_status || 'free';
-      SUB_PLAN   = data.subscription_plan   || 'free';
-      SUB_RENEWS = data.subscription_renews_at || null;
-    }
-  }catch(e){ console.log('subscription load error',e); }
-}
-
-// ── CHECKOUT ──
-function goToCheckout(){
-  if(!LS_CHECKOUT_URL || LS_CHECKOUT_URL === 'PLACEHOLDER'){
-    alert('Premium checkout is coming very soon! Check back shortly.');
-    return;
-  }
-  const url = LS_CHECKOUT_URL
-    + '?checkout[custom][user_id]=' + encodeURIComponent(USER.id)
-    + '&checkout[email]=' + encodeURIComponent(USER.email||'');
-  window.open(url, '_blank');
-}
-
 async function loadApp(user){
   loadCurrencyFromStorage();
   USER=user;
@@ -544,8 +476,7 @@ async function loadApp(user){
   if(!mem){hide('screen-auth');show('screen-onboard');return;}
   const{data:hh}=await sb.from('households').select('*').eq('id',mem.household_id).maybeSingle();
   HOUSEHOLD=hh;
-  await Promise.all([loadCats(),loadAccounts(),loadTxs(),loadPayables(),loadBudgets(),loadSubscription(),loadAllHouseholds()]);
-  await loadRecurrings();await applyDueRecurrings();
+  await Promise.all([loadCats(),loadAccounts(),loadTxs(),loadPayables(),loadBudgets()]);
   $('top-title').textContent=HOUSEHOLD?.name||'Grip';
   $('top-av').textContent=ini(user.user_metadata?.full_name||user.email);
   hide('screen-auth');show('screen-app');goTo('dashboard');
@@ -559,8 +490,7 @@ async function doCreateHousehold(){
     if(error)throw error;
     const{data:hh}=await sb.from('households').select('*').eq('id',data.household_id).maybeSingle();
     HOUSEHOLD=hh||{id:data.household_id,name};
-    await Promise.all([loadCats(),loadAccounts(),loadTxs(),loadPayables(),loadBudgets(),loadSubscription(),loadAllHouseholds()]);
-    await loadRecurrings();await applyDueRecurrings();
+    await Promise.all([loadCats(),loadAccounts(),loadTxs(),loadPayables(),loadBudgets()]);
     $('top-title').textContent=HOUSEHOLD.name;
     $('top-av').textContent=ini(USER.user_metadata?.full_name||USER.email);
     hide('screen-onboard');show('screen-app');goTo('dashboard');
@@ -573,21 +503,15 @@ async function loadBudgets(){
   const now=new Date();
   const{data}=await sb.from('budgets').select('*,categories(name)').eq('household_id',HOUSEHOLD.id).eq('month',now.getMonth()+1).eq('year',now.getFullYear());
   BUDGETS=data||[];
-  computeBudgetAlerts();
 }
 async function loadAccounts(){if(!HOUSEHOLD)return;const{data}=await sb.from('accounts').select('*').eq('household_id',HOUSEHOLD.id).eq('is_active',true);ACCOUNTS=data||[];}
-async function loadTxs(){
-  if(!HOUSEHOLD)return;
-  let q=sb.from('transactions').select('*,categories(name)').eq('household_id',HOUSEHOLD.id).order('date',{ascending:false});
-  if(!isPremium()){const d=new Date();d.setMonth(d.getMonth()-3);q=q.gte('date',d.toISOString().split('T')[0]);}
-  const{data}=await q;TXS=data||[];
-}
+async function loadTxs(){if(!HOUSEHOLD)return;const{data}=await sb.from('transactions').select('*,categories(name)').eq('household_id',HOUSEHOLD.id).order('date',{ascending:false}).limit(100);TXS=data||[];}
 
 // NAV
 function goTo(p){
-  ['dashboard','transactions','accounts','payables','budget','profile','reports'].forEach(x=>{
-    const pg=$(('page-'+x));if(pg)pg.classList.toggle('hidden',x!==p);
-    const nb=$(('nav-'+x));if(nb)nb.classList.toggle('on',x===p);
+  ['dashboard','transactions','accounts','payables','budget','profile'].forEach(x=>{
+    $(('page-'+x)).classList.toggle('hidden',x!==p);
+    $(('nav-'+x)).classList.toggle('on',x===p);
   });
   ACTIVE=p;
   ['dashboard','transactions','accounts','payables'].includes(p)?show('fab'):hide('fab');
@@ -597,7 +521,6 @@ function goTo(p){
   if(p==='payables')renderPayables();
   if(p==='budget')renderBudget();
   if(p==='profile')renderProfile();
-  if(p==='reports')renderReports();
 }
 
 // DASHBOARD
@@ -607,34 +530,53 @@ function renderDash(){
   const inc=mTxs.filter(t=>t.type==='income').reduce((s,t)=>s+Number(t.amount),0);
   const exp=mTxs.filter(t=>t.type==='expense').reduce((s,t)=>s+Number(t.amount),0);
   const bal=ACCOUNTS.reduce((s,a)=>s+Number(a.balance),0);
+
   $('page-dashboard').innerHTML=`
     <div class="bal-card">
       <div class="bal-label">TOTAL BALANCE</div>
       <div class="bal-amt">${CUR}${fmt(bal)}</div>
       <div class="bal-row">
-        <div class="bal-mini"><div class="bal-mini-l">INCOME</div><div class="bal-mini-v" style="color:#4ade80">${CUR}${fmt(inc)}</div></div>
-        <div class="bal-mini"><div class="bal-mini-l">EXPENSES</div><div class="bal-mini-v" style="color:#fca5a5">${CUR}${fmt(exp)}</div></div>
+        <div class="bal-mini">
+          <div class="bal-mini-l">INCOME</div>
+          <div class="bal-mini-v" style="color:#4ade80">${CUR}${fmt(inc)}</div>
+        </div>
+        <div class="bal-mini">
+          <div class="bal-mini-l">EXPENSES</div>
+          <div class="bal-mini-v" style="color:#fca5a5">${CUR}${fmt(exp)}</div>
+        </div>
       </div>
     </div>
-    <div class="sec-head" style="margin-top:4px"><div class="sec-title">6-month overview</div></div>
-    <div class="card" style="padding:16px 12px 12px"><canvas id="dash-chart"></canvas></div>
-    <div class="sec-head" style="margin-top:4px"><div class="sec-title">This month's spending</div></div>
-    <div class="card" style="padding:16px 12px 12px"><canvas id="pie-chart"></canvas></div>
-    ${isPremium()&&BUDGET_ALERTS.length>0?`<div class="alert-banner" onclick="goTo('budget')"><span style="font-size:20px">⚠️</span><div><div class="alert-banner-title">Budget Alert</div><div class="alert-banner-sub">${BUDGET_ALERTS.map(a=>`${a.cat?.name||'Category'} ${a.over?'over budget':'at '+a.pct+'%'}`).join(' · ')}</div></div></div>`:''}
-    ${isPremium()?`<div class="sec-head" style="margin-top:4px"><div class="sec-title">Reports</div><button class="sec-link" onclick="goTo('reports')">View →</button></div><div class="card" style="padding:14px 16px;margin-bottom:4px;cursor:pointer;display:flex;align-items:center;gap:12px" onclick="goTo('reports')"><span style="font-size:22px">📊</span><div><div style="font-size:14px;font-weight:600">12-month overview</div><div style="font-size:12px;color:var(--gray);margin-top:2px">Income, expenses & savings trends</div></div><div style="margin-left:auto;color:var(--orange);font-size:18px">›</div></div>`:''}
+
+    <div class="sec-head" style="margin-top:4px">
+      <div class="sec-title">6-month overview</div>
+    </div>
+    <div class="card" style="padding:16px 12px 12px">
+      <canvas id="dash-chart"></canvas>
+    </div>
+
+    <div class="sec-head" style="margin-top:4px">
+      <div class="sec-title">This month's spending</div>
+    </div>
+    <div class="card" style="padding:16px 12px 12px">
+      <canvas id="pie-chart"></canvas>
+    </div>
+
     <div class="sec-head" style="margin-top:4px">
       <div class="sec-title">Recent transactions</div>
       <button class="sec-link" onclick="goTo('transactions')">See all</button>
     </div>
     ${TXS.length===0
       ?`<div class="empty"><div class="empty-ico">💳</div><div class="empty-txt">No transactions yet.<br>Tap + to add your first one.</div></div>`
-      :`<div class="card">${TXS.slice(0,5).map(txRow).join('')}</div>`}`;
+      :`<div class="card">${TXS.slice(0,5).map(txRow).join('')}</div>`}
+  `;
   setTimeout(()=>{ renderChart(); renderPieChart(); }, 80);
 }
+
+
 function txRow(t){
   const ii=t.type==='income';const cn=t.categories?.name||'Other';
   const isPayable=(t.description||'').startsWith('[Payable]');
-  return`<div class="tx-item" onclick="openEditTx('${t.id}','${t.type}',${t.amount},'${t.category_id||''}','${(t.description||'').replace(/'/g,"\\'")}','${t.date}')" style="cursor:pointer">
+  return`<div class="tx-item" onclick="openEditTx('${t.id}','${t.type}',${t.amount},'${t.category_id||''}','${(t.description||'').replace(/'/g,"\'")}','${t.date}')" style="cursor:pointer">
     <div class="tx-ico" style="background:${ii?'#e8fff5':'#fff5f5'}">${ci(cn)}</div>
     <div class="tx-info">
       <div class="tx-name">${t.description||cn}${isPayable?'&nbsp;<span style="font-size:10px;background:#FEF0E7;color:var(--orange);padding:1px 6px;border-radius:4px;font-weight:600">AUTO</span>':''}</div>
@@ -647,14 +589,12 @@ function txRow(t){
 // TRANSACTIONS
 function renderTxs(){
   const fl=TX_FILTER==='all'?TXS:TXS.filter(t=>t.type===TX_FILTER);
-  const freeBanner=!isPremium()?`<div class="free-limit-bar"><span style="font-size:20px">🔒</span><div><div style="font-size:13px;font-weight:600;color:var(--orange)">Showing last 3 months only</div><div style="font-size:12px;color:#92400E;margin-top:2px"><span style="cursor:pointer;text-decoration:underline;font-weight:600" onclick="goToCheckout()">Upgrade to Premium</span> for full history</div></div></div>`:'';
   $('page-transactions').innerHTML=`
     <div class="filters">
       <button class="ftag ${TX_FILTER==='all'?'on':''}" onclick="setF('all')">All</button>
       <button class="ftag ${TX_FILTER==='income'?'on':''}" onclick="setF('income')">↑ Income</button>
       <button class="ftag ${TX_FILTER==='expense'?'on':''}" onclick="setF('expense')">↓ Expenses</button>
     </div>
-    ${freeBanner}
     ${fl.length===0?`<div class="empty"><div class="empty-ico">📭</div><div class="empty-txt">No transactions here yet.</div></div>`:`<div class="card">${fl.map(txRow).join('')}</div>`}`;
 }
 function setF(f){TX_FILTER=f;renderTxs();}
@@ -677,7 +617,10 @@ function acctRow(a){
   return`<div>
     <div class="acct-card">
       <div class="acct-ico" style="background:${ABG[a.type]||'#F1EFE8'}">${AICO[a.type]||'📂'}</div>
-      <div style="flex:1"><div style="font-size:14px;font-weight:500">${a.name}</div><div style="font-size:12px;color:var(--gray);margin-top:1px">${ALAB[a.type]||'Other'}</div></div>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:500">${a.name}</div>
+        <div style="font-size:12px;color:var(--gray);margin-top:1px">${ALAB[a.type]||'Other'}</div>
+      </div>
       <div style="text-align:right">
         <div style="font-size:16px;font-weight:700;color:${col}">${b<0?'-':''}${CUR}${fmt(Math.abs(b))}</div>
         <div style="font-size:11px;color:var(--gray);margin-top:1px">${cc?'balance due':'available'}</div>
@@ -700,11 +643,15 @@ function renderBudget(){
   const allCatIds=new Set([...Object.keys(sp),...BUDGETS.map(b=>b.category_id)]);
   const rows=[];
   allCatIds.forEach(cid=>{
-    const cat=CATS.find(c=>c.id===cid);if(!cat||cat.type!=='expense')return;
-    const spent=sp[cid]||0;const bud=BUDGETS.find(b=>b.category_id===cid);const budAmt=bud?Number(bud.amount):0;
+    const cat=CATS.find(c=>c.id===cid);
+    if(!cat||cat.type!=='expense')return;
+    const spent=sp[cid]||0;
+    const bud=BUDGETS.find(b=>b.category_id===cid);
+    const budAmt=bud?Number(bud.amount):0;
     const pct=budAmt?Math.min((spent/budAmt)*100,100):0;
     const col=budAmt?(pct>90?'var(--red)':pct>70?'#f59e0b':'var(--green)'):'#9CA3AF';
-    const over=budAmt&&spent>budAmt;rows.push({cat,spent,budAmt,pct,col,over,cid});
+    const over=budAmt&&spent>budAmt;
+    rows.push({cat,spent,budAmt,pct,col,over,cid});
   });
   rows.sort((a,b)=>b.spent-a.spent);
   $('page-budget').innerHTML=`
@@ -716,7 +663,10 @@ function renderBudget(){
         <div class="bal-mini"><div class="bal-mini-l">REMAINING</div><div class="bal-mini-v" style="color:${totBudget&&totSpent>totBudget?'#fca5a5':'#4ade80'}">${CUR}${fmt(Math.max(totBudget-totSpent,0))}</div></div>
       </div>
     </div>
-    <div class="sec-head"><div class="sec-title">${MO[now.getMonth()]} ${now.getFullYear()}</div><button class="sec-link" onclick="openSetBudget()">+ Set budget</button></div>
+    <div class="sec-head">
+      <div class="sec-title">${MO[now.getMonth()]} ${now.getFullYear()}</div>
+      <button class="sec-link" onclick="openSetBudget()">+ Set budget</button>
+    </div>
     ${rows.length===0
       ?`<div class="empty"><div class="empty-ico">📊</div><div class="empty-txt">No expenses yet.<br>Tap "+ Set budget" to add spending limits.</div></div>`
       :`<div class="card">${rows.map(r=>`
@@ -729,102 +679,61 @@ function renderBudget(){
             </div>
           </div>
           <div class="prog"><div class="prog-fill" style="width:${r.pct.toFixed(1)}%;background:${r.col}"></div></div>
-        </div>`).join('')}</div>`}`;
+        </div>`).join('')}</div>`}
+  `;
 }
-function openSetBudget(){const expCats=CATS.filter(c=>c.type==='expense');if(expCats.length>0)openSetBudgetForCat(expCats[0].id);}
+
+function openSetBudget(){
+  const expCats=CATS.filter(c=>c.type==='expense');
+  if(expCats.length>0)openSetBudgetForCat(expCats[0].id);
+}
 function openSetBudgetForCat(catId){
   const cat=CATS.find(c=>c.id===catId);if(!cat)return;
-  $('bud-cat-id').value=catId;$('bud-cat-label').textContent=ci(cat.name)+' '+cat.name;
-  const existing=BUDGETS.find(b=>b.category_id===catId);$('bud-amt').value=existing?existing.amount:'';clr('bud-msg');
+  $('bud-cat-id').value=catId;
+  $('bud-cat-label').textContent=ci(cat.name)+' '+cat.name;
+  const existing=BUDGETS.find(b=>b.category_id===catId);
+  $('bud-amt').value=existing?existing.amount:'';
+  clr('bud-msg');
   let sel=document.getElementById('bud-cat-sel');
   if(!sel){sel=document.createElement('select');sel.id='bud-cat-sel';sel.style.cssText='width:100%;padding:12px 14px;border:1.5px solid var(--light);border-radius:var(--r);font-size:15px;font-family:var(--font);outline:none;color:var(--dark);background:var(--white);margin-bottom:14px;appearance:none';$('bud-cat-label').parentElement.after(sel);}
-  sel.innerHTML='';CATS.filter(c=>c.type==='expense').forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=ci(c.name)+'  '+c.name;if(c.id===catId)o.selected=true;sel.appendChild(o);});
-  sel.onchange=()=>{const v=sel.value;$('bud-cat-id').value=v;const c=CATS.find(x=>x.id===v);$('bud-cat-label').textContent=c?ci(c.name)+' '+c.name:'';const ex=BUDGETS.find(b=>b.category_id===v);$('bud-amt').value=ex?ex.amount:'';updateBudgetDeleteBtn(v);};
-  updateBudgetDeleteBtn(catId);show('modal-budget');
+  sel.innerHTML='';
+  CATS.filter(c=>c.type==='expense').forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=ci(c.name)+'  '+c.name;if(c.id===catId)o.selected=true;sel.appendChild(o);});
+  sel.onchange=()=>{
+    const v=sel.value;
+    $('bud-cat-id').value=v;
+    const c=CATS.find(x=>x.id===v);
+    $('bud-cat-label').textContent=c?ci(c.name)+' '+c.name:'';
+    const ex=BUDGETS.find(b=>b.category_id===v);
+    $('bud-amt').value=ex?ex.amount:'';
+    updateBudgetDeleteBtn(v);
+  };
+  updateBudgetDeleteBtn(catId);
+  show('modal-budget');
 }
 function closeBudget(){hide('modal-budget');}
 async function doSaveBudget(){
   const catId=$('bud-cat-id').value,amt=parseFloat($('bud-amt').value);
-  if(!catId||!amt){msg('bud-msg','Please enter an amount.');return;}clr('bud-msg');
+  if(!catId||!amt){msg('bud-msg','Please enter an amount.');return;}
+  clr('bud-msg');
   try{
     const now=new Date();
     const{error}=await sb.rpc('upsert_budget',{p_household_id:HOUSEHOLD.id,p_category_id:catId,p_amount:amt,p_month:now.getMonth()+1,p_year:now.getFullYear()});
-    if(error)throw error;await loadBudgets();closeBudget();renderBudget();
+    if(error)throw error;
+    await loadBudgets();closeBudget();renderBudget();
   }catch(e){msg('bud-msg',e.message||'Could not save.');}
 }
 
-// ── PROFILE (with subscription) ──
+
+// PROFILE
 function renderProfile(){
   const n=USER?.user_metadata?.full_name||USER?.email||'User';
-  const isPremium = SUB_PLAN==='premium' && ['active','on_trial'].includes(SUB_STATUS);
-  const renewText = SUB_RENEWS ? 'Renews ' + new Date(SUB_RENEWS).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
-
-  const subSection = isPremium
-    ? `<div class="card" style="margin-bottom:12px">
-        <div class="menu-item">
-          <div class="menu-left"><div class="menu-ico">⭐</div><div><div style="font-size:14px;font-weight:700">Premium Member</div>${renewText?`<div style="font-size:12px;color:var(--gray)">${renewText}</div>`:''}</div></div>
-          <span class="sub-badge sub-badge-active">● ACTIVE</span>
-        </div>
-        <div class="menu-item" onclick="goTo('reports')" style="cursor:pointer">
-          <div class="menu-left"><div class="menu-ico">📊</div><div style="font-size:14px;font-weight:500">View Reports</div></div>
-          <div style="font-size:16px;color:var(--orange)">›</div>
-        </div>
-        <div class="menu-item" onclick="openAddRecurring()" style="cursor:pointer">
-          <div class="menu-left"><div class="menu-ico">🔁</div><div style="font-size:14px;font-weight:500">Recurring Transactions</div></div>
-          <div style="font-size:13px;color:var(--gray)">${RECURRINGS.length} active ›</div>
-        </div>
-      </div>`
-    : `<div class="card sub-upgrade-card" style="margin-bottom:12px">
-        <div style="padding:18px">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-            <div style="width:40px;height:40px;background:var(--orange);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">⚡</div>
-            <div>
-              <div style="font-size:16px;font-weight:800;letter-spacing:-0.02em">Upgrade to Premium</div>
-              <div style="font-size:12px;color:var(--gray)">Founding member — lock in forever</div>
-            </div>
-          </div>
-          <ul class="upgrade-features">
-            <li>Unlimited transaction history</li>
-            <li>Multiple households (up to 3)</li>
-            <li>Advanced reports &amp; insights</li>
-            <li>Recurring transactions</li>
-            <li>Budget alerts</li>
-          </ul>
-          <button class="btn btn-orange" onclick="goToCheckout()" style="font-size:14px;padding:11px">Upgrade to Premium →</button>
-        </div>
-      </div>`;
-
   $('page-profile').innerHTML=`
-    <div class="prof-head">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px">
-        <div class="prof-av">${ini(n)}</div>
-        <div>
-          <div style="font-size:20px;font-weight:700;color:#fff">${n}</div>
-          <div style="font-size:13px;color:rgba(255,255,255,.4);margin-top:2px">${USER?.email||''}</div>
-        </div>
-      </div>
-      <div style="margin-top:10px">
-        <span class="sub-badge ${isPremium?'sub-badge-active':'sub-badge-free'}">${isPremium?'⭐ Premium':'Free plan'}</span>
-      </div>
-    </div>
+    <div class="prof-head"><div class="prof-av">${ini(n)}</div><div style="font-size:20px;font-weight:700;color:#fff">${n}</div><div style="font-size:13px;color:rgba(255,255,255,.4);margin-top:2px">${USER?.email||''}</div></div>
     <div style="padding:16px;padding-bottom:80px">
-      ${subSection}
-      ${isPremium&&HOUSEHOLDS.length>0?`<div class="card" style="margin-bottom:12px">
-        <div style="padding:12px 16px;font-size:12px;font-weight:700;color:var(--gray);letter-spacing:.06em;border-bottom:1px solid var(--light)">HOUSEHOLDS</div>
-        ${HOUSEHOLDS.map(hh=>`<div class="hh-item" onclick="switchHousehold('${hh.id}')">
-          <div class="menu-ico">🏠</div>
-          <div style="flex:1;font-size:14px;font-weight:500">${hh.name}</div>
-          ${hh.id===HOUSEHOLD.id?`<span class="hh-active-badge">Active</span>`:`<div style="font-size:16px;color:var(--orange)">›</div>`}
-        </div>`).join('')}
-        ${HOUSEHOLDS.length<3?`<div class="hh-item" onclick="openNewHousehold()" style="color:var(--orange)">
-          <div class="menu-ico">➕</div>
-          <div style="flex:1;font-size:14px;font-weight:600;color:var(--orange)">Add new household</div>
-        </div>`:''}
-      </div>`:''}
       <div class="card">
         <div class="menu-item"><div class="menu-left"><div class="menu-ico">🏠</div><div style="font-size:14px;font-weight:500">Household</div></div><div style="font-size:13px;color:var(--gray)">${HOUSEHOLD?.name||'–'}</div></div>
         <div class="menu-item" onclick="openCurrency()" style="cursor:pointer"><div class="menu-left"><div class="menu-ico">💱</div><div style="font-size:14px;font-weight:500">Currency</div></div><div style="font-size:13px;color:var(--orange);font-weight:600">${CUR_CODE} ${CUR} ›</div></div>
-        <div class="menu-item"><div class="menu-left"><div class="menu-ico">📱</div><div style="font-size:14px;font-weight:500">Version</div></div><div style="font-size:13px;color:var(--gray)">0.3.0</div></div>
+        <div class="menu-item"><div class="menu-left"><div class="menu-ico">📱</div><div style="font-size:14px;font-weight:500">Version</div></div><div style="font-size:13px;color:var(--gray)">0.1.0</div></div>
       </div>
       <div class="card">
         <div class="dark-toggle" onclick="toggleDark()">
@@ -832,22 +741,16 @@ function renderProfile(){
             <div class="menu-ico">${DARK?'🌙':'☀️'}</div>
             <div style="font-size:14px;font-weight:500">${DARK?'Dark mode':'Light mode'}</div>
           </div>
-          <div class="toggle-track ${DARK?'on':''}"><div class="toggle-thumb" id="dark-thumb"></div></div>
+          <div class="toggle-track ${DARK?'on':''}">
+            <div class="toggle-thumb" id="dark-thumb"></div>
+          </div>
         </div>
       </div>
       <button class="btn btn-red" onclick="doSignOut()" style="margin-top:8px">Sign out</button>
-      <div style="text-align:center;font-size:12px;color:#9CA3AF;margin-top:24px;display:flex;align-items:center;justify-content:center;gap:6px">
-        <svg width="16" height="16" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
-          <rect width="100" height="100" rx="22" fill="#3A3E45"/>
-          <rect x="34" y="29" width="32" height="10" rx="5" fill="#9CA3AF"/>
-          <rect x="25" y="45" width="50" height="10" rx="5" fill="#9CA3AF"/>
-          <rect x="16" y="61" width="68" height="10" rx="5" fill="#9CA3AF"/>
-        </svg>
-        Grip by Bastech · grip.bastech.app
-      </div>
+      <div style="text-align:center;font-size:12px;color:#9CA3AF;margin-top:24px">Grip by Bastech · Built with ♡</div>
     </div>`;
 }
-async function doSignOut(){await sb.auth.signOut();USER=null;HOUSEHOLD=null;HOUSEHOLDS=[];ACCOUNTS=[];CATS=[];TXS=[];RECURRINGS=[];BUDGET_ALERTS=[];SUB_STATUS='free';SUB_PLAN='free';hide('screen-app');show('screen-auth');clr('auth-msg');}
+async function doSignOut(){await sb.auth.signOut();USER=null;HOUSEHOLD=null;ACCOUNTS=[];CATS=[];TXS=[];hide('screen-app');show('screen-auth');clr('auth-msg');}
 
 // ADD TRANSACTION
 function openAddTx(){
@@ -855,24 +758,31 @@ function openAddTx(){
   CATS.filter(c=>c.type===TX_TYPE).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=ci(c.name)+'  '+c.name;cs.appendChild(o);});
   const as=$('tx-acc');as.innerHTML='<option value="">No account</option>';
   ACCOUNTS.forEach(a=>{const o=document.createElement('option');o.value=a.id;o.textContent=a.name;as.appendChild(o);});
-  $('tx-date').value=td();$('tx-amt').value='';$('tx-desc').value='';clr('tx-msg');setTxType('expense');show('modal-tx');
+  $('tx-date').value=td();$('tx-amt').value='';$('tx-desc').value='';clr('tx-msg');
+  setTxType('expense');show('modal-tx');
 }
 function closeAddTx(){hide('modal-tx');}
 function setTxType(t){
   TX_TYPE=t;
-  $('btn-inc').className='type-btn'+(t==='income'?' inc-on':'');$('btn-exp').className='type-btn'+(t==='expense'?' exp-on':'');
+  $('btn-inc').className='type-btn'+(t==='income'?' inc-on':'');
+  $('btn-exp').className='type-btn'+(t==='expense'?' exp-on':'');
   const cs=$('tx-cat');cs.innerHTML='<option value="">Select category…</option>';
   CATS.filter(c=>c.type===t).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=ci(c.name)+'  '+c.name;cs.appendChild(o);});
 }
 async function doSaveTx(){
   const amt=parseFloat($('tx-amt').value),cat=$('tx-cat').value,acc=$('tx-acc').value,desc=$('tx-desc').value.trim(),dt=$('tx-date').value;
-  if(!amt||!cat){msg('tx-msg','Please enter amount and category.');return;}clr('tx-msg');
+  if(!amt||!cat){msg('tx-msg','Please enter amount and category.');return;}
+  clr('tx-msg');
   try{
     const{error}=await sb.from('transactions').insert({household_id:HOUSEHOLD.id,category_id:cat,type:TX_TYPE,amount:amt,description:desc||null,date:dt,created_by:USER.id,account_id:acc||null});
     if(error)throw error;
     if(acc){const a=ACCOUNTS.find(x=>x.id===acc);if(a){const d=TX_TYPE==='income'?amt:-amt;await sb.from('accounts').update({balance:Number(a.balance)+d}).eq('id',acc);}}
-    await Promise.all([loadAccounts(),loadTxs()]);closeAddTx();
-    if(ACTIVE==='dashboard')renderDash();if(ACTIVE==='transactions')renderTxs();if(ACTIVE==='accounts')renderAccounts();if(ACTIVE==='budget')renderBudget();
+    await Promise.all([loadAccounts(),loadTxs()]);
+    closeAddTx();
+    if(ACTIVE==='dashboard')renderDash();
+    if(ACTIVE==='transactions')renderTxs();
+    if(ACTIVE==='accounts')renderAccounts();
+    if(ACTIVE==='budget')renderBudget();
   }catch(e){msg('tx-msg',e.message||'Could not save.');}
 }
 
@@ -884,60 +794,89 @@ async function doSaveAcct(){
   if(!name){msg('acct-msg','Please enter an account name.');return;}clr('acct-msg');
   try{
     const{error}=await sb.rpc('create_account_for_household',{p_household_id:HOUSEHOLD.id,p_name:name,p_type:type,p_balance:bal,p_currency:'USD'});
-    if(error)throw error;await loadAccounts();closeAddAcct();renderAccounts();
+    if(error)throw error;
+    await loadAccounts();closeAddAcct();renderAccounts();
   }catch(e){msg('acct-msg',e.message||'Could not save account.');}
 }
 
 // ── PAYABLES ──
 const PAY_ICONS={'Utilities':'💡','Housing':'🏠','Subscription':'📺','Insurance':'🛡','Loan':'🏦','Internet':'🌐','Other':'📂'};
 let PAY_MONTH=new Date().getMonth(), PAY_YEAR=new Date().getFullYear();
+
 async function loadPayables(){
   if(!HOUSEHOLD)return;
   const{data}=await sb.from('payables').select('*').eq('household_id',HOUSEHOLD.id).eq('is_active',true).order('due_day');
   PAYABLES=data||[];
+  // Load payment statuses for current month range
   if(PAYABLES.length>0){
     const ids=PAYABLES.map(p=>p.id);
     const{data:pmts}=await sb.from('payable_payments').select('*').in('payable_id',ids);
-    PAY_PAYMENTS={};(pmts||[]).forEach(p=>{PAY_PAYMENTS[p.payable_id+'_'+p.month+'_'+p.year]=p;});
+    PAY_PAYMENTS={};
+    (pmts||[]).forEach(p=>{PAY_PAYMENTS[p.payable_id+'_'+p.month+'_'+p.year]=p;});
   }
 }
-function getPayStatus(payableId,month,year){return PAY_PAYMENTS[payableId+'_'+month+'_'+year]?.status||'pending';}
+
+function getPayStatus(payableId,month,year){
+  return PAY_PAYMENTS[payableId+'_'+month+'_'+year]?.status||'pending';
+}
+
 function renderPayables(){
-  const MOS=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const activePayables=PAYABLES.filter(p=>{
-    if(!p.active_months||!Array.isArray(p.active_months)||p.active_months.length===0)return true;
+  const now = new Date();
+  const MOS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  // Filter FIRST before anything uses activePayables
+  const activePayables = PAYABLES.filter(p=>{
+    if(!p.active_months || !Array.isArray(p.active_months) || p.active_months.length===0) return true;
     return p.active_months.includes(PAY_MONTH+1);
   });
-  const inactiveCount=PAYABLES.length-activePayables.length;
-  const total=activePayables.reduce((s,p)=>s+Number(p.amount),0);
-  const paid=activePayables.filter(p=>getPayStatus(p.id,PAY_MONTH+1,PAY_YEAR)==='paid').reduce((s,p)=>s+Number(p.amount),0);
-  const skipped=activePayables.filter(p=>getPayStatus(p.id,PAY_MONTH+1,PAY_YEAR)==='skipped').reduce((s,p)=>s+Number(p.amount),0);
-  const pending=total-paid-skipped;
+  const inactiveCount = PAYABLES.length - activePayables.length;
+
+  const total   = activePayables.reduce((s,p)=>s+Number(p.amount), 0);
+  const paid    = activePayables.filter(p=>getPayStatus(p.id,PAY_MONTH+1,PAY_YEAR)==='paid').reduce((s,p)=>s+Number(p.amount), 0);
+  const skipped = activePayables.filter(p=>getPayStatus(p.id,PAY_MONTH+1,PAY_YEAR)==='skipped').reduce((s,p)=>s+Number(p.amount), 0);
+  const pending = total - paid - skipped;
+
   let listHTML;
   if(activePayables.length===0){
-    listHTML=`<div class="empty"><div class="empty-ico">📋</div><div class="empty-txt">${PAYABLES.length===0?'No payables yet.<br>Tap + Add to set up your monthly bills.':'No payables scheduled for this month.'}</div></div>`;
-  }else{
-    const rows=activePayables.map(p=>{try{return payableRow(p);}catch(e){console.error('payableRow error',e);return '';}}).filter(Boolean).join('');
-    listHTML=`<div class="card">${rows}</div>`;
+    listHTML = `<div class="empty"><div class="empty-ico">📋</div><div class="empty-txt">${PAYABLES.length===0?'No payables yet.<br>Tap + Add to set up your monthly bills.':'No payables scheduled for this month.'}</div></div>`;
+  } else {
+    const rows = activePayables.map(p=>{ try{ return payableRow(p); }catch(e){ console.error('payableRow error',e); return ''; } }).filter(Boolean).join('');
+    listHTML = `<div class="card">${rows}</div>`;
   }
-  $('page-payables').innerHTML=`
+
+  $('page-payables').innerHTML = `
     <div class="month-nav">
       <button class="month-nav-btn" onclick="changePayMonth(-1)">&#8249;</button>
       <div class="month-label">${MOS[PAY_MONTH]} ${PAY_YEAR}</div>
       <button class="month-nav-btn" onclick="changePayMonth(1)">&#8250;</button>
     </div>
     <div class="pay-summary">
-      <div class="pay-sum-card" style="background:var(--green-bg)"><div class="pay-sum-label" style="color:var(--green)">PAID</div><div class="pay-sum-val" style="color:var(--green)">${CUR}${fmt(paid)}</div></div>
-      <div class="pay-sum-card" style="background:#FEF3C7"><div class="pay-sum-label" style="color:#D97706">PENDING</div><div class="pay-sum-val" style="color:#D97706">${CUR}${fmt(pending)}</div></div>
-      <div class="pay-sum-card" style="background:#F1EFE8"><div class="pay-sum-label" style="color:var(--gray)">SKIPPED</div><div class="pay-sum-val" style="color:var(--gray)">${CUR}${fmt(skipped)}</div></div>
+      <div class="pay-sum-card" style="background:var(--green-bg)">
+        <div class="pay-sum-label" style="color:var(--green)">PAID</div>
+        <div class="pay-sum-val" style="color:var(--green)">${CUR}${fmt(paid)}</div>
+      </div>
+      <div class="pay-sum-card" style="background:#FEF3C7">
+        <div class="pay-sum-label" style="color:#D97706">PENDING</div>
+        <div class="pay-sum-val" style="color:#D97706">${CUR}${fmt(pending)}</div>
+      </div>
+      <div class="pay-sum-card" style="background:#F1EFE8">
+        <div class="pay-sum-label" style="color:var(--gray)">SKIPPED</div>
+        <div class="pay-sum-val" style="color:var(--gray)">${CUR}${fmt(skipped)}</div>
+      </div>
     </div>
-    <div class="sec-head"><div class="sec-title">Monthly bills</div><button class="sec-link" onclick="openAddPayable()">+ Add</button></div>
+    <div class="sec-head">
+      <div class="sec-title">Monthly bills</div>
+      <button class="sec-link" onclick="openAddPayable()">+ Add</button>
+    </div>
     ${listHTML}
-    ${inactiveCount>0?`<div style="text-align:center;font-size:12px;color:var(--gray);margin-top:8px">${inactiveCount} payable${inactiveCount>1?'s':''} not scheduled this month</div>`:''}`;
+    ${inactiveCount>0 ? `<div style="text-align:center;font-size:12px;color:var(--gray);margin-top:8px">${inactiveCount} payable${inactiveCount>1?'s':''} not scheduled this month</div>` : ''}
+  `;
 }
+
+
 function payableRow(p){
+  const isSkipped = getPayStatus(p.id,PAY_MONTH+1,PAY_YEAR)==='skipped';
   const status=getPayStatus(p.id,PAY_MONTH+1,PAY_YEAR);
-  const isSkipped=status==='skipped';
   const today=new Date().getDate();
   const isCurrentMonth=PAY_MONTH===new Date().getMonth()&&PAY_YEAR===new Date().getFullYear();
   const isOverdue=isCurrentMonth&&status==='pending'&&p.due_day&&today>p.due_day;
@@ -948,11 +887,13 @@ function payableRow(p){
   const dueText=p.due_day?`Due every ${p.due_day}${ordinal(p.due_day)}`:'No due date set';
   return`<div class="pay-item" style="${isSkipped?'opacity:0.55':''}">
     <div class="pay-top">
-      <div class="pay-ico">${ci(p.category)}</div>
+      <div class="pay-ico">${PAY_ICONS[p.category]||'📂'}</div>
       <div style="flex:1">
         <div class="pay-name">${p.name}</div>
         <div class="pay-meta">${p.category} · ${dueText}</div>
-        ${p.active_months&&p.active_months.length<12?`<div style="font-size:10px;color:var(--orange);font-weight:600;margin-top:3px">${p.active_months.map(m=>MO[m-1]).join(', ')} only</div>`:''}
+        ${p.active_months&&p.active_months.length<12
+          ?`<div style="font-size:10px;color:var(--orange);font-weight:600;margin-top:3px">${p.active_months.map(m=>MO[m-1]).join(', ')} only</div>`
+          :''}
       </div>
       <div style="display:flex;align-items:center;gap:8px">
         <div class="pay-amt">${CUR}${fmt(p.amount)}</div>
@@ -965,398 +906,451 @@ function payableRow(p){
         ${acctName?`<div style="font-size:11px;color:var(--gray);margin-top:4px">via ${acctName}</div>`:''}
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
-        ${status!=='paid'?`<button class="toggle-btn" onclick="openPayAccountModal('${p.id}',${PAY_MONTH+1},${PAY_YEAR},'${status}','${p.name.replace(/'/g,"\\'")}')">Mark as paid</button>`:''}
-        ${status==='paid'?`<button class="toggle-btn" onclick="openPayAccountModal('${p.id}',${PAY_MONTH+1},${PAY_YEAR},'paid','${p.name.replace(/'/g,"\\'")}')">Undo paid</button>`:''}
+        ${status!=='paid'?`<button class="toggle-btn" onclick="openPayAccountModal('${p.id}',${PAY_MONTH+1},${PAY_YEAR},'${status}','${p.name.replace(/'/g,"\'")}')">Mark as paid</button>`:''}
+        ${status==='paid'?`<button class="toggle-btn" onclick="openPayAccountModal('${p.id}',${PAY_MONTH+1},${PAY_YEAR},'paid','${p.name.replace(/'/g,"\'")}')">Undo paid</button>`:''}
         ${status!=='skipped'?`<button class="toggle-btn" style="border-color:#d1d5db;color:var(--gray)" onclick="skipPayable('${p.id}',${PAY_MONTH+1},${PAY_YEAR},'${status}')">Skip month</button>`:`<button class="toggle-btn" style="border-color:#d1d5db;color:var(--gray)" onclick="skipPayable('${p.id}',${PAY_MONTH+1},${PAY_YEAR},'skipped')">Undo skip</button>`}
       </div>
     </div>
   </div>`;
 }
+
 function ordinal(n){const s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);}
+
+async function togglePayStatus(payableId,month,year,current){
+  const newStatus=current==='paid'?'pending':'paid';
+  try{
+    await sb.rpc('set_payable_status',{p_payable_id:payableId,p_month:month,p_year:year,p_status:newStatus,p_household_id:HOUSEHOLD.id});
+    PAY_PAYMENTS[payableId+'_'+month+'_'+year]={status:newStatus};
+    // Reload transactions so the auto-created expense shows up
+    await Promise.all([loadTxs(),loadAccounts()]);
+    renderPayables();
+  }catch(e){alert('Could not update status: '+e.message);}
+}
+
 async function changePayMonth(dir){
   PAY_MONTH+=dir;
   if(PAY_MONTH>11){PAY_MONTH=0;PAY_YEAR++;}
   if(PAY_MONTH<0){PAY_MONTH=11;PAY_YEAR--;}
-  await loadPayables();renderPayables();
+  await loadPayables();
+  renderPayables();
 }
-let SELECTED_MONTHS=new Set([1,2,3,4,5,6,7,8,9,10,11,12]);
+
+let SELECTED_MONTHS=new Set([1,2,3,4,5,6,7,8,9,10,11,12]); // all = every month
+
 function buildMonthPicker(activeMonths){
-  SELECTED_MONTHS=activeMonths&&activeMonths.length<12?new Set(activeMonths):new Set([1,2,3,4,5,6,7,8,9,10,11,12]);
-  const picker=$('month-picker');picker.innerHTML='';
+  // null or all 12 = every month selected
+  SELECTED_MONTHS = activeMonths && activeMonths.length < 12
+    ? new Set(activeMonths)
+    : new Set([1,2,3,4,5,6,7,8,9,10,11,12]);
+  const picker = $('month-picker');
+  picker.innerHTML = '';
   MO.forEach((m,i)=>{
-    const num=i+1;const btn=document.createElement('button');btn.type='button';
-    btn.className='month-chip'+(SELECTED_MONTHS.has(num)?' on':'');btn.textContent=m;
-    btn.onclick=()=>{if(SELECTED_MONTHS.has(num))SELECTED_MONTHS.delete(num);else SELECTED_MONTHS.add(num);btn.className='month-chip'+(SELECTED_MONTHS.has(num)?' on':'');};
+    const num = i+1;
+    const btn = document.createElement('button');
+    btn.type='button';
+    btn.className='month-chip'+(SELECTED_MONTHS.has(num)?' on':'');
+    btn.textContent=m;
+    btn.onclick=()=>{
+      if(SELECTED_MONTHS.has(num)) SELECTED_MONTHS.delete(num);
+      else SELECTED_MONTHS.add(num);
+      btn.className='month-chip'+(SELECTED_MONTHS.has(num)?' on':'');
+    };
     picker.appendChild(btn);
   });
 }
-function buildPayCatSelect(selected){
-  const sel=$('pay-cat');sel.innerHTML='';
-  CATS.filter(c=>c.type==='expense').forEach(c=>{
-    const o=document.createElement('option');o.value=c.name;o.textContent=ci(c.name)+'  '+c.name;
-    if(c.name===selected)o.selected=true;
-    sel.appendChild(o);
-  });
-}
+
 function openAddPayable(){
-  $('pay-edit-id').value='';$('payable-modal-title').textContent='Add payable';
+  $('pay-edit-id').value='';
+  $('payable-modal-title').textContent='Add payable';
   $('pay-name').value='';$('pay-amount').value='';$('pay-day').value='';
-  buildPayCatSelect('Utilities');
-  $('payable-save-btn').textContent='Add payable';$('payable-delete-btn').style.display='none';
-  clr('payable-msg');buildMonthPicker(null);show('modal-payable');
+  $('pay-cat').value='Utilities';
+  $('payable-save-btn').textContent='Add payable';
+  $('payable-delete-btn').style.display='none';
+  clr('payable-msg');
+  buildMonthPicker(null);
+  show('modal-payable');
 }
-function openEditPayableById(id){const p=PAYABLES.find(x=>x.id===id);if(!p)return;openEditPayable(p);}
+
+function openEditPayableById(id){
+  const p = PAYABLES.find(x=>x.id===id);
+  if(!p) return;
+  openEditPayable(p);
+}
 function openEditPayable(p){
-  $('pay-edit-id').value=p.id;$('payable-modal-title').textContent='Edit payable';
-  $('pay-name').value=p.name;$('pay-amount').value=p.amount;$('pay-day').value=p.due_day||'';buildPayCatSelect(p.category||'Utilities');
-  $('payable-save-btn').textContent='Save changes';$('payable-delete-btn').style.display='block';
-  clr('payable-msg');buildMonthPicker(p.active_months);show('modal-payable');
+  $('pay-edit-id').value=p.id;
+  $('payable-modal-title').textContent='Edit payable';
+  $('pay-name').value=p.name;
+  $('pay-amount').value=p.amount;
+  $('pay-day').value=p.due_day||'';
+  $('pay-cat').value=p.category||'Other';
+  $('payable-save-btn').textContent='Save changes';
+  $('payable-delete-btn').style.display='block';
+  clr('payable-msg');
+  buildMonthPicker(p.active_months);
+  show('modal-payable');
 }
+
 function closeAddPayable(){hide('modal-payable');}
+
 async function doSavePayable(){
-  const name=$('pay-name').value.trim(),amount=parseFloat($('pay-amount').value),day=parseInt($('pay-day').value)||null,cat=$('pay-cat').value,editId=$('pay-edit-id').value;
+  const name=$('pay-name').value.trim();
+  const amount=parseFloat($('pay-amount').value);
+  const day=parseInt($('pay-day').value)||null;
+  const cat=$('pay-cat').value;
+  const editId=$('pay-edit-id').value;
   if(!name||!amount){msg('payable-msg','Please enter a name and amount.');return;}
-  const months=[...SELECTED_MONTHS].sort((a,b)=>a-b);const activeMonths=months.length===12?null:months;clr('payable-msg');
+  // Build active_months array — null if all 12 selected
+  const months=[...SELECTED_MONTHS].sort((a,b)=>a-b);
+  const activeMonths=months.length===12?null:months;
+  clr('payable-msg');
   try{
-    if(editId){const{error}=await sb.rpc('edit_payable',{p_payable_id:editId,p_name:name,p_amount:amount,p_due_day:day,p_category:cat,p_active_months:activeMonths});if(error)throw error;}
-    else{const{error}=await sb.rpc('upsert_payable',{p_household_id:HOUSEHOLD.id,p_name:name,p_amount:amount,p_due_day:day,p_category:cat,p_active_months:activeMonths});if(error)throw error;}
-    await loadPayables();closeAddPayable();renderPayables();
+    if(editId){
+      const{error}=await sb.rpc('edit_payable',{
+        p_payable_id:editId,p_name:name,p_amount:amount,
+        p_due_day:day,p_category:cat,p_active_months:activeMonths
+      });
+      if(error)throw error;
+    } else {
+      const{error}=await sb.rpc('upsert_payable',{
+        p_household_id:HOUSEHOLD.id,p_name:name,p_amount:amount,
+        p_due_day:day,p_category:cat,p_active_months:activeMonths
+      });
+      if(error)throw error;
+    }
+    await loadPayables();
+    closeAddPayable();
+    renderPayables();
   }catch(e){msg('payable-msg',e.message||'Could not save.');}
 }
+
 async function doDeletePayable(){
   const id=$('pay-edit-id').value;
   if(!id||!confirm('Delete this payable? It will no longer appear in any month.'))return;
-  try{const{error}=await sb.rpc('delete_payable',{p_payable_id:id});if(error)throw error;await loadPayables();closeAddPayable();renderPayables();}
-  catch(e){alert('Could not delete: '+e.message);}
+  try{
+    const{error}=await sb.rpc('delete_payable',{p_payable_id:id});
+    if(error)throw error;
+    await loadPayables();
+    closeAddPayable();
+    renderPayables();
+  }catch(e){alert('Could not delete: '+e.message);}
 }
 
-// ── CHARTS ──
+// ── CHART ──
 function renderChart(){
-  const canvas=document.getElementById('dash-chart');if(!canvas)return;
-  const dark=document.body.classList.contains('dark');
-  const gridColor=dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.05)';
-  const textColor=dark?'#9CA3AF':'#6B7280';
-  const months=[],incData=[],expData=[];
-  const now=new Date();
+  const canvas = document.getElementById('dash-chart');
+  if(!canvas) return;
+  const dark = document.body.classList.contains('dark');
+  const gridColor = dark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.05)';
+  const textColor = dark ? '#9CA3AF' : '#6B7280';
+
+  const months=[], incData=[], expData=[];
+  const now = new Date();
   for(let i=5;i>=0;i--){
-    const d=new Date(now.getFullYear(),now.getMonth()-i,1);const m=d.getMonth();const y=d.getFullYear();
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    const m = d.getMonth(), y = d.getFullYear();
     months.push(MO[m]);
-    const inc=TXS.filter(t=>{const td=new Date(t.date+'T00:00:00');return t.type==='income'&&td.getMonth()===m&&td.getFullYear()===y;}).reduce((s,t)=>s+Number(t.amount),0);
-    const exp=TXS.filter(t=>{const td=new Date(t.date+'T00:00:00');return t.type==='expense'&&td.getMonth()===m&&td.getFullYear()===y;}).reduce((s,t)=>s+Number(t.amount),0);
-    incData.push(parseFloat(inc.toFixed(2)));expData.push(parseFloat(exp.toFixed(2)));
+    const inc = TXS.filter(t=>{const td=new Date(t.date+'T00:00:00');return t.type==='income'&&td.getMonth()===m&&td.getFullYear()===y;}).reduce((s,t)=>s+Number(t.amount),0);
+    const exp = TXS.filter(t=>{const td=new Date(t.date+'T00:00:00');return t.type==='expense'&&td.getMonth()===m&&td.getFullYear()===y;}).reduce((s,t)=>s+Number(t.amount),0);
+    incData.push(parseFloat(inc.toFixed(2)));
+    expData.push(parseFloat(exp.toFixed(2)));
   }
-  if(CHART){CHART.destroy();CHART=null;}
-  CHART=new Chart(canvas,{type:'bar',data:{labels:months,datasets:[
-    {label:'Income',data:incData,backgroundColor:'rgba(74,222,128,0.75)',borderRadius:5,borderSkipped:false},
-    {label:'Expenses',data:expData,backgroundColor:'rgba(252,165,165,0.75)',borderRadius:5,borderSkipped:false}
-  ]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:true,position:'bottom',labels:{color:textColor,font:{size:11},boxWidth:10,padding:14}},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${CUR}${fmt(ctx.raw)}`}}},scales:{x:{grid:{color:gridColor},ticks:{color:textColor,font:{size:11}}},y:{grid:{color:gridColor},ticks:{color:textColor,font:{size:11},callback:v=>`${CUR}${fmt(v)}`},beginAtZero:true}}}});
+
+  if(CHART){ CHART.destroy(); CHART=null; }
+  CHART = new Chart(canvas, {
+    type:'bar',
+    data:{
+      labels: months,
+      datasets:[
+        {label:'Income',   data:incData, backgroundColor:'rgba(74,222,128,0.75)',  borderRadius:5, borderSkipped:false},
+        {label:'Expenses', data:expData, backgroundColor:'rgba(252,165,165,0.75)', borderRadius:5, borderSkipped:false}
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:true,
+      plugins:{
+        legend:{display:true, position:'bottom', labels:{color:textColor, font:{size:11}, boxWidth:10, padding:14}},
+        tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${CUR}${fmt(ctx.raw)}`}}
+      },
+      scales:{
+        x:{grid:{color:gridColor}, ticks:{color:textColor, font:{size:11}}},
+        y:{grid:{color:gridColor}, ticks:{color:textColor, font:{size:11}, callback:v=>`${CUR}${fmt(v)}`}, beginAtZero:true}
+      }
+    }
+  });
 }
+
 function renderPieChart(){
-  const canvas=document.getElementById('pie-chart');if(!canvas)return;
-  const dark=document.body.classList.contains('dark');const textColor=dark?'#9CA3AF':'#6B7280';
-  const now=new Date();const sp={};
-  TXS.filter(t=>{const d=new Date(t.date+'T00:00:00');return t.type==='expense'&&d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();}).forEach(t=>{sp[t.category_id]=(sp[t.category_id]||0)+Number(t.amount);});
-  const entries=Object.entries(sp).sort((a,b)=>b[1]-a[1]);
-  if(entries.length===0){const ctx=canvas.getContext('2d');canvas.height=60;ctx.fillStyle=textColor;ctx.font='13px -apple-system,sans-serif';ctx.textAlign='center';ctx.fillText('No expenses this month yet',canvas.width/2,36);return;}
-  const labels=[],data=[],colors=[];
+  const canvas = document.getElementById('pie-chart');
+  if(!canvas) return;
+  const dark = document.body.classList.contains('dark');
+  const textColor = dark ? '#9CA3AF' : '#6B7280';
+
+  const now = new Date();
+  const sp = {};
+  TXS.filter(t=>{
+    const d=new Date(t.date+'T00:00:00');
+    return t.type==='expense' && d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+  }).forEach(t=>{ sp[t.category_id]=(sp[t.category_id]||0)+Number(t.amount); });
+
+  const entries = Object.entries(sp).sort((a,b)=>b[1]-a[1]);
+
+  if(entries.length===0){
+    // Show placeholder text
+    const ctx = canvas.getContext('2d');
+    canvas.height = 60;
+    ctx.fillStyle = textColor;
+    ctx.font = '13px -apple-system,sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('No expenses this month yet', canvas.width/2, 36);
+    return;
+  }
+
+  const labels=[], data=[], colors=[];
   const PIE_COLORS=['#F26722','#378ADD','#16a34a','#dc2626','#9333ea','#f59e0b','#06b6d4','#ec4899','#84cc16','#f97316','#8b5cf6','#14b8a6','#ef4444','#3b82f6','#22c55e'];
-  entries.forEach(([catId,amt],i)=>{const cat=CATS.find(c=>c.id===catId);labels.push(`${cat?cat.name:'Other'}  ${CUR}${fmt(amt)}`);data.push(parseFloat(amt.toFixed(2)));colors.push(PIE_COLORS[i%PIE_COLORS.length]);});
-  if(window.PIE_CHART){window.PIE_CHART.destroy();window.PIE_CHART=null;}
-  const total=data.reduce((a,b)=>a+b,0);
-  window.PIE_CHART=new Chart(canvas,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:2,borderColor:dark?'#23272E':'#ffffff',hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:true,cutout:'60%',plugins:{legend:{display:true,position:'bottom',labels:{color:textColor,font:{size:11},boxWidth:10,padding:10}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: (${((ctx.raw/total)*100).toFixed(1)}%)`}}}}});
+  entries.forEach(([catId,amt],i)=>{
+    const cat = CATS.find(c=>c.id===catId);
+    labels.push(cat?cat.name:'Other');
+    data.push(parseFloat(amt.toFixed(2)));
+    colors.push(PIE_COLORS[i % PIE_COLORS.length]);
+  });
+
+  if(window.PIE_CHART){ window.PIE_CHART.destroy(); window.PIE_CHART=null; }
+  window.PIE_CHART = new Chart(canvas, {
+    type:'doughnut',
+    data:{ labels, datasets:[{ data, backgroundColor:colors, borderWidth:2, borderColor: dark?'#23272E':'#ffffff', hoverOffset:6 }] },
+    options:{
+      responsive:true, maintainAspectRatio:true, cutout:'60%',
+      plugins:{
+        legend:{ display:true, position:'bottom', labels:{color:textColor, font:{size:11}, boxWidth:10, padding:10, generateLabels(chart){
+          return chart.data.labels.map((lbl,i)=>({
+            text: `${lbl}  ${CUR}${fmt(chart.data.datasets[0].data[i])}`,
+            fillStyle: chart.data.datasets[0].backgroundColor[i],
+            hidden: false, index: i
+          }));
+        }}},
+        tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${CUR}${fmt(ctx.raw)} (${((ctx.raw/data.reduce((a,b)=>a+b,0))*100).toFixed(1)}%)`}}
+      }
+    }
+  });
 }
+
 
 // ── CURRENCY ──
-function loadCurrencyFromStorage(){const saved=localStorage.getItem('grip_currency');if(saved){const[code,sym]=saved.split('|');CUR_CODE=code;CUR=sym;}}
-function openCurrency(){const sel=$('cur-sel');for(let o of sel.options){if(o.value.startsWith(CUR_CODE+'|')){o.selected=true;break;}}clr('cur-msg');show('modal-currency');}
-function closeCurrency(){hide('modal-currency');}
+function loadCurrencyFromStorage(){
+  const saved = localStorage.getItem('grip_currency');
+  if(saved){const[code,sym]=saved.split('|');CUR_CODE=code;CUR=sym;}
+}
+function openCurrency(){
+  const sel=$('cur-sel');
+  // Select current
+  for(let o of sel.options){ if(o.value.startsWith(CUR_CODE+'|')){ o.selected=true; break; } }
+  clr('cur-msg'); show('modal-currency');
+}
+function closeCurrency(){ hide('modal-currency'); }
 async function doSaveCurrency(){
-  const val=$('cur-sel').value;const[code,sym]=val.split('|');CUR_CODE=code;CUR=sym;localStorage.setItem('grip_currency',val);
-  try{await sb.rpc('update_profile_currency',{p_currency:code});}catch(e){}
-  closeCurrency();renderProfile();
-  if(ACTIVE==='dashboard')renderDash();if(ACTIVE==='transactions')renderTxs();if(ACTIVE==='accounts')renderAccounts();if(ACTIVE==='budget')renderBudget();
+  const val=$('cur-sel').value;
+  const[code,sym]=val.split('|');
+  CUR_CODE=code; CUR=sym;
+  localStorage.setItem('grip_currency', val);
+  try{ await sb.rpc('update_profile_currency',{p_currency:code}); }catch(e){}
+  closeCurrency();
+  renderProfile();
+  // Re-render active page so amounts update
+  if(ACTIVE==='dashboard')renderDash();
+  if(ACTIVE==='transactions')renderTxs();
+  if(ACTIVE==='accounts')renderAccounts();
+  if(ACTIVE==='budget')renderBudget();
 }
 
 // ── EDIT / DELETE TRANSACTIONS ──
 let EDIT_TX_TYPE='expense';
 function openEditTx(id,type,amount,catId,desc,date){
-  $('edit-tx-id').value=id;$('edit-tx-amt').value=amount;$('edit-tx-desc').value=desc;$('edit-tx-date').value=date;setEditTxType(type);
-  const sel=$('edit-tx-cat');sel.innerHTML='<option value="">Select category…</option>';
+  $('edit-tx-id').value=id;
+  $('edit-tx-amt').value=amount;
+  $('edit-tx-desc').value=desc;
+  $('edit-tx-date').value=date;
+  setEditTxType(type);
+  const sel=$('edit-tx-cat');
+  sel.innerHTML='<option value="">Select category…</option>';
   CATS.filter(c=>c.type===type).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=ci(c.name)+'  '+c.name;if(c.id===catId)o.selected=true;sel.appendChild(o);});
   clr('edit-tx-msg');show('modal-edit-tx');
 }
 function setEditTxType(t){
-  EDIT_TX_TYPE=t;$('edit-btn-inc').className='type-btn'+(t==='income'?' inc-on':'');$('edit-btn-exp').className='type-btn'+(t==='expense'?' exp-on':'');
-  const sel=$('edit-tx-cat');sel.innerHTML='<option value="">Select category…</option>';
+  EDIT_TX_TYPE=t;
+  $('edit-btn-inc').className='type-btn'+(t==='income'?' inc-on':'');
+  $('edit-btn-exp').className='type-btn'+(t==='expense'?' exp-on':'');
+  const sel=$('edit-tx-cat');
+  sel.innerHTML='<option value="">Select category…</option>';
   CATS.filter(c=>c.type===t).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=ci(c.name)+'  '+c.name;sel.appendChild(o);});
 }
 function closeEditTx(){hide('modal-edit-tx');}
 async function doUpdateTx(){
   const id=$('edit-tx-id').value,amt=parseFloat($('edit-tx-amt').value),cat=$('edit-tx-cat').value,desc=$('edit-tx-desc').value.trim(),date=$('edit-tx-date').value;
-  if(!amt||!cat){msg('edit-tx-msg','Please enter amount and category.');return;}clr('edit-tx-msg');
+  if(!amt||!cat){msg('edit-tx-msg','Please enter amount and category.');return;}
+  clr('edit-tx-msg');
   try{
     const{error}=await sb.rpc('update_transaction',{p_tx_id:id,p_type:EDIT_TX_TYPE,p_amount:amt,p_category_id:cat,p_description:desc||null,p_date:date});
-    if(error)throw error;await Promise.all([loadTxs(),loadAccounts()]);closeEditTx();
-    if(ACTIVE==='dashboard')renderDash();if(ACTIVE==='transactions')renderTxs();if(ACTIVE==='accounts')renderAccounts();if(ACTIVE==='budget'){await loadBudgets();renderBudget();}
+    if(error)throw error;
+    await Promise.all([loadTxs(),loadAccounts()]);
+    closeEditTx();
+    if(ACTIVE==='dashboard')renderDash();
+    if(ACTIVE==='transactions')renderTxs();
+    if(ACTIVE==='accounts')renderAccounts();
+    if(ACTIVE==='budget'){await loadBudgets();renderBudget();}
   }catch(e){msg('edit-tx-msg',e.message||'Could not update.');}
 }
 async function doDeleteTx(){
   if(!confirm('Delete this transaction? This cannot be undone.'))return;
-  const id=$('edit-tx-id').value;closeEditTx();
+  const id=$('edit-tx-id').value;
+  closeEditTx(); // close modal first so user sees the update happening
   try{
-    const{error}=await sb.rpc('delete_transaction',{p_tx_id:id});if(error)throw error;
+    const{error}=await sb.rpc('delete_transaction',{p_tx_id:id});
+    if(error)throw error;
     await Promise.all([loadTxs(),loadAccounts()]);
-    if(ACTIVE==='dashboard')renderDash();if(ACTIVE==='transactions')renderTxs();if(ACTIVE==='accounts')renderAccounts();if(ACTIVE==='budget'){await loadBudgets();renderBudget();}
+    if(ACTIVE==='dashboard')renderDash();
+    if(ACTIVE==='transactions')renderTxs();
+    if(ACTIVE==='accounts')renderAccounts();
+    if(ACTIVE==='budget'){await loadBudgets();renderBudget();}
   }catch(e){alert('Could not delete: '+e.message);}
 }
 
 // ── BUDGET DELETE ──
 async function doDeleteBudget(){
-  const catId=$('bud-cat-id').value;if(!catId)return;if(!confirm('Remove budget limit for this category?'))return;
-  try{const now=new Date();const{error}=await sb.rpc('delete_budget',{p_household_id:HOUSEHOLD.id,p_category_id:catId,p_month:now.getMonth()+1,p_year:now.getFullYear()});if(error)throw error;await loadBudgets();closeBudget();renderBudget();}
-  catch(e){msg('bud-msg',e.message||'Could not remove.');}
+  const catId=$('bud-cat-id').value;
+  if(!catId){return;}
+  if(!confirm('Remove budget limit for this category?'))return;
+  try{
+    const now=new Date();
+    const{error}=await sb.rpc('delete_budget',{p_household_id:HOUSEHOLD.id,p_category_id:catId,p_month:now.getMonth()+1,p_year:now.getFullYear()});
+    if(error)throw error;
+    await loadBudgets(); closeBudget(); renderBudget();
+  }catch(e){msg('bud-msg',e.message||'Could not remove.');}
 }
-function updateBudgetDeleteBtn(catId){const existing=BUDGETS.find(b=>b.category_id===catId);const btn=document.getElementById('bud-delete-btn');if(btn)btn.style.display=existing?'block':'none';}
+
+// Show/hide delete btn in budget modal based on whether budget exists
+// Toggle delete btn when category changes — called after openSetBudgetForCat
+function updateBudgetDeleteBtn(catId){
+  const existing = BUDGETS.find(b=>b.category_id===catId);
+  const btn = document.getElementById('bud-delete-btn');
+  if(btn) btn.style.display = existing ? 'block' : 'none';
+}
 
 // ── PAYABLE ACCOUNT TRACKING ──
-let PAY_PENDING=null;
-function openPayAccountModal(payableId,month,year,current,payableName){
-  PAY_PENDING={payableId,month,year,current};
-  $('pay-acct-title').textContent=current==='paid'?'Mark as pending':`Pay: ${payableName}`;
-  const sel=$('pay-acct-sel');sel.innerHTML='<option value="">No specific account</option>';
-  ACCOUNTS.forEach(a=>{const o=document.createElement('option');o.value=a.id;o.textContent=`${AICO[a.type]||'📂'} ${a.name} — ${CUR}${fmt(a.balance)}`;sel.appendChild(o);});
-  const key=payableId+'_'+month+'_'+year;const existing=PAY_PAYMENTS[key];
-  if(existing?.account_id)sel.value=existing.account_id;
+let PAY_PENDING = null; // {payableId, month, year, current}
+function openPayAccountModal(payableId, month, year, current, payableName){
+  PAY_PENDING = {payableId, month, year, current};
+  $('pay-acct-title').textContent = current==='paid' ? 'Mark as pending' : `Pay: ${payableName}`;
+  const sel=$('pay-acct-sel');
+  sel.innerHTML='<option value="">No specific account</option>';
+  ACCOUNTS.forEach(a=>{
+    const o=document.createElement('option');
+    o.value=a.id; o.textContent=`${AICO[a.type]||'📂'} ${a.name} — ${CUR}${fmt(a.balance)}`;
+    sel.appendChild(o);
+  });
+  // Pre-select if payment already has account
+  const key=payableId+'_'+month+'_'+year;
+  const existing=PAY_PAYMENTS[key];
+  if(existing?.account_id) sel.value=existing.account_id;
   clr('pay-acct-msg');
-  if(current==='paid'){confirmPayStatus();return;}
+  // If undoing paid (going back to pending), skip account selector
+  if(current==='paid'){ confirmPayStatus(); return; }
+  // If already skipped, just mark paid normally (show account selector)
   show('modal-pay-acct');
 }
-async function skipPayable(payableId,month,year,currentStatus){
-  const newStatus=currentStatus==='skipped'?'pending':'skipped';
+async function skipPayable(payableId, month, year, currentStatus){
+  // Toggle between skipped and pending
+  const newStatus = currentStatus==='skipped' ? 'pending' : 'skipped';
   try{
-    await sb.rpc('set_payable_status',{p_payable_id:payableId,p_month:month,p_year:year,p_status:newStatus,p_household_id:HOUSEHOLD.id,p_account_id:null});
-    PAY_PAYMENTS[payableId+'_'+month+'_'+year]={status:newStatus,account_id:null};
-    await Promise.all([loadTxs(),loadAccounts()]);renderPayables();
-  }catch(e){alert('Could not update: '+e.message);}
+    await sb.rpc('set_payable_status',{
+      p_payable_id:payableId, p_month:month, p_year:year,
+      p_status:newStatus, p_household_id:HOUSEHOLD.id, p_account_id:null
+    });
+    PAY_PAYMENTS[payableId+'_'+month+'_'+year]={status:newStatus, account_id:null};
+    await Promise.all([loadTxs(), loadAccounts()]);
+    renderPayables();
+  }catch(e){ alert('Could not update: '+e.message); }
 }
+
 async function confirmPayStatus(){
   if(!PAY_PENDING)return;
-  const{payableId,month,year,current}=PAY_PENDING;const newStatus=current==='paid'?'pending':'paid';
-  const acctId=document.getElementById('pay-acct-sel')?.value||'';hide('modal-pay-acct');
+  const{payableId,month,year,current}=PAY_PENDING;
+  const newStatus=current==='paid'?'pending':'paid';
+  const acctId=document.getElementById('pay-acct-sel')?.value||'';
+  hide('modal-pay-acct');
   try{
-    await sb.rpc('set_payable_status',{p_payable_id:payableId,p_month:month,p_year:year,p_status:newStatus,p_household_id:HOUSEHOLD.id,p_account_id:acctId||null});
-    PAY_PAYMENTS[payableId+'_'+month+'_'+year]={status:newStatus,account_id:acctId||null};
-    await Promise.all([loadTxs(),loadAccounts()]);renderPayables();
+    await sb.rpc('set_payable_status',{
+      p_payable_id:payableId,p_month:month,p_year:year,
+      p_status:newStatus,p_household_id:HOUSEHOLD.id,
+      p_account_id:acctId||null
+    });
+    const key=payableId+'_'+month+'_'+year;
+    PAY_PAYMENTS[key]={status:newStatus,account_id:acctId||null};
+    await Promise.all([loadTxs(),loadAccounts()]);
+    renderPayables();
   }catch(e){alert('Could not update: '+e.message);}
   PAY_PENDING=null;
 }
 
 // ── DARK MODE ──
-let DARK=localStorage.getItem('grip_dark')==='1';
-function applyDark(){document.body.classList.toggle('dark',DARK);const el=document.getElementById('dark-thumb');if(el)el.parentElement.classList.toggle('on',DARK);}
-function toggleDark(){DARK=!DARK;localStorage.setItem('grip_dark',DARK?'1':'0');applyDark();renderProfile();if(ACTIVE==='dashboard')setTimeout(()=>{renderChart();renderPieChart();},100);}
+let DARK = localStorage.getItem('grip_dark')==='1';
+function applyDark(){
+  document.body.classList.toggle('dark', DARK);
+  const el = document.getElementById('dark-thumb');
+  if(el) el.parentElement.classList.toggle('on', DARK);
+}
+function toggleDark(){
+  DARK=!DARK;
+  localStorage.setItem('grip_dark', DARK?'1':'0');
+  applyDark();
+  renderProfile();
+  if(ACTIVE==='dashboard') setTimeout(()=>{ renderChart(); renderPieChart(); }, 100);
+}
 applyDark();
 
-// ── PREMIUM FEATURE FUNCTIONS ──
-
-// Budget alerts
-function computeBudgetAlerts(){
-  if(!isPremium()){BUDGET_ALERTS=[];updateBudgetBadge();return;}
-  const now=new Date();
-  const sp={};
-  TXS.filter(t=>{const d=new Date(t.date+'T00:00:00');return t.type==='expense'&&d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();})
-    .forEach(t=>{sp[t.category_id]=(sp[t.category_id]||0)+Number(t.amount);});
-  BUDGET_ALERTS=BUDGETS.filter(b=>{const spent=sp[b.category_id]||0;return Number(b.amount)>0&&(spent/Number(b.amount))>=0.8;})
-    .map(b=>{const spent=sp[b.category_id]||0;const pct=Math.round((spent/Number(b.amount))*100);const cat=CATS.find(c=>c.id===b.category_id);return{cat,spent,budget:Number(b.amount),pct,over:spent>Number(b.amount)};});
-  updateBudgetBadge();
-}
-function updateBudgetBadge(){
-  const badge=document.getElementById('budget-alert-badge');
-  if(badge){badge.textContent=BUDGET_ALERTS.length;badge.style.display=BUDGET_ALERTS.length>0?'flex':'none';}
-}
-
-// Multiple households
-async function loadAllHouseholds(){
-  if(!USER)return;
-  const{data}=await sb.from('household_members').select('household_id,households(id,name)').eq('user_id',USER.id);
-  HOUSEHOLDS=(data||[]).map(m=>m.households).filter(Boolean);
-}
-async function switchHousehold(hhId){
-  if(HOUSEHOLD?.id===hhId)return;
-  const hh=HOUSEHOLDS.find(h=>h.id===hhId);if(!hh)return;
-  HOUSEHOLD=hh;$('top-title').textContent=HOUSEHOLD.name;
-  await Promise.all([loadAccounts(),loadTxs(),loadPayables(),loadBudgets(),loadRecurrings()]);
-  await applyDueRecurrings();goTo(ACTIVE);
-}
-function openNewHousehold(){$('new-hh-name').value='';clr('new-hh-msg');show('modal-new-hh');}
-function closeNewHousehold(){hide('modal-new-hh');}
-async function doCreateNewHousehold(){
-  const name=$('new-hh-name').value.trim();
-  if(!name){msg('new-hh-msg','Please enter a household name.');return;}
-  $('new-hh-btn').textContent='Creating…';$('new-hh-btn').disabled=true;
-  try{
-    const{data,error}=await sb.rpc('create_household_for_user',{household_name:name});
-    if(error)throw error;
-    await loadAllHouseholds();
-    const newHH=HOUSEHOLDS.find(h=>h.id===data.household_id);
-    if(newHH){HOUSEHOLD=newHH;$('top-title').textContent=HOUSEHOLD.name;}
-    await Promise.all([loadAccounts(),loadTxs(),loadPayables(),loadBudgets(),loadRecurrings()]);
-    closeNewHousehold();renderProfile();
-  }catch(e){msg('new-hh-msg',e.message||'Could not create.');}
-  finally{$('new-hh-btn').textContent='Create household';$('new-hh-btn').disabled=false;}
-}
-
-// Recurring transactions
-async function loadRecurrings(){
-  if(!HOUSEHOLD||!isPremium())return;
-  const{data}=await sb.from('recurring_transactions').select('*,categories(name)').eq('household_id',HOUSEHOLD.id).eq('is_active',true).order('next_date');
-  RECURRINGS=data||[];
-}
-async function applyDueRecurrings(){
-  if(!isPremium()||RECURRINGS.length===0)return;
-  const today=td();const due=RECURRINGS.filter(r=>r.next_date<=today);if(due.length===0)return;
-  for(const r of due){
-    await sb.from('transactions').insert({household_id:HOUSEHOLD.id,category_id:r.category_id,account_id:r.account_id||null,type:r.type,amount:r.amount,description:(r.description?r.description+' ':'')+'[Recurring]',date:r.next_date,created_by:USER.id});
-    const next=getNextDate(r.next_date,r.frequency,r.day_of_month);
-    await sb.from('recurring_transactions').update({next_date:next}).eq('id',r.id);
-    if(r.account_id){const a=ACCOUNTS.find(x=>x.id===r.account_id);if(a){const d=r.type==='income'?Number(r.amount):-Number(r.amount);await sb.from('accounts').update({balance:Number(a.balance)+d}).eq('id',r.account_id);}}
-  }
-  await Promise.all([loadTxs(),loadAccounts(),loadRecurrings()]);
-}
-function getNextDate(dateStr,freq,dom){
-  const d=new Date(dateStr+'T00:00:00');
-  if(freq==='weekly')d.setDate(d.getDate()+7);
-  else if(freq==='monthly'){d.setMonth(d.getMonth()+1);if(dom)d.setDate(Math.min(dom,new Date(d.getFullYear(),d.getMonth()+1,0).getDate()));}
-  else if(freq==='yearly')d.setFullYear(d.getFullYear()+1);
-  return d.toISOString().split('T')[0];
-}
-let REC_TYPE='expense';
-function openAddRecurring(){
-  if(!isPremium()){goToCheckout();return;}
-  $('rec-edit-id').value='';$('rec-modal-title').textContent='Add recurring';$('rec-save-btn').textContent='Add recurring';$('rec-delete-btn').style.display='none';
-  $('rec-amt').value='';$('rec-desc').value='';$('rec-date').value=td();$('rec-freq').value='monthly';$('rec-dom').value='';
-  const cs=$('rec-cat');cs.innerHTML='<option value="">Select category…</option>';
-  CATS.filter(c=>c.type==='expense').forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=ci(c.name)+'  '+c.name;cs.appendChild(o);});
-  const as=$('rec-acc');as.innerHTML='<option value="">No account</option>';
-  ACCOUNTS.forEach(a=>{const o=document.createElement('option');o.value=a.id;o.textContent=a.name;as.appendChild(o);});
-  setRecType('expense');toggleDayOfMonth();clr('rec-msg');show('modal-recurring');
-}
-function openEditRecurring(id){
-  const r=RECURRINGS.find(x=>x.id===id);if(!r)return;
-  $('rec-edit-id').value=r.id;$('rec-modal-title').textContent='Edit recurring';$('rec-save-btn').textContent='Save changes';$('rec-delete-btn').style.display='block';
-  $('rec-amt').value=r.amount;$('rec-desc').value=r.description||'';$('rec-date').value=r.next_date;$('rec-freq').value=r.frequency;$('rec-dom').value=r.day_of_month||'';
-  const cs=$('rec-cat');cs.innerHTML='<option value="">Select category…</option>';
-  CATS.filter(c=>c.type===r.type).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=ci(c.name)+'  '+c.name;if(c.id===r.category_id)o.selected=true;cs.appendChild(o);});
-  const as=$('rec-acc');as.innerHTML='<option value="">No account</option>';
-  ACCOUNTS.forEach(a=>{const o=document.createElement('option');o.value=a.id;o.textContent=a.name;if(a.id===r.account_id)o.selected=true;as.appendChild(o);});
-  setRecType(r.type);toggleDayOfMonth();clr('rec-msg');show('modal-recurring');
-}
-function closeAddRecurring(){hide('modal-recurring');}
-function setRecType(t){
-  REC_TYPE=t;
-  $('btn-rec-inc').className='type-btn'+(t==='income'?' inc-on':'');
-  $('btn-rec-exp').className='type-btn'+(t==='expense'?' exp-on':'');
-  const cs=$('rec-cat');cs.innerHTML='<option value="">Select category…</option>';
-  CATS.filter(c=>c.type===t).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=ci(c.name)+'  '+c.name;cs.appendChild(o);});
-}
-function toggleDayOfMonth(){document.getElementById('rec-dom-group').style.display=$('rec-freq').value==='monthly'?'':'none';}
-async function doSaveRecurring(){
-  const amt=parseFloat($('rec-amt').value),cat=$('rec-cat').value,acc=$('rec-acc').value,desc=$('rec-desc').value.trim(),freq=$('rec-freq').value,dom=parseInt($('rec-dom').value)||null,date=$('rec-date').value,editId=$('rec-edit-id').value;
-  if(!amt||!cat||!date){msg('rec-msg','Please fill in all required fields.');return;}clr('rec-msg');
-  try{
-    if(editId){
-      const{error}=await sb.from('recurring_transactions').update({type:REC_TYPE,amount:amt,category_id:cat,account_id:acc||null,description:desc||null,frequency:freq,day_of_month:dom,next_date:date}).eq('id',editId);
-      if(error)throw error;
-    }else{
-      const{error}=await sb.from('recurring_transactions').insert({household_id:HOUSEHOLD.id,type:REC_TYPE,amount:amt,category_id:cat,account_id:acc||null,description:desc||null,frequency:freq,day_of_month:dom,next_date:date,is_active:true,created_by:USER.id});
-      if(error)throw error;
-    }
-    await loadRecurrings();closeAddRecurring();if(ACTIVE==='reports')renderReports();if(ACTIVE==='profile')renderProfile();
-  }catch(e){msg('rec-msg',e.message||'Could not save.');}
-}
-async function doDeleteRecurring(){
-  const id=$('rec-edit-id').value;if(!id||!confirm('Delete this recurring transaction?'))return;
-  try{const{error}=await sb.from('recurring_transactions').update({is_active:false}).eq('id',id);if(error)throw error;await loadRecurrings();closeAddRecurring();if(ACTIVE==='reports')renderReports();if(ACTIVE==='profile')renderProfile();}
-  catch(e){alert('Could not delete: '+e.message);}
-}
-
-// Advanced reports
-function renderReports(){
-  if(!isPremium()){
-    $('page-reports').innerHTML=`<div class="locked-feature"><div class="lock-ico">📊</div><h3>Advanced Reports</h3><p>Get deep insights into your 12-month income & expense trends, top spending categories, net savings, and more.</p><button class="btn btn-orange" onclick="goToCheckout()">Upgrade to Premium →</button></div>`;
-    return;
-  }
-  const now=new Date();
-  const months=[],incData=[],expData=[],savData=[];
-  for(let i=11;i>=0;i--){
-    const d=new Date(now.getFullYear(),now.getMonth()-i,1);const m=d.getMonth();const y=d.getFullYear();
-    months.push(MO[m]+"'"+String(y).slice(2));
-    const inc=TXS.filter(t=>{const td=new Date(t.date+'T00:00:00');return t.type==='income'&&td.getMonth()===m&&td.getFullYear()===y;}).reduce((s,t)=>s+Number(t.amount),0);
-    const exp=TXS.filter(t=>{const td=new Date(t.date+'T00:00:00');return t.type==='expense'&&td.getMonth()===m&&td.getFullYear()===y;}).reduce((s,t)=>s+Number(t.amount),0);
-    incData.push(parseFloat(inc.toFixed(2)));expData.push(parseFloat(exp.toFixed(2)));savData.push(parseFloat((inc-exp).toFixed(2)));
-  }
-  const totInc=incData.reduce((a,b)=>a+b,0);const totExp=expData.reduce((a,b)=>a+b,0);
-  const avgInc=totInc/12;const avgExp=totExp/12;
-  const catTotals={};
-  TXS.filter(t=>t.type==='expense').forEach(t=>{catTotals[t.category_id]=(catTotals[t.category_id]||0)+Number(t.amount);});
-  const topCats=Object.entries(catTotals).sort((a,b)=>b[1]-a[1]).slice(0,5);
-  $('page-reports').innerHTML=`
-    <div style="padding:16px;padding-bottom:80px">
-      <div style="font-size:16px;font-weight:700;margin-bottom:12px">12-Month Summary</div>
-      <div class="rep-stat-grid">
-        <div class="card rep-stat"><div class="rep-stat-label">AVG INCOME/MO</div><div class="rep-stat-val" style="color:var(--green)">${CUR}${fmt(avgInc)}</div></div>
-        <div class="card rep-stat"><div class="rep-stat-label">AVG EXPENSE/MO</div><div class="rep-stat-val" style="color:var(--red)">${CUR}${fmt(avgExp)}</div></div>
-        <div class="card rep-stat"><div class="rep-stat-label">TOTAL INCOME</div><div class="rep-stat-val" style="color:var(--green)">${CUR}${fmt(totInc)}</div></div>
-        <div class="card rep-stat"><div class="rep-stat-label">TOTAL EXPENSES</div><div class="rep-stat-val" style="color:var(--red)">${CUR}${fmt(totExp)}</div></div>
-      </div>
-      <div class="card" style="padding:16px 12px 12px;margin-bottom:12px">
-        <div style="font-size:13px;font-weight:600;margin-bottom:10px">Income vs Expenses</div>
-        <canvas id="rep-bar-chart"></canvas>
-      </div>
-      <div class="card" style="padding:16px 12px 12px;margin-bottom:16px">
-        <div style="font-size:13px;font-weight:600;margin-bottom:10px">Net Savings</div>
-        <canvas id="rep-line-chart"></canvas>
-      </div>
-      <div style="font-size:15px;font-weight:700;margin-bottom:10px">Top Spending Categories</div>
-      <div class="card" style="margin-bottom:16px">
-        ${topCats.length===0?'<div style="padding:20px;text-align:center;color:var(--gray);font-size:14px">No expense data yet</div>':
-          topCats.map(([catId,amt])=>{const cat=CATS.find(c=>c.id===catId);const pct=totExp>0?(amt/totExp*100).toFixed(1):0;return`<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--light)">
-            <span style="font-size:22px">${ci(cat?.name||'Other')}</span>
-            <div style="flex:1"><div style="font-size:13px;font-weight:500">${cat?.name||'Other'}</div><div style="height:4px;background:var(--light);border-radius:2px;margin-top:6px"><div style="height:4px;background:var(--orange);border-radius:2px;width:${pct}%"></div></div></div>
-            <div style="text-align:right"><div style="font-size:13px;font-weight:700">${CUR}${fmt(amt)}</div><div style="font-size:11px;color:var(--gray)">${pct}%</div></div>
-          </div>`;}).join('')}
-      </div>
-      ${RECURRINGS.length>0?`<div style="font-size:15px;font-weight:700;margin-bottom:10px">Recurring Transactions</div>
-      <div class="card" style="margin-bottom:12px">
-        ${RECURRINGS.map(r=>`<div class="rec-item" onclick="openEditRecurring('${r.id}')">
-          <div class="tx-ico" style="background:${r.type==='income'?'#e8fff5':'#fff5f5'}">${ci(r.categories?.name||'Other')}</div>
-          <div style="flex:1"><div style="font-size:14px;font-weight:500">${r.description||r.categories?.name||'Recurring'}</div><div style="font-size:12px;color:var(--gray);margin-top:2px;text-transform:capitalize">${r.frequency} · Next: ${fd(r.next_date)}</div></div>
-          <div class="${r.type==='income'?'inc':'exp'}" style="font-weight:700">${r.type==='income'?'+':'-'}${CUR}${fmt(r.amount)}</div>
-        </div>`).join('')}
-      </div>`:``}
-      <button class="btn btn-ghost" onclick="openAddRecurring()">+ Add recurring transaction</button>
-    </div>`;
-  setTimeout(()=>{
-    const dark=document.body.classList.contains('dark');
-    const gc=dark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.05)';const tc=dark?'#9CA3AF':'#6B7280';
-    const bc=document.getElementById('rep-bar-chart');if(bc){if(window.REP_BAR){window.REP_BAR.destroy();}window.REP_BAR=new Chart(bc,{type:'bar',data:{labels:months,datasets:[{label:'Income',data:incData,backgroundColor:'rgba(74,222,128,0.75)',borderRadius:4,borderSkipped:false},{label:'Expenses',data:expData,backgroundColor:'rgba(252,165,165,0.75)',borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:true,position:'bottom',labels:{color:tc,font:{size:11},boxWidth:10,padding:10}},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${CUR}${fmt(ctx.raw)}`}}},scales:{x:{grid:{color:gc},ticks:{color:tc,font:{size:9},maxRotation:45}},y:{grid:{color:gc},ticks:{color:tc,font:{size:10},callback:v=>`${CUR}${fmt(v)}`},beginAtZero:true}}}});}
-    const lc=document.getElementById('rep-line-chart');if(lc){if(window.REP_LINE){window.REP_LINE.destroy();}window.REP_LINE=new Chart(lc,{type:'line',data:{labels:months,datasets:[{label:'Net',data:savData,borderColor:'#378ADD',backgroundColor:'rgba(55,138,221,0.1)',fill:true,tension:0.4,pointRadius:3,pointBackgroundColor:'#378ADD'}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${CUR}${fmt(ctx.raw)}`}}},scales:{x:{grid:{color:gc},ticks:{color:tc,font:{size:9},maxRotation:45}},y:{grid:{color:gc},ticks:{color:tc,font:{size:10},callback:v=>`${CUR}${fmt(v)}`}}}}});}
-  },80);
-}
-
 // ── EDIT / DELETE ACCOUNTS ──
-function openEditAcct(id,name,type,balance){document.getElementById('edit-acct-id').value=id;document.getElementById('edit-acct-name').value=name;document.getElementById('edit-acct-type').value=type;document.getElementById('edit-acct-bal').value=balance;clr('edit-acct-msg');show('modal-edit-acct');}
-function closeEditAcct(){hide('modal-edit-acct');}
-async function doUpdateAcct(){
-  const id=document.getElementById('edit-acct-id').value,name=document.getElementById('edit-acct-name').value.trim(),type=document.getElementById('edit-acct-type').value,balance=parseFloat(document.getElementById('edit-acct-bal').value||0);
-  if(!name){msg('edit-acct-msg','Please enter an account name.');return;}clr('edit-acct-msg');
-  try{const{error}=await sb.rpc('update_account',{p_account_id:id,p_name:name,p_type:type,p_balance:balance});if(error)throw error;await loadAccounts();closeEditAcct();renderAccounts();}
-  catch(e){msg('edit-acct-msg',e.message||'Could not update account.');}
+function openEditAcct(id, name, type, balance){
+  document.getElementById('edit-acct-id').value = id;
+  document.getElementById('edit-acct-name').value = name;
+  document.getElementById('edit-acct-type').value = type;
+  document.getElementById('edit-acct-bal').value = balance;
+  clr('edit-acct-msg');
+  show('modal-edit-acct');
 }
-async function doDeleteAcct(id,name){
-  if(!confirm(`Delete "${name}"? This cannot be undone.`))return;
-  try{const{error}=await sb.rpc('delete_account',{p_account_id:id});if(error)throw error;await loadAccounts();renderAccounts();}
-  catch(e){alert('Could not delete: '+e.message);}
+function closeEditAcct(){ hide('modal-edit-acct'); }
+
+async function doUpdateAcct(){
+  const id = document.getElementById('edit-acct-id').value;
+  const name = document.getElementById('edit-acct-name').value.trim();
+  const type = document.getElementById('edit-acct-type').value;
+  const balance = parseFloat(document.getElementById('edit-acct-bal').value||0);
+  if(!name){ msg('edit-acct-msg','Please enter an account name.'); return; }
+  clr('edit-acct-msg');
+  try{
+    const{error}=await sb.rpc('update_account',{p_account_id:id,p_name:name,p_type:type,p_balance:balance});
+    if(error) throw error;
+    await loadAccounts();
+    closeEditAcct();
+    renderAccounts();
+  }catch(e){ msg('edit-acct-msg', e.message||'Could not update account.'); }
+}
+
+async function doDeleteAcct(id, name){
+  if(!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+  try{
+    const{error}=await sb.rpc('delete_account',{p_account_id:id});
+    if(error) throw error;
+    await loadAccounts();
+    renderAccounts();
+  }catch(e){ alert('Could not delete: '+e.message); }
+}
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('Grip SW registered'))
+      .catch(err => console.log('SW registration failed:', err));
+  });
 }
 </script>
 </body>
