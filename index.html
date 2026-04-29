@@ -476,6 +476,8 @@ async function loadApp(user){
   if(!mem){hide('screen-auth');show('screen-onboard');return;}
   const{data:hh}=await sb.from('households').select('*').eq('id',mem.household_id).maybeSingle();
   HOUSEHOLD=hh;
+  // Load plan
+  try{const{data:p}=await sb.rpc('get_my_plan');PLAN=p||'free';}catch(e){PLAN='free';}
   await Promise.all([loadCats(),loadAccounts(),loadTxs(),loadPayables(),loadBudgets()]);
   $('top-title').textContent=HOUSEHOLD?.name||'Grip';
   $('top-av').textContent=ini(user.user_metadata?.full_name||user.email);
@@ -524,6 +526,40 @@ function goTo(p){
 }
 
 // DASHBOARD
+
+// ── PAYWALL HELPERS ──
+function isPaid(){ return PLAN==='paid'; }
+
+function paywallBanner(feature, detail){
+  return `<div style="background:rgba(242,103,34,0.08);border:1.5px solid rgba(242,103,34,0.3);border-radius:14px;padding:20px;text-align:center;margin:12px 0;">
+    <div style="font-size:24px;margin-bottom:8px;">🔒</div>
+    <div style="font-weight:700;font-size:15px;margin-bottom:6px;">${feature}</div>
+    <div style="font-size:13px;color:var(--gray);margin-bottom:14px;">${detail}</div>
+    <button onclick="showUpgradeModal()" class="btn btn-orange" style="width:auto;padding:10px 24px;font-size:14px;">Upgrade to Paid →</button>
+  </div>`;
+}
+
+function showUpgradeModal(){
+  const html=`<div class="modal-overlay" id="modal-upgrade" onclick="if(event.target.id==='modal-upgrade')hide('modal-upgrade')">
+    <div class="modal-box">
+      <div class="modal-header"><span class="modal-title">Upgrade to Paid</span><button class="modal-close" onclick="hide('modal-upgrade')">✕</button></div>
+      <div style="padding:20px;text-align:center;">
+        <div style="font-size:40px;margin-bottom:12px;">🚀</div>
+        <div style="font-family:var(--font);font-size:22px;font-weight:800;letter-spacing:-0.03em;margin-bottom:8px;">Founding Member</div>
+        <div style="font-size:28px;font-weight:900;color:var(--orange);margin-bottom:4px;">$4<span style="font-size:14px;font-weight:500;color:var(--gray)">/month</span></div>
+        <div style="font-size:12px;color:var(--orange);font-weight:600;margin-bottom:20px;">Lock in this rate forever</div>
+        <div style="text-align:left;display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">
+          ${['Unlimited accounts','Full transaction history','Income vs expense charts','Category spending charts','Up to 5 household members','Unlimited payables & budgets','Priority support'].map(f=>`<div style="display:flex;align-items:center;gap:10px;font-size:14px;"><span style="color:var(--orange);font-weight:700;">✓</span>${f}</div>`).join('')}
+        </div>
+        <a href="https://grip.bastech.app" target="_blank" class="btn btn-orange" style="display:block;text-decoration:none;text-align:center;">Get Founding Member →</a>
+        <button onclick="hide('modal-upgrade')" style="background:none;border:none;color:var(--gray);font-size:13px;margin-top:12px;cursor:pointer;font-family:var(--font);width:100%;">Maybe later</button>
+      </div>
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend',html);
+  show('modal-upgrade');
+}
+
 function renderDash(){
   const now=new Date();
   const mTxs=TXS.filter(t=>{const d=new Date(t.date+'T00:00:00');return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
@@ -550,16 +586,29 @@ function renderDash(){
     <div class="sec-head" style="margin-top:4px">
       <div class="sec-title">6-month overview</div>
     </div>
-    <div class="card" style="padding:16px 12px 12px">
-      <canvas id="dash-chart"></canvas>
-    </div>
+    ${isPaid()?`<div class="card" style="padding:16px 12px 12px"><canvas id="dash-chart"></canvas></div>`
+    :`<div style="position:relative;">
+        <div class="card" style="padding:16px 12px 12px;filter:blur(4px);pointer-events:none;user-select:none;opacity:0.5;"><canvas id="dash-chart-fake" width="300" height="150"></canvas></div>
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;">
+          <div style="font-size:28px;">🔒</div>
+          <div style="font-weight:700;font-size:14px;">Charts are a paid feature</div>
+          <div style="font-size:12px;color:var(--gray);text-align:center;max-width:220px;">Upgrade to see your 6-month income vs expense overview.</div>
+          <button onclick="showUpgradeModal()" class="btn btn-orange" style="width:auto;padding:9px 20px;font-size:13px;margin-top:4px;">Upgrade →</button>
+        </div>
+      </div>`}
 
     <div class="sec-head" style="margin-top:4px">
       <div class="sec-title">This month's spending</div>
     </div>
-    <div class="card" style="padding:16px 12px 12px">
-      <canvas id="pie-chart"></canvas>
-    </div>
+    ${isPaid()?`<div class="card" style="padding:16px 12px 12px"><canvas id="pie-chart"></canvas></div>`
+    :`<div style="position:relative;">
+        <div class="card" style="padding:16px 12px 12px;filter:blur(4px);pointer-events:none;user-select:none;opacity:0.5;min-height:120px;"></div>
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;">
+          <div style="font-size:24px;">🔒</div>
+          <div style="font-weight:700;font-size:13px;">Spending breakdown is a paid feature</div>
+          <button onclick="showUpgradeModal()" class="btn btn-orange" style="width:auto;padding:8px 18px;font-size:12px;margin-top:4px;">Upgrade →</button>
+        </div>
+      </div>`}
 
     <div class="sec-head" style="margin-top:4px">
       <div class="sec-title">Recent transactions</div>
@@ -588,14 +637,18 @@ function txRow(t){
 
 // TRANSACTIONS
 function renderTxs(){
-  const fl=TX_FILTER==='all'?TXS:TXS.filter(t=>t.type===TX_FILTER);
+  const cutoff=new Date();cutoff.setDate(cutoff.getDate()-30);
+  const allTxs=TX_FILTER==='all'?TXS:TXS.filter(t=>t.type===TX_FILTER);
+  const fl=isPaid()?allTxs:allTxs.filter(t=>new Date(t.date+'T00:00:00')>=cutoff);
+  const hiddenCount=isPaid()?0:allTxs.length-fl.length;
   $('page-transactions').innerHTML=`
     <div class="filters">
       <button class="ftag ${TX_FILTER==='all'?'on':''}" onclick="setF('all')">All</button>
       <button class="ftag ${TX_FILTER==='income'?'on':''}" onclick="setF('income')">↑ Income</button>
       <button class="ftag ${TX_FILTER==='expense'?'on':''}" onclick="setF('expense')">↓ Expenses</button>
     </div>
-    ${fl.length===0?`<div class="empty"><div class="empty-ico">📭</div><div class="empty-txt">No transactions here yet.</div></div>`:`<div class="card">${fl.map(txRow).join('')}</div>`}`;
+    ${fl.length===0?`<div class="empty"><div class="empty-ico">📭</div><div class="empty-txt">No transactions here yet.</div></div>`:`<div class="card">${fl.map(txRow).join('')}</div>
+       \${hiddenCount>0?`<div style="background:rgba(242,103,34,0.08);border:1.5px solid rgba(242,103,34,0.25);border-radius:14px;padding:18px;text-align:center;margin-top:10px;"><div style="font-size:20px;margin-bottom:6px;">&#x1F512;</div><div style="font-weight:700;font-size:14px;margin-bottom:4px;">\${hiddenCount} older transaction\${hiddenCount>1?'s':''} hidden</div><div style="font-size:12px;color:var(--gray);margin-bottom:12px;">Upgrade to view your full transaction history</div><button onclick="showUpgradeModal()" class="btn btn-orange" style="width:auto;padding:9px 20px;font-size:13px;">Upgrade &#x2192;</button></div>`:''}`}`;
 }
 function setF(f){TX_FILTER=f;renderTxs();}
 
@@ -684,6 +737,9 @@ function renderBudget(){
 }
 
 function openSetBudget(){
+  if(!isPaid()&&BUDGETS.length>=FREE_LIMITS.budgets){
+    showUpgradeModal();return;
+  }
   const expCats=CATS.filter(c=>c.type==='expense');
   if(expCats.length>0)openSetBudgetForCat(expCats[0].id);
 }
@@ -787,7 +843,7 @@ async function doSaveTx(){
 }
 
 // ADD ACCOUNT
-function openAddAcct(){$('acct-name').value='';$('acct-bal').value='';$('acct-type').value='bank';clr('acct-msg');show('modal-acct');}
+function openAddAcct(){if(!isPaid()&&ACCOUNTS.length>=FREE_LIMITS.accounts){showUpgradeModal();return;}$('acct-name').value='';$('acct-bal').value='';$('acct-type').value='bank';clr('acct-msg');show('modal-acct');}
 function closeAddAcct(){hide('modal-acct');}
 async function doSaveAcct(){
   const name=$('acct-name').value.trim(),type=$('acct-type').value,bal=parseFloat($('acct-bal').value||0);
@@ -960,6 +1016,9 @@ function buildMonthPicker(activeMonths){
 }
 
 function openAddPayable(){
+  if(!isPaid()&&PAYABLES.length>=FREE_LIMITS.payables){
+    showUpgradeModal();return;
+  }
   $('pay-edit-id').value='';
   $('payable-modal-title').textContent='Add payable';
   $('pay-name').value='';$('pay-amount').value='';$('pay-day').value='';
