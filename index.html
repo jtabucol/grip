@@ -599,15 +599,7 @@ function renderDash(){
     <div class="sec-head" style="margin-top:4px">
       <div class="sec-title">This month's spending</div>
     </div>
-    <div style="position:relative;">
-      <div class="card" style="padding:16px 12px 12px;${isPaid()?'':'filter:blur(3px);pointer-events:none;user-select:none;'}"><canvas id="pie-chart"></canvas></div>
-      ${isPaid()?'':
-      `<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:rgba(255,255,255,0.5);border-radius:12px;">
-        <div style="font-size:22px;">🔒</div>
-        <div style="font-weight:700;font-size:13px;">Unlock spending breakdown</div>
-        <button onclick="showUpgradeModal()" class="btn btn-orange" style="width:auto;padding:8px 18px;font-size:12px;">Upgrade →</button>
-      </div>`}
-    </div>
+    <div class="card" style="padding:16px 12px 12px"><canvas id="pie-chart"></canvas></div>
 
     <div class="sec-head" style="margin-top:4px">
       <div class="sec-title">Recent transactions</div>
@@ -636,7 +628,8 @@ function txRow(t){
 
 // TRANSACTIONS
 function renderTxs(){
-  const cutoff=new Date();cutoff.setDate(cutoff.getDate()-30);
+  const now=new Date();
+  const curMonth=now.getMonth(), curYear=now.getFullYear();
   const allTxs=TX_FILTER==='all'?TXS:TXS.filter(t=>t.type===TX_FILTER);
   const filters=`<div class="filters">
       <button class="ftag ${TX_FILTER==='all'?'on':''}" onclick="setF('all')">All</button>
@@ -649,22 +642,22 @@ function renderTxs(){
     return;
   }
 
-  // For free users: show recent 30 days normally, blur older ones
+  // Free: current month visible, previous months blurred
   let listHTML='<div class="card">';
-  let hasHidden=false;
+  let hasBlurred=false;
   allTxs.forEach(t=>{
-    const isOld=!isPaid()&&new Date(t.date+'T00:00:00')<cutoff;
-    if(isOld){ hasHidden=true; }
-    listHTML+=`<div style="${isOld?'filter:blur(4px);pointer-events:none;user-select:none;opacity:0.5;':''}">${txRow(t)}</div>`;
+    const d=new Date(t.date+'T00:00:00');
+    const isOldMonth=!isPaid()&&(d.getFullYear()<curYear||(d.getFullYear()===curYear&&d.getMonth()<curMonth));
+    if(isOldMonth) hasBlurred=true;
+    listHTML+=`<div style="${isOldMonth?'filter:blur(4px);pointer-events:none;user-select:none;opacity:0.5;':''}">${txRow(t)}</div>`;
   });
   listHTML+='</div>';
 
-  // Upgrade banner if any are blurred
   let bannerHTML='';
-  if(hasHidden){
+  if(hasBlurred){
     bannerHTML=`<div style="background:rgba(242,103,34,0.08);border:1.5px solid rgba(242,103,34,0.25);border-radius:14px;padding:18px;text-align:center;margin-top:10px;">
       <div style="font-size:20px;margin-bottom:6px;">&#x1F512;</div>
-      <div style="font-weight:700;font-size:14px;margin-bottom:4px;">Older transactions are blurred</div>
+      <div style="font-weight:700;font-size:14px;margin-bottom:4px;">Previous months are blurred</div>
       <div style="font-size:12px;color:var(--gray);margin-bottom:12px;">Upgrade to view your full transaction history</div>
       <button onclick="showUpgradeModal()" class="btn btn-orange" style="width:auto;padding:9px 20px;font-size:13px;">Upgrade &#x2192;</button>
     </div>`;
