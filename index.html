@@ -952,7 +952,7 @@ function payableRow(p){
   const acctName=pmt?.account_id?ACCOUNTS.find(a=>a.id===pmt.account_id)?.name||'':'';
   const badgeClass=status==='paid'?'badge-paid':status==='skipped'?'badge-skipped':isOverdue?'badge-overdue':'badge-pending';
   const badgeText=status==='paid'?'✓ Paid':status==='skipped'?'↩ Skipped this month':isOverdue?'⚠ Overdue':'⏳ Pending';
-  const dueText=p.due_day?`Due every ${p.due_day}${ordinal(p.due_day)}`:'No due date set';
+  const dueText=p.due_day?`Due every ${ordinal(p.due_day)}`:'No due date set';
   return`<div class="pay-item" style="${isSkipped?'opacity:0.55':''}">
     <div class="pay-top">
       <div class="pay-ico">${PAY_ICONS[p.category]||'📂'}</div>
