@@ -639,28 +639,39 @@ function txRow(t){
 function renderTxs(){
   const cutoff=new Date();cutoff.setDate(cutoff.getDate()-30);
   const allTxs=TX_FILTER==='all'?TXS:TXS.filter(t=>t.type===TX_FILTER);
-  const fl=isPaid()?allTxs:allTxs.filter(t=>new Date(t.date+'T00:00:00')>=cutoff);
-  const hiddenCount=isPaid()?0:allTxs.length-fl.length;
   const filters=`<div class="filters">
       <button class="ftag ${TX_FILTER==='all'?'on':''}" onclick="setF('all')">All</button>
       <button class="ftag ${TX_FILTER==='income'?'on':''}" onclick="setF('income')">&#x2191; Income</button>
       <button class="ftag ${TX_FILTER==='expense'?'on':''}" onclick="setF('expense')">&#x2193; Expenses</button>
     </div>`;
-  let listHTML='';
-  if(fl.length===0){
-    listHTML='<div class="empty"><div class="empty-ico">&#x1F4ED;</div><div class="empty-txt">No transactions here yet.</div></div>';
-  } else {
-    listHTML='<div class="card">'+fl.map(txRow).join('')+'</div>';
-    if(hiddenCount>0){
-      listHTML+=`<div style="background:rgba(242,103,34,0.08);border:1.5px solid rgba(242,103,34,0.25);border-radius:14px;padding:18px;text-align:center;margin-top:10px;">
-        <div style="font-size:20px;margin-bottom:6px;">&#x1F512;</div>
-        <div style="font-weight:700;font-size:14px;margin-bottom:4px;">${hiddenCount} older transaction${hiddenCount>1?'s':''} hidden</div>
-        <div style="font-size:12px;color:var(--gray);margin-bottom:12px;">Upgrade to view your full transaction history</div>
-        <button onclick="showUpgradeModal()" class="btn btn-orange" style="width:auto;padding:9px 20px;font-size:13px;">Upgrade &#x2192;</button>
-      </div>`;
-    }
+
+  if(allTxs.length===0){
+    $('page-transactions').innerHTML=filters+'<div class="empty"><div class="empty-ico">&#x1F4ED;</div><div class="empty-txt">No transactions here yet.</div></div>';
+    return;
   }
-  $('page-transactions').innerHTML=filters+listHTML;
+
+  // For free users: show recent 30 days normally, blur older ones
+  let listHTML='<div class="card">';
+  let hasHidden=false;
+  allTxs.forEach(t=>{
+    const isOld=!isPaid()&&new Date(t.date+'T00:00:00')<cutoff;
+    if(isOld){ hasHidden=true; }
+    listHTML+=`<div style="${isOld?'filter:blur(4px);pointer-events:none;user-select:none;opacity:0.5;':''}">${txRow(t)}</div>`;
+  });
+  listHTML+='</div>';
+
+  // Upgrade banner if any are blurred
+  let bannerHTML='';
+  if(hasHidden){
+    bannerHTML=`<div style="background:rgba(242,103,34,0.08);border:1.5px solid rgba(242,103,34,0.25);border-radius:14px;padding:18px;text-align:center;margin-top:10px;">
+      <div style="font-size:20px;margin-bottom:6px;">&#x1F512;</div>
+      <div style="font-weight:700;font-size:14px;margin-bottom:4px;">Older transactions are blurred</div>
+      <div style="font-size:12px;color:var(--gray);margin-bottom:12px;">Upgrade to view your full transaction history</div>
+      <button onclick="showUpgradeModal()" class="btn btn-orange" style="width:auto;padding:9px 20px;font-size:13px;">Upgrade &#x2192;</button>
+    </div>`;
+  }
+
+  $('page-transactions').innerHTML=filters+listHTML+bannerHTML;
 }
 function setF(f){TX_FILTER=f;renderTxs();}
 
