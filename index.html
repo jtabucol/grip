@@ -531,6 +531,12 @@ function goTo(p){
 // ── PAYWALL HELPERS ──
 function isPaid(){ return PLAN==='paid'; }
 
+const LS_CHECKOUT_URL = 'https://bastech.lemonsqueezy.com/checkout';
+function openCheckout(){
+  const email = USER?.email ? '?checkout[email]=' + encodeURIComponent(USER.email) : '';
+  window.open(LS_CHECKOUT_URL + email, '_blank');
+}
+
 function paywallBanner(feature, detail){
   return `<div style="background:rgba(242,103,34,0.08);border:1.5px solid rgba(242,103,34,0.3);border-radius:14px;padding:20px;text-align:center;margin:12px 0;">
     <div style="font-size:24px;margin-bottom:8px;">🔒</div>
@@ -560,7 +566,7 @@ function showUpgradeModal(reason){
         <div style="text-align:left;display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">
           ${['Unlimited transaction entries per day','All features, no restrictions','Priority support'].map(f=>`<div style="display:flex;align-items:center;gap:10px;font-size:14px;"><span style="color:var(--orange);font-weight:700;">✓</span>${f}</div>`).join('')}
         </div>
-        <a href="https://grip.bastech.app" target="_blank" class="btn btn-orange" style="display:block;text-decoration:none;text-align:center;">Upgrade to Premium →</a>
+        <a href="#" onclick="openCheckout();return false;" class="btn btn-orange" style="display:block;text-decoration:none;text-align:center;">Upgrade to Premium →</a>
         <button onclick="hide('modal-upgrade')" style="background:none;border:none;color:var(--gray);font-size:13px;margin-top:12px;cursor:pointer;font-family:var(--font);width:100%;">Maybe later</button>
       </div>
     </div>
