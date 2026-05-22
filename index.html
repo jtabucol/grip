@@ -422,7 +422,8 @@ body.dark .acct-act-btn.del{background:#3d1a1a;border-color:#7f1d1d;color:#f8717
 </div>
 <script>
 const sb=window.supabase.createClient('https://lougyjzwiobmunptpgvg.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxvdWd5anp3aW9ibXVucHRwZ3ZnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4OTc5NTksImV4cCI6MjA5MDQ3Mzk1OX0.No0QLO1EAO32SrB5pFzZDNEi_WScIQuCBm37cPySMUQ');
-let USER=null,HOUSEHOLD=null,ACCOUNTS=[],CATS=[],TXS=[],PAYABLES=[],PAY_PAYMENTS={},BUDGETS=[],TX_TYPE='expense',TX_FILTER='all',ACTIVE='dashboard',CUR='$',CUR_CODE='USD',CHART=null;
+let USER=null,HOUSEHOLD=null,ACCOUNTS=[],CATS=[],TXS=[],PAYABLES=[],PAY_PAYMENTS={},BUDGETS=[],TX_TYPE='expense',TX_FILTER='all',ACTIVE='dashboard',CUR='$',CUR_CODE='USD',CHART=null,PIE_CHART=null,PLAN='free';
+const FREE_LIMITS={dailyTx:5};
 const MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const CICO={Salary:'💼',Freelance:'💻',Business:'🏢','Other Income':'💰','Housing & Rent':'🏠',Groceries:'🛒',Utilities:'💡',Transportation:'🚗',Healthcare:'🏥',Education:'📚',Entertainment:'🎬','Dining Out':'🍽️',Shopping:'🛍️',Savings:'🏦','Other Expense':'📦'};
 const AICO={bank:'🏦',cash:'💵',credit_card:'💳',savings:'🏧',e_wallet:'📲',investment:'📈',other:'📂'};
@@ -539,19 +540,27 @@ function paywallBanner(feature, detail){
   </div>`;
 }
 
-function showUpgradeModal(){
+function showUpgradeModal(reason){
+  const isDailyLimit=reason==='daily';
+  const headline=isDailyLimit?'Daily limit reached':'Upgrade to Paid';
+  const subtext=isDailyLimit?`You've added ${FREE_LIMITS.dailyTx} transactions today. Free plan allows ${FREE_LIMITS.dailyTx} entries per day.`:'Unlock unlimited entries and more.';
   const html=`<div class="modal-overlay" id="modal-upgrade" onclick="if(event.target.id==='modal-upgrade')hide('modal-upgrade')">
     <div class="modal-box">
-      <div class="modal-header"><span class="modal-title">Upgrade to Paid</span><button class="modal-close" onclick="hide('modal-upgrade')">✕</button></div>
+      <div class="modal-header"><span class="modal-title">${headline}</span><button class="modal-close" onclick="hide('modal-upgrade')">✕</button></div>
       <div style="padding:20px;text-align:center;">
-        <div style="font-size:40px;margin-bottom:12px;">🚀</div>
-        <div style="font-family:var(--font);font-size:22px;font-weight:800;letter-spacing:-0.03em;margin-bottom:8px;">Founding Member</div>
-        <div style="font-size:28px;font-weight:900;color:var(--orange);margin-bottom:4px;">$4<span style="font-size:14px;font-weight:500;color:var(--gray)">/month</span></div>
-        <div style="font-size:12px;color:var(--orange);font-weight:600;margin-bottom:20px;">Lock in this rate forever</div>
-        <div style="text-align:left;display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">
-          ${['Unlimited accounts','Full transaction history','Income vs expense charts','Category spending charts','Up to 5 household members','Unlimited payables & budgets','Priority support'].map(f=>`<div style="display:flex;align-items:center;gap:10px;font-size:14px;"><span style="color:var(--orange);font-weight:700;">✓</span>${f}</div>`).join('')}
+        <div style="font-size:40px;margin-bottom:12px;">${isDailyLimit?'📊':'🚀'}</div>
+        <div style="font-size:14px;color:var(--gray);margin-bottom:20px;">${subtext}</div>
+        <div style="font-family:var(--font);font-size:22px;font-weight:800;letter-spacing:-0.03em;margin-bottom:8px;">Grip Premium</div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:4px;">
+          <div style="text-align:center;"><div style="font-size:28px;font-weight:900;color:var(--orange);">$2.99<span style="font-size:14px;font-weight:500;color:var(--gray)">/mo</span></div></div>
+          <div style="color:var(--gray);font-size:18px;">or</div>
+          <div style="text-align:center;"><div style="font-size:28px;font-weight:900;color:var(--orange);">$19.99<span style="font-size:14px;font-weight:500;color:var(--gray)">/yr</span></div></div>
         </div>
-        <a href="https://grip.bastech.app" target="_blank" class="btn btn-orange" style="display:block;text-decoration:none;text-align:center;">Get Founding Member →</a>
+        <div style="font-size:12px;color:var(--orange);font-weight:600;margin-bottom:20px;">Save 44% with yearly billing</div>
+        <div style="text-align:left;display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">
+          ${['Unlimited transaction entries per day','All features, no restrictions','Priority support'].map(f=>`<div style="display:flex;align-items:center;gap:10px;font-size:14px;"><span style="color:var(--orange);font-weight:700;">✓</span>${f}</div>`).join('')}
+        </div>
+        <a href="https://grip.bastech.app" target="_blank" class="btn btn-orange" style="display:block;text-decoration:none;text-align:center;">Upgrade to Premium →</a>
         <button onclick="hide('modal-upgrade')" style="background:none;border:none;color:var(--gray);font-size:13px;margin-top:12px;cursor:pointer;font-family:var(--font);width:100%;">Maybe later</button>
       </div>
     </div>
@@ -587,13 +596,7 @@ function renderDash(){
       <div class="sec-title">6-month overview</div>
     </div>
     <div style="position:relative;">
-      <div class="card" style="padding:16px 12px 12px;${isPaid()?'':'filter:blur(3px);pointer-events:none;user-select:none;'}"><canvas id="dash-chart"></canvas></div>
-      ${isPaid()?'':
-      `<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:rgba(255,255,255,0.5);border-radius:12px;">
-        <div style="font-size:22px;">🔒</div>
-        <div style="font-weight:700;font-size:13px;">Unlock charts</div>
-        <button onclick="showUpgradeModal()" class="btn btn-orange" style="width:auto;padding:8px 18px;font-size:12px;">Upgrade →</button>
-      </div>`}
+      <div class="card" style="padding:16px 12px 12px;"><canvas id="dash-chart"></canvas></div>
     </div>
 
     <div class="sec-head" style="margin-top:4px">
@@ -642,28 +645,12 @@ function renderTxs(){
     return;
   }
 
-  // Free: current month visible, previous months blurred
   let listHTML='<div class="card">';
-  let hasBlurred=false;
   allTxs.forEach(t=>{
-    const d=new Date(t.date+'T00:00:00');
-    const isOldMonth=!isPaid()&&(d.getFullYear()<curYear||(d.getFullYear()===curYear&&d.getMonth()<curMonth));
-    if(isOldMonth) hasBlurred=true;
-    listHTML+=`<div style="${isOldMonth?'filter:blur(4px);pointer-events:none;user-select:none;opacity:0.5;':''}">${txRow(t)}</div>`;
+    listHTML+=`<div>${txRow(t)}</div>`;
   });
   listHTML+='</div>';
-
-  let bannerHTML='';
-  if(hasBlurred){
-    bannerHTML=`<div style="background:rgba(242,103,34,0.08);border:1.5px solid rgba(242,103,34,0.25);border-radius:14px;padding:18px;text-align:center;margin-top:10px;">
-      <div style="font-size:20px;margin-bottom:6px;">&#x1F512;</div>
-      <div style="font-weight:700;font-size:14px;margin-bottom:4px;">Previous months are blurred</div>
-      <div style="font-size:12px;color:var(--gray);margin-bottom:12px;">Upgrade to view your full transaction history</div>
-      <button onclick="showUpgradeModal()" class="btn btn-orange" style="width:auto;padding:9px 20px;font-size:13px;">Upgrade &#x2192;</button>
-    </div>`;
-  }
-
-  $('page-transactions').innerHTML=filters+listHTML+bannerHTML;
+  $('page-transactions').innerHTML=filters+listHTML;
 }
 function setF(f){TX_FILTER=f;renderTxs();}
 
@@ -752,9 +739,6 @@ function renderBudget(){
 }
 
 function openSetBudget(){
-  if(!isPaid()&&BUDGETS.length>=FREE_LIMITS.budgets){
-    showUpgradeModal();return;
-  }
   const expCats=CATS.filter(c=>c.type==='expense');
   if(expCats.length>0)openSetBudgetForCat(expCats[0].id);
 }
@@ -825,6 +809,13 @@ async function doSignOut(){await sb.auth.signOut();USER=null;HOUSEHOLD=null;ACCO
 
 // ADD TRANSACTION
 function openAddTx(){
+  if(!isPaid()){
+    const today=td();
+    const todayCount=TXS.filter(t=>t.date===today).length;
+    if(todayCount>=FREE_LIMITS.dailyTx){
+      showUpgradeModal('daily');return;
+    }
+  }
   const cs=$('tx-cat');cs.innerHTML='<option value="">Select category…</option>';
   CATS.filter(c=>c.type===TX_TYPE).forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=ci(c.name)+'  '+c.name;cs.appendChild(o);});
   const as=$('tx-acc');as.innerHTML='<option value="">No account</option>';
@@ -858,7 +849,7 @@ async function doSaveTx(){
 }
 
 // ADD ACCOUNT
-function openAddAcct(){if(!isPaid()&&ACCOUNTS.length>=FREE_LIMITS.accounts){showUpgradeModal();return;}$('acct-name').value='';$('acct-bal').value='';$('acct-type').value='bank';clr('acct-msg');show('modal-acct');}
+function openAddAcct(){$('acct-name').value='';$('acct-bal').value='';$('acct-type').value='bank';clr('acct-msg');show('modal-acct');}
 function closeAddAcct(){hide('modal-acct');}
 async function doSaveAcct(){
   const name=$('acct-name').value.trim(),type=$('acct-type').value,bal=parseFloat($('acct-bal').value||0);
@@ -1031,9 +1022,6 @@ function buildMonthPicker(activeMonths){
 }
 
 function openAddPayable(){
-  if(!isPaid()&&PAYABLES.length>=FREE_LIMITS.payables){
-    showUpgradeModal();return;
-  }
   $('pay-edit-id').value='';
   $('payable-modal-title').textContent='Add payable';
   $('pay-name').value='';$('pay-amount').value='';$('pay-day').value='';
