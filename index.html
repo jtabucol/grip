@@ -116,8 +116,18 @@ label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
 .menu-left{display:flex;align-items:center;gap:10px}
 .menu-ico{width:34px;height:34px;background:var(--bg);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
 .empty{text-align:center;padding:40px 20px}
-.empty-ico{font-size:40px;margin-bottom:10px}
-.empty-txt{font-size:14px;color:var(--gray);line-height:1.7}
+.empty-ico{margin-bottom:12px;opacity:.25}
+.empty-txt{font-size:14px;color:var(--gray);line-height:1.6;font-weight:500}
+.empty-tip{font-size:12px;color:var(--orange);font-weight:600;margin-top:8px}
+.ob-skip-row{display:flex;justify-content:flex-end;margin-bottom:1rem}
+.ob-skip-btn{background:none;border:none;font-size:13px;color:var(--gray);cursor:pointer;font-family:var(--font);font-weight:600;padding:4px 0}
+.ob-dots{display:flex;gap:6px;margin:1.5rem 0}
+.ob-dot{width:8px;height:8px;border-radius:50%;background:var(--light);transition:all .2s}
+.ob-dot.on{background:var(--orange);width:22px;border-radius:4px}
+.ob-type-row{display:flex;gap:8px;margin-bottom:14px}
+.ob-type-btn{flex:1;padding:10px;border-radius:var(--r);font-size:14px;font-weight:600;cursor:pointer;border:1.5px solid var(--light);background:var(--white);font-family:var(--font)}
+.ob-type-btn.inc-on{background:var(--green-bg);border-color:var(--green);color:var(--green)}
+.ob-type-btn.exp-on{background:var(--red-bg);border-color:var(--red);color:var(--red)}
 
 /* CHART */
 #dash-chart{width:100%!important}
@@ -215,14 +225,76 @@ body.dark .acct-act-btn.del{background:#3d1a1a;border-color:#7f1d1d;color:#f8717
 </div>
 
 <div id="screen-onboard" class="hidden">
-  <div style="padding:2rem 1.5rem">
-    <div class="ob-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="white" stroke-width="2" stroke-linecap="round"/><path d="M9 22V12h6v10" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></div>
-    <div class="ob-h">Set up your household</div>
-    <div class="ob-p">Give your household a name. You can invite family members later.</div>
-    <div class="fg"><label>Household name</label><input id="inp-hh" type="text" placeholder="e.g. The Santos Family"></div>
-    <button class="btn btn-orange" id="hh-btn" onclick="doCreateHousehold()">Get started →</button>
-    <div id="hh-msg"></div>
+
+  <!-- Step 1: Welcome -->
+  <div id="ob-step-1" style="padding:2rem 1.5rem">
+    <div class="ob-skip-row"><button class="ob-skip-btn" onclick="skipOnboard()">Skip</button></div>
+    <div class="ob-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" fill="none"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" stroke="white" stroke-width="2"/><path d="M8 12l3 3 5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="ob-h">Welcome to Grip</div>
+    <div class="ob-p">Let's get you set up in a few quick steps so you can start tracking your finances.</div>
+    <div class="ob-dots">
+      <span class="ob-dot on"></span><span class="ob-dot"></span><span class="ob-dot"></span><span class="ob-dot"></span>
+    </div>
+    <button class="btn btn-orange" onclick="obStep(2)">Let's go →</button>
   </div>
+
+  <!-- Step 2: Household -->
+  <div id="ob-step-2" class="hidden" style="padding:2rem 1.5rem">
+    <div class="ob-skip-row"><button class="ob-skip-btn" onclick="skipOnboard()">Skip</button></div>
+    <div class="ob-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="white" stroke-width="2" stroke-linecap="round"/><path d="M9 22V12h6v10" stroke="white" stroke-width="2" stroke-linecap="round"/></svg></div>
+    <div class="ob-h">Name your household</div>
+    <div class="ob-p">This labels your space in Grip. Use your name, your family's, or anything you like.</div>
+    <div class="fg"><label>Household name</label><input id="inp-hh" type="text" placeholder="e.g. The Santos Family"></div>
+    <div class="ob-dots">
+      <span class="ob-dot"></span><span class="ob-dot on"></span><span class="ob-dot"></span><span class="ob-dot"></span>
+    </div>
+    <div id="hh-msg"></div>
+    <button class="btn btn-orange" id="hh-btn" onclick="doCreateHousehold()">Continue →</button>
+  </div>
+
+  <!-- Step 3: Add first account -->
+  <div id="ob-step-3" class="hidden" style="padding:2rem 1.5rem">
+    <div class="ob-skip-row"><button class="ob-skip-btn" onclick="skipOnboard()">Skip</button></div>
+    <div class="ob-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="white" stroke-width="2"/><path d="M2 10h20" stroke="white" stroke-width="2"/></svg></div>
+    <div class="ob-h">Add your first account</div>
+    <div class="ob-p">Add a bank account, e-wallet, or cash on hand to start tracking your balance.</div>
+    <div class="fg"><label>Account name</label><input id="ob-acct-name" type="text" placeholder="e.g. BDO Savings, GCash"></div>
+    <div class="fg"><label>Type</label><select id="ob-acct-type">
+      <option value="bank">Bank account</option>
+      <option value="e-wallet">E-wallet (GCash, Maya)</option>
+      <option value="cash">Cash</option>
+      <option value="credit_card">Credit card</option>
+      <option value="savings">Savings</option>
+    </select></div>
+    <div class="fg"><label>Current balance</label><input id="ob-acct-bal" type="number" placeholder="0.00" min="0" step="0.01"></div>
+    <div class="ob-dots">
+      <span class="ob-dot"></span><span class="ob-dot"></span><span class="ob-dot on"></span><span class="ob-dot"></span>
+    </div>
+    <div id="ob-acct-msg"></div>
+    <button class="btn btn-orange" id="ob-acct-btn" onclick="doObAddAcct()">Continue →</button>
+  </div>
+
+  <!-- Step 4: First transaction -->
+  <div id="ob-step-4" class="hidden" style="padding:2rem 1.5rem">
+    <div class="ob-skip-row"><button class="ob-skip-btn" onclick="skipOnboard()">Skip</button></div>
+    <div class="ob-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+    <div class="ob-h">Record a transaction</div>
+    <div class="ob-p">Add a recent income or expense to get your balance started.</div>
+    <div class="ob-type-row">
+      <button class="ob-type-btn inc-on" id="ob-btn-inc" onclick="obSetType('income')">↑ Income</button>
+      <button class="ob-type-btn" id="ob-btn-exp" onclick="obSetType('expense')">↓ Expense</button>
+    </div>
+    <div class="fg"><label>Amount</label><input id="ob-tx-amt" type="number" placeholder="0.00" min="0" step="0.01"></div>
+    <div class="fg"><label>Category</label><select id="ob-tx-cat"></select></div>
+    <div class="fg"><label>Account</label><select id="ob-tx-acc"></select></div>
+    <div class="fg"><label>Description (optional)</label><input id="ob-tx-desc" type="text" placeholder="What was this for?"></div>
+    <div class="ob-dots">
+      <span class="ob-dot"></span><span class="ob-dot"></span><span class="ob-dot"></span><span class="ob-dot on"></span>
+    </div>
+    <div id="ob-tx-msg"></div>
+    <button class="btn btn-orange" id="ob-tx-btn" onclick="doObAddTx()">Finish setup →</button>
+  </div>
+
 </div>
 
 <div id="screen-app" class="hidden">
@@ -484,6 +556,60 @@ async function loadApp(user){
   $('top-av').textContent=ini(user.user_metadata?.full_name||user.email);
   hide('screen-auth');show('screen-app');goTo('dashboard');
 }
+let OB_TX_TYPE='income';
+function obStep(n){
+  [1,2,3,4].forEach(i=>{const el=$('ob-step-'+i);if(el)el.classList.toggle('hidden',i!==n);});
+  if(n===4){
+    obSetType(OB_TX_TYPE);
+    $('ob-tx-acc').innerHTML=ACCOUNTS.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+    if(!$('ob-tx-acc').value&&ACCOUNTS.length===0)$('ob-tx-acc').innerHTML='<option value="">No account</option>';
+    $('ob-tx-amt').value='';$('ob-tx-desc').value='';clr('ob-tx-msg');
+  }
+  if(n===3){$('ob-acct-name').value='';$('ob-acct-bal').value='';clr('ob-acct-msg');}
+}
+function obSetType(t){
+  OB_TX_TYPE=t;
+  $('ob-btn-inc').className='ob-type-btn'+(t==='income'?' inc-on':'');
+  $('ob-btn-exp').className='ob-type-btn'+(t==='expense'?' exp-on':'');
+  const cats=CATS.filter(c=>c.type===t);
+  $('ob-tx-cat').innerHTML=cats.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+}
+function skipOnboard(){hide('screen-onboard');show('screen-app');goTo('dashboard');}
+async function doObAddAcct(){
+  const name=$('ob-acct-name').value.trim();
+  const type=$('ob-acct-type').value;
+  const bal=parseFloat($('ob-acct-bal').value)||0;
+  if(!name){msg('ob-acct-msg','Please enter an account name.');return;}
+  $('ob-acct-btn').textContent='Saving…';$('ob-acct-btn').disabled=true;clr('ob-acct-msg');
+  try{
+    const{error}=await sb.from('accounts').insert({household_id:HOUSEHOLD.id,name,type,balance:bal,currency:CUR_CODE||'PHP',is_active:true});
+    if(error)throw error;
+    await loadAccounts();
+    obStep(4);
+  }catch(e){msg('ob-acct-msg',e.message||'Something went wrong.');}
+  finally{$('ob-acct-btn').textContent='Continue →';$('ob-acct-btn').disabled=false;}
+}
+async function doObAddTx(){
+  const amt=parseFloat($('ob-tx-amt').value);
+  const cat=$('ob-tx-cat').value;
+  const acc=$('ob-tx-acc').value;
+  const desc=$('ob-tx-desc').value.trim();
+  if(!amt||amt<=0){msg('ob-tx-msg','Please enter an amount.');return;}
+  if(!cat){msg('ob-tx-msg','Please select a category.');return;}
+  $('ob-tx-btn').textContent='Saving…';$('ob-tx-btn').disabled=true;clr('ob-tx-msg');
+  try{
+    const today=new Date().toISOString().split('T')[0];
+    const{error}=await sb.from('transactions').insert({household_id:HOUSEHOLD.id,account_id:acc||null,category_id:cat,type:OB_TX_TYPE,amount:amt,description:desc||null,date:today});
+    if(error)throw error;
+    if(acc){
+      const acct=ACCOUNTS.find(a=>a.id===acc);
+      if(acct){const nb=OB_TX_TYPE==='income'?Number(acct.balance)+amt:Number(acct.balance)-amt;await sb.from('accounts').update({balance:nb}).eq('id',acc);}
+    }
+    await Promise.all([loadTxs(),loadAccounts()]);
+    skipOnboard();
+  }catch(e){msg('ob-tx-msg',e.message||'Something went wrong.');}
+  finally{$('ob-tx-btn').textContent='Finish setup →';$('ob-tx-btn').disabled=false;}
+}
 async function doCreateHousehold(){
   const name=$('inp-hh').value.trim();
   if(!name){msg('hh-msg','Please enter a household name.');return;}
@@ -496,7 +622,7 @@ async function doCreateHousehold(){
     await Promise.all([loadCats(),loadAccounts(),loadTxs(),loadPayables(),loadBudgets()]);
     $('top-title').textContent=HOUSEHOLD.name;
     $('top-av').textContent=ini(USER.user_metadata?.full_name||USER.email);
-    hide('screen-onboard');show('screen-app');goTo('dashboard');
+    obStep(3);
   }catch(e){msg('hh-msg',e.message||'Something went wrong.');}
   finally{$('hh-btn').textContent='Get started →';$('hh-btn').disabled=false;}
 }
@@ -615,7 +741,7 @@ function renderDash(){
       <button class="sec-link" onclick="goTo('transactions')">See all</button>
     </div>
     ${TXS.length===0
-      ?`<div class="empty"><div class="empty-ico">💳</div><div class="empty-txt">No transactions yet.<br>Tap + to add your first one.</div></div>`
+      ?`<div class="empty"><div class="empty-ico"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div><div class="empty-txt">No transactions yet</div><div class="empty-tip">Tap + to record your first income or expense</div></div>`
       :`<div class="card">${TXS.slice(0,5).map(txRow).join('')}</div>`}
   `;
   setTimeout(()=>{ renderChart(); renderPieChart(); }, 80);
@@ -647,7 +773,7 @@ function renderTxs(){
     </div>`;
 
   if(allTxs.length===0){
-    $('page-transactions').innerHTML=filters+'<div class="empty"><div class="empty-ico">&#x1F4ED;</div><div class="empty-txt">No transactions here yet.</div></div>';
+    $('page-transactions').innerHTML=filters+'<div class="empty"><div class="empty-ico"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke-linecap="round"/></svg></div><div class="empty-txt">No transactions here yet</div><div class="empty-tip">Tap + to add income or an expense</div></div>';
     return;
   }
 
@@ -670,7 +796,7 @@ function renderAccounts(){
       <div style="font-size:12px;color:rgba(255,255,255,.4);margin-top:8px">${ACCOUNTS.length} account${ACCOUNTS.length!==1?'s':''}</div>
     </div>
     <div class="sec-head"><div class="sec-title">Your accounts</div><button class="sec-link" onclick="openAddAcct()">+ Add</button></div>
-    ${ACCOUNTS.length===0?`<div class="empty"><div class="empty-ico">🏦</div><div class="empty-txt">No accounts yet.<br>Tap + Add to get started.</div></div>`:`<div class="card">${ACCOUNTS.map(acctRow).join('')}</div>`}`;
+    ${ACCOUNTS.length===0?`<div class="empty"><div class="empty-ico"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 10v11M12 10v11M16 10v11" stroke-linecap="round"/></svg></div><div class="empty-txt">No accounts yet</div><div class="empty-tip">Add a bank account, e-wallet, or cash on hand to get started</div></div>`:`<div class="card">${ACCOUNTS.map(acctRow).join('')}</div>`}`;
 }
 function acctRow(a){
   const cc=a.type==='credit_card';const b=Number(a.balance);
@@ -729,7 +855,7 @@ function renderBudget(){
       <button class="sec-link" onclick="openSetBudget()">+ Set budget</button>
     </div>
     ${rows.length===0
-      ?`<div class="empty"><div class="empty-ico">📊</div><div class="empty-txt">No expenses yet.<br>Tap "+ Set budget" to add spending limits.</div></div>`
+      ?`<div class="empty"><div class="empty-ico"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 20V10M12 20V4M6 20v-6" stroke-linecap="round"/></svg></div><div class="empty-txt">No budgets set yet</div><div class="empty-tip">Tap \"Set budget\" to add monthly spending limits</div></div>`
       :`<div class="card">${rows.map(r=>`
         <div class="bud-item" onclick="openSetBudgetForCat('${r.cid}')" style="cursor:pointer">
           <div class="bud-row">
@@ -906,7 +1032,7 @@ function renderPayables(){
 
   let listHTML;
   if(activePayables.length===0){
-    listHTML = `<div class="empty"><div class="empty-ico">📋</div><div class="empty-txt">${PAYABLES.length===0?'No payables yet.<br>Tap + Add to set up your monthly bills.':'No payables scheduled for this month.'}</div></div>`;
+    listHTML = `<div class="empty"><div class="empty-ico"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-linecap="round"/></svg></div><div class="empty-txt">${PAYABLES.length===0?'No payables yet':'No payables scheduled this month'}</div>${PAYABLES.length===0?'<div class="empty-tip">Track recurring bills like rent, utilities, and subscriptions here</div>':''}</div>`;
   } else {
     const rows = activePayables.map(p=>{ try{ return payableRow(p); }catch(e){ console.error('payableRow error',e); return ''; } }).filter(Boolean).join('');
     listHTML = `<div class="card">${rows}</div>`;
