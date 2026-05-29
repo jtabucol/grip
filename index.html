@@ -976,7 +976,7 @@ function renderProfile(){
                <div class="menu-left"><div class="menu-ico">🏠</div><div style="font-size:14px;font-weight:500">Household</div></div>
                <div style="font-size:13px;color:var(--gray);font-weight:500">${HOUSEHOLD.name}</div>
              </div>
-             <div class="menu-item" onclick="${isPaid() ? 'openAddHousehold()' : 'openHouseholdUpgrade()'}" style="cursor:pointer">
+             <div class="menu-item" onclick="${isPaid() ? 'openAddHousehold()' : 'showUpgradeModal_household()'}" style="cursor:pointer">
                <div class="menu-left">
                  <div class="menu-ico">${isPaid() ? '🏘️' : '🔒'}</div>
                  <div>
@@ -988,7 +988,7 @@ function renderProfile(){
              </div>`
         }
         <div class="menu-item" onclick="openCurrency()" style="cursor:pointer"><div class="menu-left"><div class="menu-ico">💱</div><div style="font-size:14px;font-weight:500">Currency</div></div><div style="font-size:13px;color:var(--orange);font-weight:600">${CUR_CODE} ${CUR} ›</div></div>
-        <div class="menu-item"><div class="menu-left"><div class="menu-ico">📱</div><div style="font-size:14px;font-weight:500">Version</div></div><div style="font-size:13px;color:var(--gray)">0.1.0</div></div>
+        <div class="menu-item"><div class="menu-left"><div class="menu-ico">📱</div><div style="font-size:14px;font-weight:500">Version</div></div><div style="font-size:13px;color:var(--gray)">0.1.1-b</div></div>
       </div>
       <div class="card">
         <div class="dark-toggle" onclick="toggleDark()">
@@ -1007,6 +1007,12 @@ function renderProfile(){
 }
 // ── UPGRADE MODAL WRAPPERS (safe for HTML onclick attrs) ──
 function openHouseholdUpgrade(){ showUpgradeModal('household'); }
+function showUpgradeModal_household(){
+  var mu=document.getElementById('modal-upgrade');
+  var mi=document.getElementById('modal-upgrade-inner');
+  if(!mu||!mi){ alert('modal not found'); return; }
+  showUpgradeModal('household');
+}
 function openGeneralUpgrade(){ showUpgradeModal(); }
 
 // ── HOUSEHOLD SETUP FROM PROFILE ──
