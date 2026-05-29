@@ -461,7 +461,7 @@ body.dark .acct-act-btn.del{background:#3d1a1a;border-color:#7f1d1d;color:#f8717
 </div>
 
 <!-- UPGRADE MODAL (static, centered) -->
-<div id="modal-upgrade" class="hidden" onclick="if(event.target===this)hide('modal-upgrade')" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:50;display:flex;align-items:center;justify-content:center;padding:20px;">
+<div id="modal-upgrade" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;padding:20px;">
   <div id="modal-upgrade-inner" style="background:var(--white);border-radius:20px;width:100%;max-width:390px;max-height:88vh;overflow-y:auto;"></div>
 </div>
 
@@ -722,7 +722,7 @@ function showUpgradeModal(reason){
   el.innerHTML=`
     <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 20px 0;">
       <span style="font-size:17px;font-weight:700;color:var(--dark);">${headline}</span>
-      <button onclick="hide('modal-upgrade')" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--gray);line-height:1;padding:0;">✕</button>
+      <button onclick="document.getElementById('modal-upgrade').style.display='none'" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--gray);line-height:1;padding:0;">✕</button>
     </div>
     <div style="padding:20px;text-align:center;">
       <div style="font-size:40px;margin-bottom:12px;">${emoji}</div>
@@ -738,9 +738,9 @@ function showUpgradeModal(reason){
         ${['Unlimited transaction entries per day','Multiple households','All features, no restrictions','Priority support'].map(f=>`<div style="display:flex;align-items:center;gap:10px;font-size:14px;"><span style="color:var(--orange);font-weight:700;">✓</span>${f}</div>`).join('')}
       </div>
       <a href="#" onclick="openCheckout();return false;" class="btn btn-orange" style="display:block;text-decoration:none;text-align:center;">Upgrade to Premium →</a>
-      <button onclick="hide('modal-upgrade')" style="background:none;border:none;color:var(--gray);font-size:13px;margin-top:12px;cursor:pointer;font-family:var(--font);width:100%;">Maybe later</button>
+      <button onclick="document.getElementById('modal-upgrade').style.display='none'" style="background:none;border:none;color:var(--gray);font-size:13px;margin-top:12px;cursor:pointer;font-family:var(--font);width:100%;">Maybe later</button>
     </div>`;
-  show('modal-upgrade');
+  const mu=document.getElementById('modal-upgrade');if(mu)mu.style.display='flex';
 }
 
 function renderDash(){
@@ -1670,13 +1670,20 @@ async function doDeleteAcct(id, name){
 }
 </script>
 <script>
+// Unregister any cached service workers so deploys always take effect
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(reg => console.log('Grip SW registered'))
-      .catch(err => console.log('SW registration failed:', err));
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    regs.forEach(r => r.unregister());
   });
+  // Also clear all caches
+  if (window.caches) {
+    caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+  }
 }
+// Remove any stale upgrade modals injected by old JS builds
+window.addEventListener('load', () => {
+  document.querySelectorAll('body > div.modal-overlay').forEach(el => el.remove());
+});
 </script>
 </body>
 </html>
