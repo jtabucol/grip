@@ -860,9 +860,12 @@ function renderBudget(){
         <div class="bud-item" onclick="openSetBudgetForCat('${r.cid}')" style="cursor:pointer">
           <div class="bud-row">
             <div style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500">${ci(r.cat.name)} ${r.cat.name}</div>
-            <div style="text-align:right">
-              <div style="font-size:13px;font-weight:600;color:${r.over?'var(--red)':'var(--dark)'}">${CUR}${fmt(r.spent)}${r.budAmt?' / '+CUR+fmt(r.budAmt):''}</div>
-              ${r.budAmt?`<div style="font-size:10px;color:${r.over?'var(--red)':'var(--gray)'}">${r.over?'⚠ Over budget':'within budget'}</div>`:`<div style="font-size:10px;color:var(--gray)">tap to set limit</div>`}
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="text-align:right">
+                <div style="font-size:13px;font-weight:600;color:${r.over?'var(--red)':'var(--dark)'}">${CUR}${fmt(r.spent)}${r.budAmt?' / '+CUR+fmt(r.budAmt):''}</div>
+                ${r.budAmt?`<div style="font-size:10px;color:${r.over?'var(--red)':'var(--gray)'}">${r.over?'⚠ Over budget':'within budget'}</div>`:`<div style="font-size:10px;color:var(--gray)">tap to set limit</div>`}
+              </div>
+              ${r.budAmt?`<button onclick="event.stopPropagation();confirmDeleteBudget('${r.cid}')" style="background:none;border:none;cursor:pointer;padding:6px;color:#ef4444;flex-shrink:0;" title="Remove budget"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></button>`:''}
             </div>
           </div>
           <div class="prog"><div class="prog-fill" style="width:${r.pct.toFixed(1)}%;background:${r.col}"></div></div>
@@ -1409,6 +1412,15 @@ async function doDeleteTx(){
 }
 
 // ── BUDGET DELETE ──
+async function confirmDeleteBudget(catId){
+  if(!confirm('Remove budget limit for this category?'))return;
+  try{
+    const now=new Date();
+    const{error}=await sb.rpc('delete_budget',{p_household_id:HOUSEHOLD.id,p_category_id:catId,p_month:now.getMonth()+1,p_year:now.getFullYear()});
+    if(error)throw error;
+    await loadBudgets(); renderBudget();
+  }catch(e){alert('Could not remove: '+(e.message||'Unknown error'));}
+}
 async function doDeleteBudget(){
   const catId=$('bud-cat-id').value;
   if(!catId){return;}
