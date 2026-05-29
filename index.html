@@ -429,6 +429,32 @@ body.dark .acct-act-btn.del{background:#3d1a1a;border-color:#7f1d1d;color:#f8717
   </div>
 </div>
 
+<!-- SETUP HOUSEHOLD MODAL (from Profile, no household yet) -->
+<div id="modal-setup-hh" class="overlay hidden" onclick="if(event.target===this)hide('modal-setup-hh')">
+  <div class="modal">
+    <div class="modal-bar"></div>
+    <div class="modal-title">Set up your household</div>
+    <p style="font-size:13px;color:var(--gray);margin:-4px 0 16px;line-height:1.6">Give your household a name — your name, your family's name, whatever feels right.</p>
+    <div class="fg"><label>Household name</label><input id="setup-hh-name" type="text" placeholder="e.g. Tabucol Family" maxlength="40"></div>
+    <div id="setup-hh-msg" style="font-size:13px;color:var(--red);margin-top:4px;min-height:18px;"></div>
+    <button id="setup-hh-btn" class="btn btn-orange" style="margin-top:12px" onclick="doSetupHouseholdFromProfile()">Set up household</button>
+    <button class="btn btn-ghost" style="margin-top:8px" onclick="hide('modal-setup-hh')">Cancel</button>
+  </div>
+</div>
+
+<!-- ADD ANOTHER HOUSEHOLD MODAL (Premium only) -->
+<div id="modal-add-hh" class="overlay hidden" onclick="if(event.target===this)hide('modal-add-hh')">
+  <div class="modal">
+    <div class="modal-bar"></div>
+    <div class="modal-title">Add another household</div>
+    <p style="font-size:13px;color:var(--gray);margin:-4px 0 16px;line-height:1.6">Create a new household and switch into it. Useful for a side business, shared apartment, or a separate budget.</p>
+    <div class="fg"><label>Household name</label><input id="add-hh-name" type="text" placeholder="e.g. Side Business" maxlength="40"></div>
+    <div id="add-hh-msg" style="font-size:13px;color:var(--red);margin-top:4px;min-height:18px;"></div>
+    <button id="add-hh-btn" class="btn btn-orange" style="margin-top:12px" onclick="doAddHouseholdFromProfile()">Create household</button>
+    <button class="btn btn-ghost" style="margin-top:8px" onclick="hide('modal-add-hh')">Cancel</button>
+  </div>
+</div>
+
 <!-- SET BUDGET MODAL -->
 <div id="modal-budget" class="overlay hidden" onclick="if(event.target===this)closeBudget()">
   <div class="modal">
@@ -674,8 +700,11 @@ function paywallBanner(feature, detail){
 
 function showUpgradeModal(reason){
   const isDailyLimit=reason==='daily';
-  const headline=isDailyLimit?'Daily limit reached':'Upgrade to Paid';
-  const subtext=isDailyLimit?`You've added ${FREE_LIMITS.dailyTx} transactions today. Free plan allows ${FREE_LIMITS.dailyTx} entries per day.`:'Unlock unlimited entries and more.';
+  const isHousehold=reason==='household';
+  const headline=isDailyLimit?'Daily limit reached':isHousehold?'Multiple Households':'Upgrade to Premium';
+  const subtext=isDailyLimit?`You've added ${FREE_LIMITS.dailyTx} transactions today. Free plan allows ${FREE_LIMITS.dailyTx} entries per day.`
+    :isHousehold?'Manage multiple households — for your family, a side business, or a shared space — with Grip Premium. Less than a cup of coffee per month.'
+    :'Unlock unlimited entries and more.';
   const html=`<div class="modal-overlay" id="modal-upgrade" onclick="if(event.target.id==='modal-upgrade')hide('modal-upgrade')">
     <div class="modal-box">
       <div class="modal-header"><span class="modal-title">${headline}</span><button class="modal-close" onclick="hide('modal-upgrade')">✕</button></div>
@@ -921,7 +950,30 @@ function renderProfile(){
     <div class="prof-head"><div class="prof-av">${ini(n)}</div><div style="font-size:20px;font-weight:700;color:#fff">${n}</div><div style="font-size:13px;color:rgba(255,255,255,.4);margin-top:2px">${USER?.email||''}</div></div>
     <div style="padding:16px;padding-bottom:80px">
       <div class="card">
-        <div class="menu-item"><div class="menu-left"><div class="menu-ico">🏠</div><div style="font-size:14px;font-weight:500">Household</div></div><div style="font-size:13px;color:var(--gray)">${HOUSEHOLD?.name||'–'}</div></div>
+        ${!HOUSEHOLD
+          ? `<div class="menu-item" onclick="openSetupHousehold()" style="cursor:pointer">
+               <div class="menu-left"><div class="menu-ico">🏠</div>
+                 <div>
+                   <div style="font-size:14px;font-weight:500">Household</div>
+                   <div style="font-size:12px;color:var(--orange);margin-top:2px">Tap to set up →</div>
+                 </div>
+               </div>
+             </div>`
+          : `<div class="menu-item">
+               <div class="menu-left"><div class="menu-ico">🏠</div><div style="font-size:14px;font-weight:500">Household</div></div>
+               <div style="font-size:13px;color:var(--gray);font-weight:500">${HOUSEHOLD.name}</div>
+             </div>
+             <div class="menu-item" onclick="${isPaid() ? 'openAddHousehold()' : 'showUpgradeModal(\'household\')'  }" style="cursor:pointer">
+               <div class="menu-left">
+                 <div class="menu-ico">${isPaid() ? '🏘️' : '🔒'}</div>
+                 <div>
+                   <div style="font-size:14px;font-weight:500">Add another household</div>
+                   ${!isPaid() ? '<div style="font-size:11px;color:var(--orange);margin-top:2px">Premium feature</div>' : ''}
+                 </div>
+               </div>
+               <div style="font-size:15px;color:var(--gray)">›</div>
+             </div>`
+        }
         <div class="menu-item" onclick="openCurrency()" style="cursor:pointer"><div class="menu-left"><div class="menu-ico">💱</div><div style="font-size:14px;font-weight:500">Currency</div></div><div style="font-size:13px;color:var(--orange);font-weight:600">${CUR_CODE} ${CUR} ›</div></div>
         <div class="menu-item"><div class="menu-left"><div class="menu-ico">📱</div><div style="font-size:14px;font-weight:500">Version</div></div><div style="font-size:13px;color:var(--gray)">0.1.0</div></div>
       </div>
@@ -940,6 +992,60 @@ function renderProfile(){
       <div style="text-align:center;font-size:12px;color:#9CA3AF;margin-top:24px">Grip by Bastech · Built with ♡</div>
     </div>`;
 }
+// ── HOUSEHOLD SETUP FROM PROFILE ──
+function openSetupHousehold(){
+  const el=document.getElementById('setup-hh-name');
+  if(el)el.value='';
+  const msg=document.getElementById('setup-hh-msg');
+  if(msg)msg.textContent='';
+  show('modal-setup-hh');
+}
+async function doSetupHouseholdFromProfile(){
+  const name=document.getElementById('setup-hh-name').value.trim();
+  if(!name){const m=document.getElementById('setup-hh-msg');if(m)m.textContent='Please enter a household name.';return;}
+  const btn=document.getElementById('setup-hh-btn');
+  btn.textContent='Setting up…';btn.disabled=true;
+  try{
+    const{data,error}=await sb.rpc('create_household_for_user',{household_name:name});
+    if(error)throw error;
+    const{data:hh}=await sb.from('households').select('*').eq('id',data.household_id).maybeSingle();
+    HOUSEHOLD=hh||{id:data.household_id,name};
+    await Promise.all([loadCats(),loadAccounts(),loadTxs(),loadPayables(),loadBudgets()]);
+    $('top-title').textContent=HOUSEHOLD.name;
+    hide('modal-setup-hh');
+    renderProfile();
+    goTo('dashboard');renderDash();
+  }catch(e){const m=document.getElementById('setup-hh-msg');if(m)m.textContent=e.message||'Something went wrong.';}
+  finally{btn.textContent='Set up household';btn.disabled=false;}
+}
+
+// ── ADD ANOTHER HOUSEHOLD (PREMIUM) ──
+function openAddHousehold(){
+  const el=document.getElementById('add-hh-name');
+  if(el)el.value='';
+  const m=document.getElementById('add-hh-msg');
+  if(m)m.textContent='';
+  show('modal-add-hh');
+}
+async function doAddHouseholdFromProfile(){
+  const name=document.getElementById('add-hh-name').value.trim();
+  if(!name){const m=document.getElementById('add-hh-msg');if(m)m.textContent='Please enter a household name.';return;}
+  const btn=document.getElementById('add-hh-btn');
+  btn.textContent='Creating…';btn.disabled=true;
+  try{
+    const{data,error}=await sb.rpc('create_household_for_user',{household_name:name});
+    if(error)throw error;
+    const{data:hh}=await sb.from('households').select('*').eq('id',data.household_id).maybeSingle();
+    HOUSEHOLD=hh||{id:data.household_id,name};
+    await Promise.all([loadCats(),loadAccounts(),loadTxs(),loadPayables(),loadBudgets()]);
+    $('top-title').textContent=HOUSEHOLD.name;
+    hide('modal-add-hh');
+    renderProfile();
+    goTo('dashboard');renderDash();
+  }catch(e){const m=document.getElementById('add-hh-msg');if(m)m.textContent=e.message||'Something went wrong.';}
+  finally{btn.textContent='Create household';btn.disabled=false;}
+}
+
 async function doSignOut(){await sb.auth.signOut();USER=null;HOUSEHOLD=null;ACCOUNTS=[];CATS=[];TXS=[];hide('screen-app');show('screen-auth');clr('auth-msg');}
 
 // ADD TRANSACTION
