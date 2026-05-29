@@ -92,6 +92,11 @@ label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
 .ftag{padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;border:1.5px solid var(--light);background:var(--white);color:var(--gray);cursor:pointer;white-space:nowrap;font-family:var(--font)}
 .ftag.on{background:var(--orange);color:#fff;border-color:var(--orange)}
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:30;display:flex;align-items:center;justify-content:center;padding:20px;}
+.modal-box{background:var(--white);border-radius:20px;width:100%;max-width:390px;max-height:88vh;overflow-y:auto;}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 0;}
+.modal-title{font-size:17px;font-weight:700;color:var(--dark);}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--gray);font-family:inherit;padding:0;line-height:1;}
 .modal{background:var(--white);border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:430px;max-height:90vh;overflow-y:auto}
 .modal-bar{width:36px;height:4px;background:var(--light);border-radius:2px;margin:0 auto 16px}
 .modal-title{font-size:18px;font-weight:700;margin-bottom:16px}
@@ -726,8 +731,8 @@ function showUpgradeModal(reason){
       </div>
     </div>
   </div>`;
+  const _old=document.getElementById('modal-upgrade');if(_old)_old.remove();
   document.body.insertAdjacentHTML('beforeend',html);
-  show('modal-upgrade');
 }
 
 function renderDash(){
