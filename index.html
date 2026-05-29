@@ -460,6 +460,11 @@ body.dark .acct-act-btn.del{background:#3d1a1a;border-color:#7f1d1d;color:#f8717
   </div>
 </div>
 
+<!-- UPGRADE MODAL (static, centered) -->
+<div id="modal-upgrade" class="hidden" onclick="if(event.target===this)hide('modal-upgrade')" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:50;display:flex;align-items:center;justify-content:center;padding:20px;">
+  <div id="modal-upgrade-inner" style="background:var(--white);border-radius:20px;width:100%;max-width:390px;max-height:88vh;overflow-y:auto;"></div>
+</div>
+
 <!-- SET BUDGET MODAL -->
 <div id="modal-budget" class="overlay hidden" onclick="if(event.target===this)closeBudget()">
   <div class="modal">
@@ -710,29 +715,31 @@ function showUpgradeModal(reason){
   const subtext=isDailyLimit?`You've added ${FREE_LIMITS.dailyTx} transactions today. Free plan allows ${FREE_LIMITS.dailyTx} entries per day.`
     :isHousehold?'Manage multiple households — for your family, a side business, or a shared space — with Grip Premium. Less than a cup of coffee per month.'
     :'Unlock unlimited entries and more.';
-  const html=`<div class="modal-overlay" id="modal-upgrade" onclick="if(event.target.id==='modal-upgrade')hide('modal-upgrade')">
-    <div class="modal-box">
-      <div class="modal-header"><span class="modal-title">${headline}</span><button class="modal-close" onclick="hide('modal-upgrade')">✕</button></div>
-      <div style="padding:20px;text-align:center;">
-        <div style="font-size:40px;margin-bottom:12px;">${isDailyLimit?'📊':'🚀'}</div>
-        <div style="font-size:14px;color:var(--gray);margin-bottom:20px;">${subtext}</div>
-        <div style="font-family:var(--font);font-size:22px;font-weight:800;letter-spacing:-0.03em;margin-bottom:8px;">Grip Premium</div>
-        <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:4px;">
-          <div style="text-align:center;"><div style="font-size:28px;font-weight:900;color:var(--orange);">$2.99<span style="font-size:14px;font-weight:500;color:var(--gray)">/mo</span></div></div>
-          <div style="color:var(--gray);font-size:18px;">or</div>
-          <div style="text-align:center;"><div style="font-size:28px;font-weight:900;color:var(--orange);">$19.99<span style="font-size:14px;font-weight:500;color:var(--gray)">/yr</span></div></div>
-        </div>
-        <div style="font-size:12px;color:var(--orange);font-weight:600;margin-bottom:20px;">Save 44% with yearly billing</div>
-        <div style="text-align:left;display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">
-          ${['Unlimited transaction entries per day','All features, no restrictions','Priority support'].map(f=>`<div style="display:flex;align-items:center;gap:10px;font-size:14px;"><span style="color:var(--orange);font-weight:700;">✓</span>${f}</div>`).join('')}
-        </div>
-        <a href="#" onclick="openCheckout();return false;" class="btn btn-orange" style="display:block;text-decoration:none;text-align:center;">Upgrade to Premium →</a>
-        <button onclick="hide('modal-upgrade')" style="background:none;border:none;color:var(--gray);font-size:13px;margin-top:12px;cursor:pointer;font-family:var(--font);width:100%;">Maybe later</button>
-      </div>
+  const emoji=isDailyLimit?'📊':isHousehold?'🏘️':'🚀';
+  const el=document.getElementById('modal-upgrade-inner');
+  if(!el)return;
+  el.innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 20px 0;">
+      <span style="font-size:17px;font-weight:700;color:var(--dark);">${headline}</span>
+      <button onclick="hide('modal-upgrade')" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--gray);line-height:1;padding:0;">✕</button>
     </div>
-  </div>`;
-  const _old=document.getElementById('modal-upgrade');if(_old)_old.remove();
-  document.body.insertAdjacentHTML('beforeend',html);
+    <div style="padding:20px;text-align:center;">
+      <div style="font-size:40px;margin-bottom:12px;">${emoji}</div>
+      <div style="font-size:14px;color:var(--gray);margin-bottom:20px;">${subtext}</div>
+      <div style="font-family:var(--font);font-size:22px;font-weight:800;letter-spacing:-0.03em;margin-bottom:8px;">Grip Premium</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:4px;">
+        <div style="text-align:center;"><div style="font-size:28px;font-weight:900;color:var(--orange);">$2.99<span style="font-size:14px;font-weight:500;color:var(--gray)">/mo</span></div></div>
+        <div style="color:var(--gray);font-size:18px;">or</div>
+        <div style="text-align:center;"><div style="font-size:28px;font-weight:900;color:var(--orange);">$19.99<span style="font-size:14px;font-weight:500;color:var(--gray)">/yr</span></div></div>
+      </div>
+      <div style="font-size:12px;color:var(--orange);font-weight:600;margin-bottom:20px;">Save 44% with yearly billing · Less than a coffee/month</div>
+      <div style="text-align:left;display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">
+        ${['Unlimited transaction entries per day','Multiple households','All features, no restrictions','Priority support'].map(f=>`<div style="display:flex;align-items:center;gap:10px;font-size:14px;"><span style="color:var(--orange);font-weight:700;">✓</span>${f}</div>`).join('')}
+      </div>
+      <a href="#" onclick="openCheckout();return false;" class="btn btn-orange" style="display:block;text-decoration:none;text-align:center;">Upgrade to Premium →</a>
+      <button onclick="hide('modal-upgrade')" style="background:none;border:none;color:var(--gray);font-size:13px;margin-top:12px;cursor:pointer;font-family:var(--font);width:100%;">Maybe later</button>
+    </div>`;
+  show('modal-upgrade');
 }
 
 function renderDash(){
