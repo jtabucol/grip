@@ -976,7 +976,7 @@ function renderProfile(){
                <div class="menu-left"><div class="menu-ico">🏠</div><div style="font-size:14px;font-weight:500">Household</div></div>
                <div style="font-size:13px;color:var(--gray);font-weight:500">${HOUSEHOLD.name}</div>
              </div>
-             <div class="menu-item" onclick="${isPaid() ? 'openAddHousehold()' : 'showUpgradeModal(\'household\')'  }" style="cursor:pointer">
+             <div class="menu-item" onclick="${isPaid() ? 'openAddHousehold()' : 'openHouseholdUpgrade()'}" style="cursor:pointer">
                <div class="menu-left">
                  <div class="menu-ico">${isPaid() ? '🏘️' : '🔒'}</div>
                  <div>
@@ -1005,6 +1005,10 @@ function renderProfile(){
       <div style="text-align:center;font-size:12px;color:#9CA3AF;margin-top:24px">Grip by Bastech · Built with ♡</div>
     </div>`;
 }
+// ── UPGRADE MODAL WRAPPERS (safe for HTML onclick attrs) ──
+function openHouseholdUpgrade(){ showUpgradeModal('household'); }
+function openGeneralUpgrade(){ showUpgradeModal(); }
+
 // ── HOUSEHOLD SETUP FROM PROFILE ──
 function openSetupHousehold(){
   const el=document.getElementById('setup-hh-name');
