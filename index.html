@@ -460,10 +460,6 @@ body.dark .acct-act-btn.del{background:#3d1a1a;border-color:#7f1d1d;color:#f8717
   </div>
 </div>
 
-<!-- UPGRADE MODAL (static, centered) -->
-<div id="modal-upgrade" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;padding:20px;">
-  <div id="modal-upgrade-inner" style="background:var(--white);border-radius:20px;width:100%;max-width:390px;max-height:88vh;overflow-y:auto;"></div>
-</div>
 
 <!-- SET BUDGET MODAL -->
 <div id="modal-budget" class="overlay hidden" onclick="if(event.target===this)closeBudget()">
@@ -710,37 +706,58 @@ function paywallBanner(feature, detail){
 }
 
 function showUpgradeModal(reason){
-  const isDailyLimit=reason==='daily';
-  const isHousehold=reason==='household';
-  const headline=isDailyLimit?'Daily limit reached':isHousehold?'Multiple Households':'Upgrade to Premium';
-  const subtext=isDailyLimit?`You've added ${FREE_LIMITS.dailyTx} transactions today. Free plan allows ${FREE_LIMITS.dailyTx} entries per day.`
-    :isHousehold?'Manage multiple households — for your family, a side business, or a shared space — with Grip Premium. Less than a cup of coffee per month.'
+  var isDailyLimit=reason==='daily';
+  var isHousehold=reason==='household';
+  var headline=isDailyLimit?'Daily limit reached':isHousehold?'Multiple Households':'Upgrade to Premium';
+  var emoji=isDailyLimit?'📊':isHousehold?'🏘️':'🚀';
+  var subtext=isDailyLimit?'You have used your '+FREE_LIMITS.dailyTx+' free entries for today. Upgrade to log unlimited transactions.'
+    :isHousehold?'Manage multiple households with Grip Premium. Less than a cup of coffee per month.'
     :'Unlock unlimited entries and more.';
-  const emoji=isDailyLimit?'📊':isHousehold?'🏘️':'🚀';
-  const el=document.getElementById('modal-upgrade-inner');
-  if(!el)return;
-  el.innerHTML=`
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 20px 0;">
-      <span style="font-size:17px;font-weight:700;color:var(--dark);">${headline}</span>
-      <button onclick="document.getElementById('modal-upgrade').style.display='none'" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--gray);line-height:1;padding:0;">✕</button>
-    </div>
-    <div style="padding:20px;text-align:center;">
-      <div style="font-size:40px;margin-bottom:12px;">${emoji}</div>
-      <div style="font-size:14px;color:var(--gray);margin-bottom:20px;">${subtext}</div>
-      <div style="font-family:var(--font);font-size:22px;font-weight:800;letter-spacing:-0.03em;margin-bottom:8px;">Grip Premium</div>
-      <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:4px;">
-        <div style="text-align:center;"><div style="font-size:28px;font-weight:900;color:var(--orange);">$2.99<span style="font-size:14px;font-weight:500;color:var(--gray)">/mo</span></div></div>
-        <div style="color:var(--gray);font-size:18px;">or</div>
-        <div style="text-align:center;"><div style="font-size:28px;font-weight:900;color:var(--orange);">$19.99<span style="font-size:14px;font-weight:500;color:var(--gray)">/yr</span></div></div>
-      </div>
-      <div style="font-size:12px;color:var(--orange);font-weight:600;margin-bottom:20px;">Save 44% with yearly billing · Less than a coffee/month</div>
-      <div style="text-align:left;display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">
-        ${['Unlimited transaction entries per day','Multiple households','All features, no restrictions','Priority support'].map(f=>`<div style="display:flex;align-items:center;gap:10px;font-size:14px;"><span style="color:var(--orange);font-weight:700;">✓</span>${f}</div>`).join('')}
-      </div>
-      <a href="#" onclick="openCheckout();return false;" class="btn btn-orange" style="display:block;text-decoration:none;text-align:center;">Upgrade to Premium →</a>
-      <button onclick="document.getElementById('modal-upgrade').style.display='none'" style="background:none;border:none;color:var(--gray);font-size:13px;margin-top:12px;cursor:pointer;font-family:var(--font);width:100%;">Maybe later</button>
-    </div>`;
-  const mu=document.getElementById('modal-upgrade');if(mu)mu.style.display='flex';
+  var features=['Unlimited transaction entries per day','Multiple households','All features, no restrictions','Priority support'];
+
+  // Remove any existing upgrade modal
+  var existing=document.getElementById('modal-upgrade');
+  if(existing) existing.remove();
+
+  // Build overlay
+  var overlay=document.createElement('div');
+  overlay.id='modal-upgrade';
+  overlay.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.65);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
+  overlay.addEventListener('click',function(e){if(e.target===overlay)overlay.remove();});
+
+  // Build modal box
+  var box=document.createElement('div');
+  box.style.cssText='background:#ffffff;border-radius:20px;width:100%;max-width:390px;max-height:88vh;overflow-y:auto;font-family:-apple-system,BlinkMacSystemFont,sans-serif;';
+
+  var featureHTML=features.map(function(f){return '<div style="display:flex;align-items:center;gap:10px;font-size:14px;margin-bottom:10px;"><span style="color:#F26722;font-weight:700;">✓</span>'+f+'</div>';}).join('');
+
+  box.innerHTML=
+    '<div style="display:flex;align-items:center;justify-content:space-between;padding:18px 20px 0;">'+
+      '<span style="font-size:17px;font-weight:700;color:#111;">'+headline+'</span>'+
+      '<button id="upgrade-close-btn" style="background:none;border:none;font-size:24px;cursor:pointer;color:#888;line-height:1;padding:0;">✕</button>'+
+    '</div>'+
+    '<div style="padding:20px;text-align:center;">'+
+      '<div style="font-size:40px;margin-bottom:12px;">'+emoji+'</div>'+
+      '<div style="font-size:14px;color:#666;margin-bottom:20px;line-height:1.6;">'+subtext+'</div>'+
+      '<div style="font-size:22px;font-weight:800;letter-spacing:-0.03em;margin-bottom:8px;color:#111;">Grip Premium</div>'+
+      '<div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:4px;">'+
+        '<div style="font-size:28px;font-weight:900;color:#F26722;">$2.99<span style="font-size:14px;font-weight:500;color:#888;">/mo</span></div>'+
+        '<div style="color:#888;font-size:18px;">or</div>'+
+        '<div style="font-size:28px;font-weight:900;color:#F26722;">$19.99<span style="font-size:14px;font-weight:500;color:#888;">/yr</span></div>'+
+      '</div>'+
+      '<div style="font-size:12px;color:#F26722;font-weight:600;margin-bottom:20px;">Save 44% yearly · Less than a coffee/month</div>'+
+      '<div style="text-align:left;margin-bottom:24px;">'+featureHTML+'</div>'+
+      '<a href="#" id="upgrade-checkout-btn" style="display:block;background:#F26722;color:#fff;padding:14px;border-radius:12px;font-size:15px;font-weight:700;text-decoration:none;text-align:center;">Upgrade to Premium →</a>'+
+      '<button id="upgrade-later-btn" style="background:none;border:none;color:#888;font-size:13px;margin-top:12px;cursor:pointer;width:100%;font-family:inherit;">Maybe later</button>'+
+    '</div>';
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  // Wire up buttons after appending
+  document.getElementById('upgrade-close-btn').onclick=function(){overlay.remove();};
+  document.getElementById('upgrade-later-btn').onclick=function(){overlay.remove();};
+  document.getElementById('upgrade-checkout-btn').onclick=function(e){e.preventDefault();openCheckout();};
 }
 
 function renderDash(){
@@ -1007,12 +1024,7 @@ function renderProfile(){
 }
 // ── UPGRADE MODAL WRAPPERS (safe for HTML onclick attrs) ──
 function openHouseholdUpgrade(){ showUpgradeModal('household'); }
-function showUpgradeModal_household(){
-  var mu=document.getElementById('modal-upgrade');
-  var mi=document.getElementById('modal-upgrade-inner');
-  if(!mu||!mi){ alert('modal not found'); return; }
-  showUpgradeModal('household');
-}
+function showUpgradeModal_household(){ showUpgradeModal('household'); }
 function openGeneralUpgrade(){ showUpgradeModal(); }
 
 // ── HOUSEHOLD SETUP FROM PROFILE ──
