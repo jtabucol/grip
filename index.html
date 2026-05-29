@@ -579,6 +579,7 @@ async function doAuth(){
   finally{$('auth-btn').textContent=AMODE==='in'?'Sign in':'Create account';$('auth-btn').disabled=false;}
 }
 async function loadApp(user){
+  document.querySelectorAll('[id^="modal-upgrade"]:not(#modal-upgrade)').forEach(el=>el.remove());
   loadCurrencyFromStorage();
   USER=user;
   const{data:mem}=await sb.from('household_members').select('household_id').eq('user_id',user.id).limit(1).maybeSingle();
@@ -1058,7 +1059,7 @@ async function doAddHouseholdFromProfile(){
   finally{btn.textContent='Create household';btn.disabled=false;}
 }
 
-async function doSignOut(){await sb.auth.signOut();USER=null;HOUSEHOLD=null;ACCOUNTS=[];CATS=[];TXS=[];hide('screen-app');show('screen-auth');clr('auth-msg');}
+async function doSignOut(){await sb.auth.signOut();window.location.reload();}
 
 // ADD TRANSACTION
 function openAddTx(){
